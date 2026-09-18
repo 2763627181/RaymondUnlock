@@ -95,6 +95,16 @@ export const categoryHoverVariants: Variants = {
   hover: { scale: 1.03, transition: { duration: DURATION.enter, ease: EASE_DEFAULT } },
 };
 
+export const valueSwapVariants: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },
+};
+
+export const valueSwapReducedVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
+};
+
 export const cardActionVariants: Variants = {
   rest: { opacity: 0, y: 12 },
   hover: { opacity: 1, y: 0, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },

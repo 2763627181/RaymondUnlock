@@ -54,6 +54,7 @@ export interface SiteSettings {
     country: string;
   };
   phoneDisplay: string;
+  shippingNote: string;
   whatsappNumber: string;
   email: string;
   instagramUrl: string;

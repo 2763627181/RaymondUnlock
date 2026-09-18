@@ -15,6 +15,7 @@ import type { VariantPricingRow } from "@/lib/cart/pricing";
 import { toCardData, variantLabel } from "@/lib/catalog/cards";
 import { CONDITION_LABELS, normalizeText } from "@/lib/catalog/text";
 import { products, variants } from "./catalog";
+import { productImages } from "./images";
 import { bannersBase, services } from "./services";
 import { siteSettings } from "./settings";
 import { brands, categories } from "./taxonomy";
@@ -32,6 +33,10 @@ for (const variant of variants) {
   const list = variantsByProduct.get(variant.productId) ?? [];
   list.push(variant);
   variantsByProduct.set(variant.productId, list);
+}
+
+function imagesFor(productId: string) {
+  return productImages.filter((image) => image.productId === productId);
 }
 
 function productVariants(product: CatalogProduct): CatalogVariant[] {
@@ -61,7 +66,7 @@ function cardFor(
     category: requireCategory(product),
     brand: product.brandId ? (brandById.get(product.brandId) ?? null) : null,
     variants: productVariants(product),
-    images: [],
+    images: imagesFor(product.id),
     displayFilter,
   });
 }
@@ -241,7 +246,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
     category: requireCategory(product),
     brand: product.brandId ? (brandById.get(product.brandId) ?? null) : null,
     variants: productVariants(product),
-    images: [],
+    images: imagesFor(product.id),
   };
 }
 

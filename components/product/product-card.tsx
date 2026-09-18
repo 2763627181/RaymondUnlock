@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import Link from "next/link";
 import { m, useReducedMotion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,9 @@ export function ProductCard({
   const motion = getCardMotion(reduceMotion);
   const addToCart = useCartStore((state) => state.add);
   const [focused, setFocused] = useState(false);
+  // Solo la tarjeta con la que se interactúa lleva el nombre de la transición
+  // compartida: dos elementos con el mismo nombre en la página cancelan el morph.
+  const [armed, setArmed] = useState(false);
 
   function handleQuickAdd() {
     if (!product.quickAddVariantId) return;
@@ -49,9 +52,18 @@ export function ProductCard({
       initial="rest"
       animate={focused ? "hover" : "rest"}
       whileHover="hover"
-      onFocus={() => setFocused(true)}
+      onPointerEnter={() => setArmed(true)}
+      onPointerDown={() => setArmed(true)}
+      onPointerLeave={() => setArmed(false)}
+      onFocus={() => {
+        setFocused(true);
+        setArmed(true);
+      }}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setFocused(false);
+          setArmed(false);
+        }
       }}
       className="group relative flex flex-col"
     >
@@ -60,16 +72,22 @@ export function ProductCard({
           variants={motion.image}
           className={`absolute inset-0 p-8 ${product.inStock ? "" : "opacity-60"}`}
         >
-          <div className="relative size-full">
-            <ProductMedia
-              imageUrl={product.imageUrl}
-              alt={product.imageAlt}
-              icon={product.categoryIcon}
-              color={product.colors[0]?.hex}
-              sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw"
-              priority={priority}
-            />
-          </div>
+          <ViewTransition
+            name={armed ? `product-${product.slug}` : undefined}
+            share="morph"
+            default="none"
+          >
+            <div className="relative size-full">
+              <ProductMedia
+                imageUrl={product.imageUrl}
+                alt={product.imageAlt}
+                icon={product.categoryIcon}
+                color={product.colors[0]?.hex}
+                sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw"
+                priority={priority}
+              />
+            </div>
+          </ViewTransition>
         </m.div>
 
         <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">

@@ -20,6 +20,8 @@ export const siteSettings: SiteSettings = {
     country: "DO",
   },
   phoneDisplay: "809-906-3114",
+  shippingNote:
+    "Envíos a todo el país. Entrega en 24 h en el Distrito Nacional. Escríbenos por WhatsApp para coordinar tu envío.",
   whatsappNumber: WHATSAPP_NUMBER,
   email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL ?? "Raymondunlock01@gmail.com",
   instagramUrl:
