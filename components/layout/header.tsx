@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { m, useMotionValueEvent, useScroll, useTransform } from "motion/react";
-import { Search, User } from "lucide-react";
+import { User } from "lucide-react";
 import { Container } from "@/components/layout/container";
+import { SearchDialog } from "@/components/layout/search-dialog";
 import { Logo } from "@/components/layout/logo";
 import { MegaMenu } from "@/components/layout/mega-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { CartButton } from "@/components/layout/cart-button";
-import type { NavCategory, NavLink } from "@/types/nav";
+import type { NavCategory, NavLink } from "@/types/site";
 
 export function Header({
   categories,
@@ -70,13 +71,7 @@ export function Header({
           </div>
 
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              aria-label="Buscar"
-              className="hover:bg-muted hidden size-9 items-center justify-center rounded-md transition-colors sm:flex"
-            >
-              <Search className="text-ink-700 size-5" aria-hidden="true" />
-            </button>
+            <SearchDialog />
             <Link
               href="/login"
               aria-label="Mi cuenta"

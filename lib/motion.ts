@@ -90,6 +90,66 @@ export const cardImageHoverVariants: Variants = {
   hover: { scale: 1.04, transition: { duration: DURATION.enter, ease: EASE_DEFAULT } },
 };
 
+export const categoryHoverVariants: Variants = {
+  rest: { scale: 1 },
+  hover: { scale: 1.03, transition: { duration: DURATION.enter, ease: EASE_DEFAULT } },
+};
+
+export const cardActionVariants: Variants = {
+  rest: { opacity: 0, y: 12 },
+  hover: { opacity: 1, y: 0, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },
+};
+
+const noopHoverVariants: Variants = { rest: {}, hover: {} };
+
+const reducedActionVariants: Variants = {
+  rest: { opacity: 0 },
+  hover: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
+};
+
+export function getCardMotion(reduceMotion: boolean): {
+  card: Variants;
+  image: Variants;
+  action: Variants;
+} {
+  return reduceMotion
+    ? { card: noopHoverVariants, image: noopHoverVariants, action: reducedActionVariants }
+    : { card: cardHoverVariants, image: cardImageHoverVariants, action: cardActionVariants };
+}
+
+export const heroSlideVariants: Variants = {
+  hidden: { opacity: 0, transition: { duration: DURATION.enter, ease: EASE_DEFAULT } },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: DURATION.enter,
+      ease: EASE_DEFAULT,
+      staggerChildren: 0.09,
+      delayChildren: 0.12,
+    },
+  },
+};
+
+export const heroSlideReducedVariants: Variants = {
+  hidden: { opacity: 0, transition: { duration: REDUCED_MOTION_DURATION } },
+  visible: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
+};
+
+export const heroLineVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: DURATION.enter, ease: EASE_DEFAULT } },
+};
+
+export const heroLineReducedVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
+};
+
+export const heroImageVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.94 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE_DEFAULT } },
+};
+
 export const pageTransitionVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: {

@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Logo } from "@/components/layout/logo";
-import type { NavCategory, NavLink as NavLinkItem } from "@/types/nav";
+import type { NavCategory, NavLink as NavLinkItem } from "@/types/site";
 
 export function MobileNav({
   categories,

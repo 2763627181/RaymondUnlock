@@ -3,11 +3,6 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { AnnouncementBar } from "@/components/layout/announcement-bar";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { MobileBar } from "@/components/layout/mobile-bar";
-import { navCategories, navSecondaryLinks, navWholesaleLink } from "@/lib/nav-data";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -22,22 +17,25 @@ export const metadata: Metadata = {
   },
   description:
     "Desbloqueo, reparación y venta de celulares y artículos electrónicos en Santo Domingo, República Dominicana.",
+  openGraph: {
+    type: "website",
+    locale: "es_DO",
+    siteName: "Raymond Unlock",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es-DO" data-scroll-behavior="smooth" className={cn(geist.variable)}>
       <body className="font-sans antialiased">
+        <a
+          href="#contenido"
+          className="bg-ink text-surface focus:ring-ring sr-only z-100 rounded-md px-4 py-2 text-sm focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:ring-2"
+        >
+          Saltar al contenido
+        </a>
         <MotionProvider>
-          <AnnouncementBar />
-          <Header
-            categories={navCategories}
-            secondaryLinks={navSecondaryLinks}
-            wholesaleLink={navWholesaleLink}
-          />
-          <main className="pb-16 lg:pb-0">{children}</main>
-          <Footer />
-          <MobileBar />
+          {children}
           <Toaster />
         </MotionProvider>
       </body>

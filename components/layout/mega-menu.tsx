@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, m } from "motion/react";
-import type { NavCategory } from "@/types/nav";
+import type { NavCategory } from "@/types/site";
 import { menuDropdownVariants } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -91,8 +91,13 @@ export function MegaMenu({ categories }: { categories: NavCategory[] }) {
                   </p>
                   <ul className="space-y-2">
                     {activeCategory.brands.map((brand) => (
-                      <li key={brand} className="text-ink-700 text-sm">
-                        {brand}
+                      <li key={brand.slug}>
+                        <Link
+                          href={brand.href}
+                          className="text-ink-700 hover:text-brand-red text-sm"
+                        >
+                          {brand.name}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -101,13 +106,15 @@ export function MegaMenu({ categories }: { categories: NavCategory[] }) {
                 <div aria-hidden="true" />
               )}
 
-              <Link
-                href={activeCategory.promo.href}
-                className="from-ink to-ink-700 flex flex-col justify-end rounded-lg bg-gradient-to-br p-5 text-white transition-opacity hover:opacity-90"
-              >
-                <p className="text-lg font-semibold">{activeCategory.promo.title}</p>
-                <p className="text-sm text-white/80">{activeCategory.promo.subtitle}</p>
-              </Link>
+              {activeCategory.promo ? (
+                <Link
+                  href={activeCategory.promo.href}
+                  className="from-ink to-ink-700 flex flex-col justify-end rounded-lg bg-gradient-to-br p-5 text-white transition-opacity hover:opacity-90"
+                >
+                  <p className="text-lg font-semibold">{activeCategory.promo.title}</p>
+                  <p className="text-sm text-white/80">{activeCategory.promo.subtitle}</p>
+                </Link>
+              ) : null}
             </div>
           </m.div>
         ) : null}
