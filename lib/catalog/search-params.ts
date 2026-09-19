@@ -1,41 +1,72 @@
-import { z } from "zod";
 import type { CatalogFilters, ProductCondition, SortOption } from "@/types/catalog";
+
+/*
+ * Este módulo lo importan componentes del navegador (los filtros leen la URL),
+ * por eso NO usa Zod: arrastraría ~90 KB a la carga de /tienda. Las reglas son
+ * las mismas que tenía el esquema y están cubiertas por search-params.test.ts.
+ */
 
 export type RawSearchParams = Record<string, string | string[] | undefined>;
 
 export const DEFAULT_PAGE_SIZE = 12;
 const MAX_PAGE_SIZE = 96;
 const MAX_PRICE = 10_000_000;
+const MAX_LIST_ITEMS = 12;
 
-const slugSchema = z.string().regex(/^[a-z0-9-]{1,60}$/);
-const conditionSchema = z.enum(["nuevo", "open_box", "usado", "reacondicionado"]);
-const capacitySchema = z.string().trim().min(1).max(30);
-const sortSchema = z.enum(["relevancia", "precio-asc", "precio-desc", "nuevos"]);
-const priceSchema = z.coerce.number().min(0).max(MAX_PRICE);
-const querySchema = z.string().trim().min(1).max(60);
-const limitSchema = z.coerce.number().int().min(DEFAULT_PAGE_SIZE).max(MAX_PAGE_SIZE);
+const SLUG = /^[a-z0-9-]{1,60}$/;
+const CONDITIONS: readonly ProductCondition[] = ["nuevo", "open_box", "usado", "reacondicionado"];
+const SORTS: readonly SortOption[] = ["relevancia", "precio-asc", "precio-desc", "nuevos"];
+
+type Parser<T> = (value: string) => T | null;
+
+const parseSlug: Parser<string> = (value) => (SLUG.test(value) ? value : null);
+
+const parseCondition: Parser<ProductCondition> = (value) =>
+  CONDITIONS.find((condition) => condition === value) ?? null;
+
+const parseSort: Parser<SortOption> = (value) => SORTS.find((sort) => sort === value) ?? null;
+
+const parseCapacity: Parser<string> = (value) => {
+  const trimmed = value.trim();
+  return trimmed.length >= 1 && trimmed.length <= 30 ? trimmed : null;
+};
+
+const parseQuery: Parser<string> = (value) => {
+  const trimmed = value.trim();
+  return trimmed.length >= 1 && trimmed.length <= 60 ? trimmed : null;
+};
+
+const parsePrice: Parser<number> = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 && number <= MAX_PRICE ? number : null;
+};
+
+const parseLimit: Parser<number> = (value) => {
+  const number = Number(value);
+  return Number.isInteger(number) && number >= DEFAULT_PAGE_SIZE && number <= MAX_PAGE_SIZE
+    ? number
+    : null;
+};
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function csvOf<T>(raw: string | string[] | undefined, schema: z.ZodType<T>, max = 12): T[] {
+function listOf<T>(raw: string | string[] | undefined, parse: Parser<T>): T[] {
   const value = first(raw);
   if (!value) return [];
   const items: T[] = [];
   for (const part of value.split(",")) {
-    const parsed = schema.safeParse(part);
-    if (parsed.success && !items.includes(parsed.data)) items.push(parsed.data);
-    if (items.length === max) break;
+    const parsed = parse(part);
+    if (parsed !== null && !items.includes(parsed)) items.push(parsed);
+    if (items.length === MAX_LIST_ITEMS) break;
   }
   return items;
 }
 
-function optional<T>(raw: string | string[] | undefined, schema: z.ZodType<T>): T | null {
+function single<T>(raw: string | string[] | undefined, parse: Parser<T>): T | null {
   const value = first(raw);
-  if (value === undefined || value === "") return null;
-  const parsed = schema.safeParse(value);
-  return parsed.success ? parsed.data : null;
+  return value === undefined || value === "" ? null : parse(value);
 }
 
 /** Parsea filtros desde la URL. Los valores inválidos se descartan en silencio. */
@@ -43,21 +74,21 @@ export function parseCatalogFilters(
   params: RawSearchParams,
   categorySlug: string | null,
 ): CatalogFilters {
-  const priceMin = optional(params.precio_min, priceSchema);
-  const priceMax = optional(params.precio_max, priceSchema);
+  const priceMin = single(params.precio_min, parsePrice);
+  const priceMax = single(params.precio_max, parsePrice);
   const swapped = priceMin !== null && priceMax !== null && priceMin > priceMax;
 
   return {
     categorySlug,
-    brandSlugs: csvOf(params.marca, slugSchema),
-    conditions: csvOf<ProductCondition>(params.condicion, conditionSchema),
+    brandSlugs: listOf(params.marca, parseSlug),
+    conditions: listOf(params.condicion, parseCondition),
     priceMin: swapped ? priceMax : priceMin,
     priceMax: swapped ? priceMin : priceMax,
-    capacities: csvOf(params.capacidad, capacitySchema),
+    capacities: listOf(params.capacidad, parseCapacity),
     onlyInStock: first(params.stock) === "1",
-    query: optional(params.q, querySchema),
-    sort: optional<SortOption>(params.orden, sortSchema) ?? "relevancia",
-    limit: optional(params.limite, limitSchema) ?? DEFAULT_PAGE_SIZE,
+    query: single(params.q, parseQuery),
+    sort: single(params.orden, parseSort) ?? "relevancia",
+    limit: single(params.limite, parseLimit) ?? DEFAULT_PAGE_SIZE,
   };
 }
 

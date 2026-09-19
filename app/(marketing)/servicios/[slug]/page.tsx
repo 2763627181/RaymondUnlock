@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Clock, Smartphone, Tag } from "lucide-react";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
-import { RepairRequestForm } from "@/components/services/repair-request-form";
+import { RepairRequestForm } from "@/components/services/repair-request-form-lazy";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getServiceBySlug, getServices, getSiteSettings } from "@/lib/data";
 import { formatPrice } from "@/lib/format";

@@ -6,7 +6,7 @@ import { AnimatePresence } from "motion/react";
 import { ShoppingBag } from "lucide-react";
 import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
-import { QuoteForm } from "@/components/cart/quote-form";
+import { QuoteForm } from "@/components/cart/quote-form-lazy";
 import { Button } from "@/components/ui/button";
 import { cartCount, useCartStore } from "@/lib/cart/store";
 import { useCartPricing } from "@/lib/cart/use-cart-pricing";

@@ -7,7 +7,7 @@ import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/motion/stagger";
 import { ProcessTimeline } from "@/components/services/process-timeline";
-import { RepairRequestForm } from "@/components/services/repair-request-form";
+import { RepairRequestForm } from "@/components/services/repair-request-form-lazy";
 import { ServiceCard } from "@/components/services/service-card";
 import { Button } from "@/components/ui/button";
 import { getServices, getSiteSettings } from "@/lib/data";

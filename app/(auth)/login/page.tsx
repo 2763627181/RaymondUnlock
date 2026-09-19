@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthCard } from "@/components/auth/auth-card";
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginForm } from "@/components/auth/login-form-lazy";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
@@ -22,7 +22,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
       footer={
         <>
           ¿Aún no tienes cuenta?{" "}
-          <Link href="/registro" className="text-brand-blue hover:underline">
+          <Link href="/registro" className="text-brand-blue underline underline-offset-4">
             Crear una cuenta
           </Link>
         </>

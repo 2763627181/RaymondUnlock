@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BadgeCheck, Clock } from "lucide-react";
-import { RegisterForm } from "@/components/auth/register-form";
+import { RegisterForm } from "@/components/auth/register-form-lazy";
 import { Button } from "@/components/ui/button";
 import { useViewerStore } from "@/lib/viewer/store";
 
@@ -49,7 +49,7 @@ export function WholesaleSignup() {
       <RegisterForm initialType="wholesale" lockType />
       <p className="text-muted-foreground mt-5 text-center text-sm">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-brand-blue hover:underline">
+        <Link href="/login" className="text-brand-blue underline underline-offset-4">
           Iniciar sesión
         </Link>
       </p>

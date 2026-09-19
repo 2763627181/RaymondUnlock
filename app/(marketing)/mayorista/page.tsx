@@ -50,6 +50,7 @@ export default async function WholesalePage() {
       <section className="bg-ink text-surface">
         <Container className="py-12 sm:py-16">
           <Breadcrumbs
+            tone="dark"
             items={[
               { name: "Inicio", path: "/" },
               { name: "Al por mayor", path: "/mayorista" },
@@ -118,7 +119,7 @@ export default async function WholesalePage() {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-blue inline-flex items-center gap-1 hover:underline"
+              className="text-brand-blue inline-flex items-center gap-1 underline underline-offset-4"
             >
               <MessageCircle className="size-3.5" aria-hidden="true" /> Escríbenos por WhatsApp
             </a>

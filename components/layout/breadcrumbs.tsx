@@ -8,23 +8,39 @@ export interface Crumb {
   path: string;
 }
 
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
+export function Breadcrumbs({
+  items,
+  tone = "light",
+}: {
+  items: Crumb[];
+  /** "dark" cuando va sobre un fondo oscuro (el gris normal daría 3:1 de contraste). */
+  tone?: "light" | "dark";
+}) {
+  const dark = tone === "dark";
   return (
     <>
       <JsonLd data={breadcrumbJsonLd(items)} />
       <nav aria-label="Ruta de navegación" className="mb-4">
-        <ol className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-[13px]">
+        <ol
+          className={`flex flex-wrap items-center gap-1.5 text-[13px] ${dark ? "text-white/75" : "text-muted-foreground"}`}
+        >
           {items.map((item, index) => {
             const last = index === items.length - 1;
             return (
               <li key={item.path} className="flex items-center gap-1.5">
                 {last ? (
-                  <span aria-current="page" className="text-foreground font-medium">
+                  <span
+                    aria-current="page"
+                    className={`font-medium ${dark ? "text-white" : "text-foreground"}`}
+                  >
                     {item.name}
                   </span>
                 ) : (
                   <>
-                    <Link href={item.path} className="hover:text-foreground hover:underline">
+                    <Link
+                      href={item.path}
+                      className={`hover:underline ${dark ? "hover:text-white" : "hover:text-foreground"}`}
+                    >
                       {item.name}
                     </Link>
                     <ChevronRight className="size-3.5" aria-hidden="true" />

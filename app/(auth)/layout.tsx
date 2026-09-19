@@ -5,7 +5,7 @@ import { Logo } from "@/components/layout/logo";
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="bg-surface-2 flex min-h-dvh flex-col">
-      <header className="py-6">
+      <header className="bg-surface border-border border-b py-5">
         <Container>
           <Logo />
         </Container>
