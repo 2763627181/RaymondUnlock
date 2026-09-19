@@ -1,6 +1,6 @@
 import { CURRENCY_CODE } from "@/lib/format";
 import type { ProductCondition, ProductDetail } from "@/types/catalog";
-import type { SiteSettings } from "@/types/site";
+import type { Service, SiteSettings } from "@/types/site";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://raymondunlock.com").replace(
   /\/$/,
@@ -78,6 +78,36 @@ export function productJsonLd(product: ProductDetail): Record<string, unknown> {
       availability:
         variant.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     })),
+  };
+}
+
+export function serviceJsonLd(service: Service, settings: SiteSettings): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: service.name,
+    serviceType: service.name,
+    description: service.description ?? undefined,
+    url: absoluteUrl(`/servicios/${service.slug}`),
+    provider: {
+      "@type": "ElectronicsStore",
+      name: settings.businessName,
+      url: SITE_URL,
+      telephone: `+${settings.whatsappNumber}`,
+    },
+    areaServed: { "@type": "City", name: settings.addressParts.locality },
+    offers:
+      service.priceFrom !== null
+        ? {
+            "@type": "Offer",
+            priceCurrency: CURRENCY_CODE,
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              minPrice: service.priceFrom.toFixed(2),
+              priceCurrency: CURRENCY_CODE,
+            },
+          }
+        : undefined,
   };
 }
 

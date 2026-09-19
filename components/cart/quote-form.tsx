@@ -1,24 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitQuote } from "@/app/(marketing)/carrito/actions";
+import { ChannelField } from "@/components/forms/channel-field";
+import { FieldError } from "@/components/forms/field-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLastQuote } from "@/lib/cart/last-quote";
 import { cartDisplaySubtotal, useCartStore } from "@/lib/cart/store";
 import { toast } from "@/lib/toast-store";
 import { quoteFormSchema, type QuoteFormInput, type QuoteFormValues } from "@/lib/validation/quote";
-
-const CHANNELS = [
-  { value: "whatsapp", label: "WhatsApp", hint: "Se abre el chat con tu cotización lista" },
-  { value: "email", label: "Correo", hint: "Te enviamos la cotización por correo" },
-  { value: "both", label: "Ambos", hint: "WhatsApp y correo" },
-] as const;
 
 const FORM_FIELDS: readonly string[] = [
   "customerName",
@@ -31,15 +26,6 @@ const FORM_FIELDS: readonly string[] = [
 
 function isFormField(name: string): name is keyof QuoteFormInput {
   return FORM_FIELDS.includes(name);
-}
-
-function FieldError({ id, message }: { id: string; message: string | undefined }) {
-  if (!message) return null;
-  return (
-    <p id={id} role="alert" className="text-destructive mt-1.5 text-[13px]">
-      {message}
-    </p>
-  );
 }
 
 export function QuoteForm() {
@@ -142,41 +128,7 @@ export function QuoteForm() {
         <FieldError id="customerPhone-error" message={errors.customerPhone?.message} />
       </div>
 
-      <div>
-        <p id="channel-label" className="text-sm leading-none font-medium">
-          ¿Cómo quieres recibir tu cotización?
-        </p>
-        <Controller
-          control={control}
-          name="channel"
-          render={({ field }) => (
-            <RadioGroup
-              aria-labelledby="channel-label"
-              value={field.value}
-              onValueChange={field.onChange}
-              className="mt-2 grid gap-2"
-            >
-              {CHANNELS.map((channel) => (
-                <Label
-                  key={channel.value}
-                  htmlFor={`channel-${channel.value}`}
-                  className="border-border has-data-checked:border-ink flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal"
-                >
-                  <RadioGroupItem
-                    id={`channel-${channel.value}`}
-                    value={channel.value}
-                    className="mt-0.5"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium">{channel.label}</span>
-                    <span className="text-muted-foreground block text-[13px]">{channel.hint}</span>
-                  </span>
-                </Label>
-              ))}
-            </RadioGroup>
-          )}
-        />
-      </div>
+      <ChannelField control={control} question="¿Cómo quieres recibir tu cotización?" />
 
       <div>
         <Label htmlFor="customerEmail">

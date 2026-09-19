@@ -62,6 +62,7 @@ export interface SiteSettings {
   facebookUrl: string | null;
   guarantees: IconCopy[];
   whyUs: IconCopy[];
+  repairProcess: { title: string; text: string }[];
   testimonials: Testimonial[];
   navPromos: Record<string, NavPromo>;
 }

@@ -56,6 +56,24 @@ export const siteSettings: SiteSettings = {
       text: "Después de la compra seguimos contigo: escríbenos cuando lo necesites.",
     },
   ],
+  repairProcess: [
+    {
+      title: "Cuéntanos qué pasa",
+      text: "Llena el formulario o escríbenos por WhatsApp con el modelo y el problema.",
+    },
+    {
+      title: "Diagnóstico",
+      text: "Revisamos tu equipo y te decimos qué tiene.",
+    },
+    {
+      title: "Te damos el precio",
+      text: "Te informamos costo y tiempo antes de reparar. Tú decides si seguimos.",
+    },
+    {
+      title: "Reparación y entrega",
+      text: "Reparamos tu equipo y te avisamos cuando esté listo para recogerlo.",
+    },
+  ],
   testimonials: [
     {
       id: "t1",

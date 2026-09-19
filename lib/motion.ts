@@ -111,6 +111,16 @@ export const valueSwapReducedVariants: Variants = {
   visible: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
 };
 
+export const lineGrowXVariants: Variants = {
+  hidden: { scaleX: 0 },
+  visible: { scaleX: 1, transition: { duration: 0.9, ease: EASE_DEFAULT } },
+};
+
+export const lineGrowYVariants: Variants = {
+  hidden: { scaleY: 0 },
+  visible: { scaleY: 1, transition: { duration: 0.9, ease: EASE_DEFAULT } },
+};
+
 export const cardActionVariants: Variants = {
   rest: { opacity: 0, y: 12 },
   hover: { opacity: 1, y: 0, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },
