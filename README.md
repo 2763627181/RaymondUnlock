@@ -4,19 +4,19 @@ Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesor
 
 ## Estado del proyecto
 
-| Fase | Contenido                                               | Estado                      |
-| ---- | ------------------------------------------------------- | --------------------------- |
-| 0    | Scaffold, tooling, estructura                           | Hecha                       |
-| 1    | Design system, motion, Header/MegaMenu/Footer/MobileBar | Hecha                       |
-| 2    | Supabase: migraciones, RLS, vistas, seed                | Hecha                       |
-| 3    | Home                                                    | Hecha                       |
-| 4    | Catálogo con filtros en URL                             | Hecha                       |
-| 5    | Detalle de producto                                     | Hecha                       |
-| 6    | Carrito y cotización                                    | Hecha (se guarda en la BD)  |
-| 7    | Servicios y solicitudes de reparación                   | Hecha (se guarda en la BD)  |
-| 8    | Auth + portal mayorista                                 | Hecha                       |
-| 9    | Panel admin                                             | Hecha                       |
-| 10   | Pasada final                                            | Parcial (ver "Rendimiento") |
+| Fase | Contenido                                               | Estado                     |
+| ---- | ------------------------------------------------------- | -------------------------- |
+| 0    | Scaffold, tooling, estructura                           | Hecha                      |
+| 1    | Design system, motion, Header/MegaMenu/Footer/MobileBar | Hecha                      |
+| 2    | Supabase: migraciones, RLS, vistas, seed                | Hecha                      |
+| 3    | Home                                                    | Hecha                      |
+| 4    | Catálogo con filtros en URL                             | Hecha                      |
+| 5    | Detalle de producto                                     | Hecha                      |
+| 6    | Carrito y cotización                                    | Hecha (se guarda en la BD) |
+| 7    | Servicios y solicitudes de reparación                   | Hecha (se guarda en la BD) |
+| 8    | Auth + portal mayorista                                 | Hecha                      |
+| 9    | Panel admin                                             | Hecha                      |
+| 10   | Pasada final                                            | Hecha (ver "Rendimiento")  |
 
 Las fases 3–7 se construyeron primero sobre datos de prueba y en la Fase 2 se conectaron a Supabase cambiando solo `lib/data/`: las páginas no se tocaron. Todas leen a través de `lib/data/index.ts`.
 
