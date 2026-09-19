@@ -17,7 +17,7 @@ function isField(name: string): name is keyof ProfileInput {
 
 export function ProfileForm({ defaults }: { defaults: ProfileInput }) {
   const router = useRouter();
-  const { register, handleSubmit, setError, formState } = useForm<
+  const { register, handleSubmit, reset, setError, formState } = useForm<
     ProfileInput,
     unknown,
     ProfileValues
@@ -39,6 +39,12 @@ export function ProfileForm({ defaults }: { defaults: ProfileInput }) {
       return;
     }
     toast({ title: "Datos guardados", variant: "success" });
+    reset({
+      fullName: values.fullName,
+      phone: values.phone,
+      businessName: values.businessName ?? "",
+      rnc: values.rnc ?? "",
+    });
     router.refresh();
   }
 

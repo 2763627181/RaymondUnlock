@@ -22,6 +22,8 @@ export function NewPasswordForm() {
       toast({ title: "No pudimos cambiarla", description: result.message, variant: "destructive" });
       return;
     }
+    // Recarga completa: la sesión que abrió el enlace debe leerse desde cero en todo el sitio.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/cuenta");
   }
 

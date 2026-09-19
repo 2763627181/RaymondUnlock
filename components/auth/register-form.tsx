@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailCheck } from "lucide-react";
 import { register as registerAccount } from "@/app/(auth)/actions";
@@ -41,7 +41,7 @@ export function RegisterForm({
   lockType?: boolean;
 }) {
   const [sentTo, setSentTo] = useState<string | null>(null);
-  const { register, handleSubmit, watch, setValue, setError, formState } = useForm<
+  const { register, handleSubmit, control, setValue, setError, formState } = useForm<
     RegisterInput,
     unknown,
     RegisterValues
@@ -61,7 +61,7 @@ export function RegisterForm({
     mode: "onTouched",
   });
   const { errors, isSubmitting } = formState;
-  const accountType = watch("accountType");
+  const accountType = useWatch({ control, name: "accountType" });
   const wholesale = accountType === "wholesale";
 
   async function onSubmit(values: RegisterValues) {
