@@ -1,0 +1,239 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { submitQuote } from "@/app/(marketing)/carrito/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { saveLastQuote } from "@/lib/cart/last-quote";
+import { cartDisplaySubtotal, useCartStore } from "@/lib/cart/store";
+import { toast } from "@/lib/toast-store";
+import { quoteFormSchema, type QuoteFormInput, type QuoteFormValues } from "@/lib/validation/quote";
+
+const CHANNELS = [
+  { value: "whatsapp", label: "WhatsApp", hint: "Se abre el chat con tu cotización lista" },
+  { value: "email", label: "Correo", hint: "Te enviamos la cotización por correo" },
+  { value: "both", label: "Ambos", hint: "WhatsApp y correo" },
+] as const;
+
+const FORM_FIELDS: readonly string[] = [
+  "customerName",
+  "customerPhone",
+  "customerEmail",
+  "businessName",
+  "note",
+  "channel",
+];
+
+function isFormField(name: string): name is keyof QuoteFormInput {
+  return FORM_FIELDS.includes(name);
+}
+
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  if (!message) return null;
+  return (
+    <p id={id} role="alert" className="text-destructive mt-1.5 text-[13px]">
+      {message}
+    </p>
+  );
+}
+
+export function QuoteForm() {
+  const router = useRouter();
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.remove);
+
+  const form = useForm<QuoteFormInput, unknown, QuoteFormValues>({
+    resolver: zodResolver(quoteFormSchema),
+    defaultValues: {
+      customerName: "",
+      customerPhone: "",
+      customerEmail: "",
+      businessName: "",
+      note: "",
+      channel: "whatsapp",
+      additionalInfo: "",
+    },
+    mode: "onTouched",
+  });
+  const { register, control, handleSubmit, setError, formState } = form;
+  const { errors, isSubmitting } = formState;
+
+  async function onSubmit(values: QuoteFormValues) {
+    const result = await submitQuote({
+      ...values,
+      items: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+    });
+
+    if (!result.ok) {
+      if (result.unavailableVariantIds) {
+        for (const variantId of result.unavailableVariantIds) removeItem(variantId);
+      }
+      for (const [field, messages] of Object.entries(result.fieldErrors ?? {})) {
+        const message = messages?.[0];
+        if (message && isFormField(field)) setError(field, { message });
+      }
+      toast({
+        title: "No pudimos enviar tu cotización",
+        description: result.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    saveLastQuote({
+      code: result.code,
+      whatsappUrl: result.whatsappUrl,
+      subtotal: result.subtotal,
+      channel: values.channel,
+      emailStatus: result.emailStatus,
+    });
+
+    if (Math.round(result.subtotal) !== Math.round(cartDisplaySubtotal(items))) {
+      toast({
+        title: "Actualizamos los precios",
+        description: "Algunos precios cambiaron desde que agregaste los productos.",
+      });
+    }
+
+    // Se abre en pestaña nueva para no perder el sitio; si el navegador la bloquea,
+    // la pantalla de confirmación ofrece el botón para abrirla.
+    if (values.channel !== "email") {
+      window.open(result.whatsappUrl, "_blank", "noopener,noreferrer");
+    }
+    router.push(`/carrito/enviado?code=${encodeURIComponent(result.code)}`);
+  }
+
+  const inputProps = (name: keyof QuoteFormInput) => ({
+    "aria-invalid": errors[name] ? true : undefined,
+    "aria-describedby": errors[name] ? `${name}-error` : undefined,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <div>
+        <Label htmlFor="customerName">Nombre</Label>
+        <Input
+          id="customerName"
+          autoComplete="name"
+          className="mt-1.5 h-11"
+          {...inputProps("customerName")}
+          {...register("customerName")}
+        />
+        <FieldError id="customerName-error" message={errors.customerName?.message} />
+      </div>
+
+      <div>
+        <Label htmlFor="customerPhone">Teléfono</Label>
+        <Input
+          id="customerPhone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="809-000-0000"
+          className="mt-1.5 h-11"
+          {...inputProps("customerPhone")}
+          {...register("customerPhone")}
+        />
+        <FieldError id="customerPhone-error" message={errors.customerPhone?.message} />
+      </div>
+
+      <div>
+        <p id="channel-label" className="text-sm leading-none font-medium">
+          ¿Cómo quieres recibir tu cotización?
+        </p>
+        <Controller
+          control={control}
+          name="channel"
+          render={({ field }) => (
+            <RadioGroup
+              aria-labelledby="channel-label"
+              value={field.value}
+              onValueChange={field.onChange}
+              className="mt-2 grid gap-2"
+            >
+              {CHANNELS.map((channel) => (
+                <Label
+                  key={channel.value}
+                  htmlFor={`channel-${channel.value}`}
+                  className="border-border has-data-checked:border-ink flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal"
+                >
+                  <RadioGroupItem
+                    id={`channel-${channel.value}`}
+                    value={channel.value}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium">{channel.label}</span>
+                    <span className="text-muted-foreground block text-[13px]">{channel.hint}</span>
+                  </span>
+                </Label>
+              ))}
+            </RadioGroup>
+          )}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="customerEmail">
+          Correo{" "}
+          <span className="text-muted-foreground font-normal">(obligatorio si eliges correo)</span>
+        </Label>
+        <Input
+          id="customerEmail"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          className="mt-1.5 h-11"
+          {...inputProps("customerEmail")}
+          {...register("customerEmail")}
+        />
+        <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
+      </div>
+
+      <div>
+        <Label htmlFor="businessName">
+          Nombre del negocio <span className="text-muted-foreground font-normal">(opcional)</span>
+        </Label>
+        <Input
+          id="businessName"
+          autoComplete="organization"
+          className="mt-1.5 h-11"
+          {...register("businessName")}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="note">
+          Nota <span className="text-muted-foreground font-normal">(opcional)</span>
+        </Label>
+        <Textarea
+          id="note"
+          rows={3}
+          maxLength={500}
+          className="mt-1.5"
+          {...inputProps("note")}
+          {...register("note")}
+        />
+        <FieldError id="note-error" message={errors.note?.message} />
+      </div>
+
+      <input
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="sr-only"
+        {...register("additionalInfo")}
+      />
+
+      <Button type="submit" disabled={isSubmitting} className="h-12 w-full text-base">
+        {isSubmitting ? "Enviando…" : "Enviar cotización"}
+      </Button>
+    </form>
+  );
+}

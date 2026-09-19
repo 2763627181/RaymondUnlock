@@ -1,19 +1,24 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { MAX_LINE_QUANTITY } from "@/lib/cart/store";
+import { MAX_LINE_QUANTITY } from "@/lib/cart/constants";
+import { cn } from "@/lib/utils";
 
 export function QuantityStepper({
   value,
   onChange,
   label = "Cantidad",
+  size = "md",
 }: {
   value: number;
   onChange: (value: number) => void;
   label?: string;
+  size?: "sm" | "md";
 }) {
-  const buttonClass =
-    "hover:bg-surface-2 focus-visible:ring-ring flex size-10 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 disabled:opacity-40";
+  const buttonClass = cn(
+    "hover:bg-surface-2 focus-visible:ring-ring flex items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 disabled:opacity-40",
+    size === "sm" ? "size-8" : "size-10",
+  );
 
   return (
     <div
@@ -31,7 +36,10 @@ export function QuantityStepper({
         <Minus className="size-4" aria-hidden="true" />
       </button>
       <span
-        className="tabular-nums-price min-w-10 text-center text-sm font-medium"
+        className={cn(
+          "tabular-nums-price text-center text-sm font-medium",
+          size === "sm" ? "min-w-8" : "min-w-10",
+        )}
         aria-live="polite"
       >
         {value}

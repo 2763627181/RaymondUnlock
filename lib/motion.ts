@@ -70,9 +70,15 @@ export const mobilePanelVariants: Variants = {
 export const drawerSpring: Transition = { type: "spring", stiffness: 320, damping: 34 };
 
 export const cartLineVariants: Variants = {
-  hidden: { opacity: 0, height: 0 },
-  visible: { opacity: 1, height: "auto", transition: { duration: DURATION.micro } },
-  exit: { opacity: 0, height: 0, transition: { duration: DURATION.micro } },
+  hidden: { opacity: 0, x: 24 },
+  visible: { opacity: 1, x: 0, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },
+  exit: { opacity: 0, x: 24, transition: { duration: DURATION.micro, ease: EASE_DEFAULT } },
+};
+
+export const cartLineReducedVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: REDUCED_MOTION_DURATION } },
+  exit: { opacity: 0, transition: { duration: REDUCED_MOTION_DURATION } },
 };
 
 export const badgePopVariants: Variants = {

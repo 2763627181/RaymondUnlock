@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-
-export const CART_STORAGE_KEY = "ru-cart-v1";
-export const MAX_LINE_QUANTITY = 99;
+import { CART_STORAGE_KEY, MAX_LINE_QUANTITY } from "@/lib/cart/constants";
 
 /** Datos solo para mostrar. El precio real siempre se recalcula en el servidor. */
 export interface CartSnapshot {

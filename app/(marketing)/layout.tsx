@@ -1,3 +1,4 @@
+import { CartDrawer } from "@/components/cart/cart-drawer";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -28,6 +29,7 @@ export default async function MarketingLayout({ children }: LayoutProps<"/">) {
       </main>
       <Footer settings={settings} categories={footerCategories} />
       <MobileBar whatsappNumber={settings.whatsappNumber} />
+      <CartDrawer />
     </>
   );
 }

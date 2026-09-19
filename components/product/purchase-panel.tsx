@@ -11,7 +11,6 @@ import { variantLabel } from "@/lib/catalog/cards";
 import { CONDITION_LABELS } from "@/lib/catalog/text";
 import { useCartStore } from "@/lib/cart/store";
 import { formatMoney } from "@/lib/format";
-import { toast } from "@/lib/toast-store";
 import { absoluteUrl } from "@/lib/seo";
 import { buildProductInquiryMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { CatalogVariant, ProductCondition } from "@/types/catalog";
@@ -41,6 +40,7 @@ export function PurchasePanel({
 }) {
   const [quantity, setQuantity] = useState(1);
   const addToCart = useCartStore((state) => state.add);
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const outOfStock = selected.stock <= 0;
   const label = variantLabel(selected);
 
@@ -70,11 +70,7 @@ export function PurchasePanel({
       },
       quantity,
     );
-    toast({
-      title: "Agregado a tu cotización",
-      description: `${quantity} × ${product.name}`,
-      variant: "success",
-    });
+    setDrawerOpen(true);
   }
 
   return (

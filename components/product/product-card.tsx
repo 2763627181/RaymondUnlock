@@ -11,7 +11,6 @@ import { ColorSwatches } from "@/components/product/color-swatches";
 import { CONDITION_LABELS } from "@/lib/catalog/text";
 import { useCartStore } from "@/lib/cart/store";
 import { badgePopVariants, getCardMotion } from "@/lib/motion";
-import { toast } from "@/lib/toast-store";
 import type { ProductCardData } from "@/types/catalog";
 
 export function ProductCard({
@@ -24,6 +23,7 @@ export function ProductCard({
   const reduceMotion = useReducedMotion() ?? false;
   const motion = getCardMotion(reduceMotion);
   const addToCart = useCartStore((state) => state.add);
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const [focused, setFocused] = useState(false);
   // Solo la tarjeta con la que se interactúa lleva el nombre de la transición
   // compartida: dos elementos con el mismo nombre en la página cancelan el morph.
@@ -43,7 +43,7 @@ export function ProductCard({
         colorHex: product.colors[0]?.hex ?? null,
       },
     });
-    toast({ title: "Agregado a tu cotización", description: product.name, variant: "success" });
+    setDrawerOpen(true);
   }
 
   return (

@@ -17,9 +17,12 @@ export function formatPrice(amount: number): string {
   return Number.isInteger(amount) ? wholeFormatter.format(amount) : preciseFormatter.format(amount);
 }
 
-/** Para documentos (WhatsApp, correo): siempre con dos decimales. */
+/** Para documentos (WhatsApp, correo): dos decimales y espacio tras el símbolo ("RD$ 74,900.00"). */
 export function formatMoney(amount: number): string {
-  return preciseFormatter.format(amount);
+  return preciseFormatter
+    .formatToParts(amount)
+    .map((part) => (part.type === "currency" ? `${part.value} ` : part.value))
+    .join("");
 }
 
 export function discountPercent(compareAt: number | null, price: number): number | null {

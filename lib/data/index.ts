@@ -22,3 +22,4 @@ export {
   getTopLevelCategories,
   listProducts,
 } from "./mock/repo";
+export { nextRequestCode } from "./mock/requests";

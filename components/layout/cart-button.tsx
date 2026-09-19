@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AnimatePresence, m } from "motion/react";
 import { ShoppingBag } from "lucide-react";
 import { cartCount, useCartStore } from "@/lib/cart/store";
@@ -10,13 +9,16 @@ import { useIsClient } from "@/lib/use-is-client";
 export function CartButton() {
   const isClient = useIsClient();
   const count = useCartStore((state) => cartCount(state.items));
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const visibleCount = isClient ? count : 0;
 
   return (
-    <Link
-      href="/carrito"
+    <button
+      type="button"
+      onClick={() => setDrawerOpen(true)}
+      aria-haspopup="dialog"
       aria-label={
-        visibleCount > 0 ? `Carrito, ${visibleCount} artículos` : "Carrito de compras vacío"
+        visibleCount > 0 ? `Abrir carrito, ${visibleCount} artículos` : "Abrir carrito vacío"
       }
       className="hover:bg-muted relative flex size-9 items-center justify-center rounded-md transition-colors"
     >
@@ -39,6 +41,6 @@ export function CartButton() {
       <span role="status" aria-live="polite" className="sr-only">
         {visibleCount > 0 ? `${visibleCount} artículos en el carrito` : ""}
       </span>
-    </Link>
+    </button>
   );
 }
