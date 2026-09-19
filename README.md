@@ -1,89 +1,134 @@
 # Raymond Unlock
 
-Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público con precio de mayorista protegido en servidor, cotización por WhatsApp/correo, y panel de administración completo.
+Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público con precio de mayorista protegido en servidor, cotización por WhatsApp/correo y (próximamente) panel de administración.
+
+## Estado del proyecto
+
+| Fase | Contenido                                               | Estado                           |
+| ---- | ------------------------------------------------------- | -------------------------------- |
+| 0    | Scaffold, tooling, estructura                           | Hecha                            |
+| 1    | Design system, motion, Header/MegaMenu/Footer/MobileBar | Hecha                            |
+| 2    | Supabase: migraciones, RLS, vistas, seed                | **Pendiente (es lo siguiente)**  |
+| 3    | Home                                                    | Hecha (con capa de datos mock)   |
+| 4    | Catálogo con filtros en URL                             | Hecha (con capa de datos mock)   |
+| 5    | Detalle de producto                                     | Hecha (con capa de datos mock)   |
+| 6    | Carrito y cotización                                    | Hecha salvo persistencia en BD   |
+| 7    | Servicios y solicitudes de reparación                   | Hecha salvo persistencia en BD   |
+| 8    | Auth + portal mayorista                                 | Pendiente (depende de la Fase 2) |
+| 9    | Panel admin                                             | Pendiente (depende de la Fase 2) |
+| 10   | Pasada final                                            | Parcial (ver "Rendimiento")      |
+
+Se construyeron las fases 3–7 antes de la base de datos: todas leen a través de `lib/data/index.ts`, que hoy apunta a una implementación mock en `lib/data/mock/`. En la Fase 2 se cambia solo esa implementación por Supabase; las páginas no se tocan.
 
 ## Stack
 
-- **Next.js 16** (App Router, React Server Components)
-- **React 19**
-- **TypeScript 5.9** en modo `strict`
-- **Tailwind CSS v4** (tokens en `app/globals.css` vía `@theme`)
-- **shadcn/ui** sobre Radix (`components.json`, preset Nova)
-- **Framer Motion** (paquete `motion`) para animaciones
-- **Zustand** (con `persist`) para el carrito
-- **Zod + React Hook Form** para formularios
-- **Supabase** (Postgres + Auth + Storage + RLS)
-- **Resend** para correos transaccionales
-- **Vitest** para lógica de precios/carrito
-- **pnpm** como package manager
-- Deploy objetivo: **Vercel**
+- **Next.js 16** (App Router, React Server Components), **React 19**, **TypeScript 5.9** estricto
+- **Tailwind CSS v4** (tokens en `app/globals.css`), **shadcn/ui** sobre Radix
+- **Motion** (`motion/react`, con `LazyMotion` asíncrono) para todas las animaciones
+- **Zustand** (`persist`) para el carrito, **Zod + React Hook Form** para formularios
+- **Supabase** (Fase 2), **Resend** para correo, **Vitest** para la lógica de precios/carrito
+- **pnpm**; deploy objetivo **Vercel**
 
-## Requisitos
+## Requisitos e instalación
 
-- Node.js `>= 20.9.0` (ver `.nvmrc`)
-- pnpm `11.3.0` (`corepack enable` lo resuelve automáticamente vía `packageManager` en `package.json`)
-
-## Instalación
+- Node.js `>= 20.9.0` (ver `.nvmrc`), pnpm `11.3.0`
 
 ```bash
 pnpm install
 cp .env.example .env.local
-# completar las variables en .env.local (ver tabla abajo)
 pnpm dev
 ```
 
 ## Variables de entorno
 
-Ver `.env.example`. Ninguna variable sin prefijo `NEXT_PUBLIC_` puede usarse en un archivo `"use client"` — en particular `SUPABASE_SERVICE_ROLE_KEY` y `RESEND_API_KEY` solo se leen desde Server Components, Server Actions o Route Handlers.
+Ver `.env.example`. Ninguna variable sin prefijo `NEXT_PUBLIC_` puede usarse en un archivo `"use client"`.
 
-| Variable                                                     | Dónde se usa                          | Notas                         |
-| ------------------------------------------------------------ | ------------------------------------- | ----------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                                       | metadata, JSON-LD, sitemap            | Sin slash final               |
-| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | cliente Supabase (browser)            | Se agregan en la Fase 2       |
-| `SUPABASE_SERVICE_ROLE_KEY`                                  | cliente Supabase (servidor, admin)    | Nunca en el cliente           |
-| `RESEND_API_KEY` / `ORDER_NOTIFICATION_EMAIL`                | envío de cotizaciones/reparaciones    | Fase 6                        |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER`                                | botón flotante, mensaje de cotización | Formato internacional sin `+` |
-| `NEXT_PUBLIC_BUSINESS_EMAIL` / `NEXT_PUBLIC_INSTAGRAM_URL`   | footer, contacto                      |                               |
+| Variable                                                     | Uso                                                 |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                                       | metadata, JSON-LD, sitemap, OG (sin slash final)    |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | cliente Supabase (Fase 2)                           |
+| `SUPABASE_SERVICE_ROLE_KEY`                                  | solo servidor (Fase 2)                              |
+| `RESEND_API_KEY`                                             | envío de correos de cotización y reparación         |
+| `RESEND_FROM_EMAIL`                                          | remitente; ver nota abajo                           |
+| `ORDER_NOTIFICATION_EMAIL`                                   | correo del negocio que recibe cada solicitud        |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER`                                | WhatsApp del negocio, formato internacional sin `+` |
+| `NEXT_PUBLIC_BUSINESS_EMAIL` / `NEXT_PUBLIC_INSTAGRAM_URL`   | footer y contacto                                   |
+
+**Correo con Resend:** con el remitente de prueba (`onboarding@resend.dev`) Resend solo entrega al correo dueño de la cuenta. Para escribirle a clientes hay que verificar un dominio en Resend y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin `RESEND_API_KEY` el flujo de cotización funciona por WhatsApp y el canal correo informa el fallo al cliente en vez de fingir éxito.
 
 ## Scripts
 
-| Script                              | Qué hace                                     |
-| ----------------------------------- | -------------------------------------------- |
-| `pnpm dev`                          | Servidor de desarrollo (Turbopack)           |
-| `pnpm build`                        | Build de producción                          |
-| `pnpm start`                        | Sirve el build de producción                 |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                         |
-| `pnpm format` / `pnpm format:check` | Prettier (con `prettier-plugin-tailwindcss`) |
-| `pnpm typecheck`                    | `tsc --noEmit`                               |
-| `pnpm test` / `pnpm test:watch`     | Vitest                                       |
-| `pnpm analyze`                      | Build con `@next/bundle-analyzer` habilitado |
+| Script                              | Qué hace                                                    |
+| ----------------------------------- | ----------------------------------------------------------- |
+| `pnpm dev` / `pnpm build`           | Desarrollo / build de producción (Turbopack)                |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                        |
+| `pnpm format` / `pnpm format:check` | Prettier                                                    |
+| `pnpm typecheck`                    | `tsc --noEmit`                                              |
+| `pnpm test` / `pnpm test:watch`     | Vitest (41 pruebas: precios, WhatsApp, variantes, teléfono) |
+| `pnpm analyze`                      | Build con `@next/bundle-analyzer`                           |
 
 Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los archivos en stage.
 
-## Datos pendientes del cliente
+## Datos y contenido de ejemplo (reemplazar antes de publicar)
 
-Estos datos no se inventaron — quedan como placeholder hasta que el dueño del negocio los confirme, y se cargan desde `site_settings` (Fase 2) para no quedar hardcodeados:
+Todo esto es ficticio o provisional y vive en `lib/data/mock/` (en la Fase 2 pasa al seed de Supabase y se edita desde `/admin`):
 
-- **Logo transparente**: solo existe el PNG con fondo blanco. Falta la versión con fondo transparente (o el SVG original) para usarlo sobre fondos oscuros (hero, footer). Mientras tanto se usa un contenedor blanco redondeado detrás del logo en esas zonas.
-- Horarios de atención, sucursales adicionales (si las hay) y métodos de pago aceptados — no estaban en el brief.
+- **Precios, stock, tiempos y precios "desde" de servicios**: inventados para poder probar el sitio.
+- **Precio mayorista**: derivado (10 % menos que la unidad, redondeado); solo existe en módulos `server-only`.
+- **Testimonios**: 3 textos de ejemplo con nombres genéricos. **No publicar tal cual**: reemplazar por opiniones reales.
+- **Textos de garantías, "por qué nosotros" y proceso de reparación**: propuestas a confirmar con el cliente.
+- **Imágenes**: los productos usan una ilustración de respaldo teñida con el color de la variante; el hero usa 3 ilustraciones de ejemplo (`public/seed/`). Las fotos reales se suben desde `/admin` (Fase 9). Un producto de ejemplo (iPhone 15 Pro) trae 2 imágenes para probar la galería.
 
-## Decisiones técnicas de la Fase 0 (y por qué)
+## Pendiente del cliente
 
-- **ESLint fijado en `9.39.5`, no en la última `10.x`.** `eslint-plugin-react` (dependencia de `eslint-config-next`) todavía llama a una API (`context.getFilename()`) que ESLint 10 eliminó; con ESLint 10 el lint falla en tiempo de ejecución. Se revisará este pin cuando el ecosistema de `eslint-config-next` publique soporte para ESLint 10.
-- **TypeScript fijado en `5.9.3`, no en `7.x`.** TypeScript 7 (el compilador nativo) ya es estable en npm, pero `typescript-eslint` todavía no lo soporta (`peerDependency: <6.1.0`). Se reevalúa cuando typescript-eslint publique soporte.
-- **Sin Cache Components (`cacheComponents`) de Next 16.** Next 16 introdujo un modelo de caché nuevo basado en `"use cache"` + Suspense obligatorio. Este proyecto usa el modelo clásico (`export const revalidate`, `revalidatePath`, `generateStaticParams`) tal como lo pide el brief; es la opción por defecto (no hay que activar ninguna bandera) y sigue totalmente soportada en Next 16.
-- **`middleware.ts` se implementará como `proxy.ts`** en la Fase 8/9 (protección de `/admin`). Next 16 renombró el archivo y la función exportada (`middleware` → `proxy`); es un cambio de nombre, el comportamiento de protección de rutas es el mismo.
-- **Sin `sonner`, `vaul` ni `embla-carousel-react`.** Toast, bottom-sheet de filtros y carruseles se construyen con primitivos Radix (ya incluidos vía shadcn/ui) + Framer Motion + `scroll-snap` nativo, para no sumar dependencias fuera de la lista aprobada.
-- **Fuente Geist vía `next/font/google`** (no el paquete `geist` separado): así lo resuelve el preset "Nova" de shadcn de forma nativa, sin dependencia extra.
+- **Logo** con fondo transparente o SVG (solo existe el PNG con fondo blanco). Mientras tanto: wordmark tipográfico en `components/layout/logo.tsx` y monograma "RU" provisional en `app/icon.tsx`, `app/apple-icon.tsx` y `app/manifest.ts`.
+- **URL de la página de Facebook** (el brief solo da el nombre; la URL no se puede derivar). Instagram y Threads sí están enlazados.
+- **Horarios de atención**, sucursales adicionales y **métodos de pago**: no están en el brief, no se inventaron.
+- **Newsletter**: el modelo de datos del brief no tiene tabla de suscriptores, así que no se construyó el formulario. Decidir si se agrega.
+- **"Más vendidos"** usa `is_featured` porque el esquema no registra ventas (las cotizaciones no son ventas confirmadas).
 
-## Estructura
+## Decisiones técnicas (y por qué)
 
-Ver el árbol completo de rutas y carpetas planeado en la especificación del proyecto. Cada fase agrega solo los archivos que le corresponden — no hay páginas ni componentes placeholder de fases futuras.
+**Versiones**
 
-## Supabase (Fase 2 en adelante)
+- **ESLint fijado en 9.39.5**: `eslint-plugin-react` (vía `eslint-config-next`) usa `context.getFilename()`, que ESLint 10 eliminó; con la 10 el lint falla en ejecución.
+- **TypeScript en 5.9.3, no 7.x**: `typescript-eslint` aún soporta solo `<6.1.0`.
+- **Sin `sonner`, `vaul` ni `embla-carousel-react`**: Toast, bottom-sheet y carruseles se hicieron con Radix + Motion + `scroll-snap`.
 
-Las migraciones viven en `supabase/migrations/` y el seed de datos ficticios en `supabase/seed.sql`. Los precios y el stock del seed son inventados — se reemplazan desde el panel `/admin` una vez el negocio tiene su propio catálogo cargado.
+**Next 16**
+
+- **Sin Cache Components**: el brief pide el modelo clásico (`revalidate`, `generateStaticParams`), que sigue soportado.
+- **`middleware.ts` será `proxy.ts`** (Fase 8/9): Next 16 renombró el archivo y la función.
+- **Producto, servicios, home, contacto y nosotros** son estáticos con ISR de 5 min. **`/tienda` y `/tienda/[category]` son dinámicas**: leen `searchParams` (filtros en la URL, requisito del brief). En la Fase 2 la consulta se cachea con `unstable_cache`/tags para compensar.
+- **Transición tarjeta → detalle con `<ViewTransition>`** de React, no con `layoutId` de Motion: entre rutas del App Router `layoutId` no es fiable, y `ViewTransition` es la vía soportada (se desactiva con `prefers-reduced-motion`).
+- **`loading.tsx` solo en el listado principal**: en `[category]` producía un soft 404 (200 en lugar de 404 al hacer streaming antes de `notFound()`).
+
+**Precios y seguridad**
+
+- El precio que viaja en el carrito es solo para mostrar. El Server Action `submitQuote` valida con Zod, vuelve a leer los precios desde la capa de datos según el tier real del visitante (`lib/pricing/viewer.ts`) y rechaza variantes inexistentes o agotadas. Verificado: un precio manipulado a RD$ 1 en `localStorage` se recalcula a su valor real.
+- El precio mayorista aplica solo a mayoristas aprobados **y** cuando la cantidad alcanza `min_wholesale_qty`; por debajo se cobra precio de unidad (`lib/cart/pricing.ts`, con pruebas).
+- Formularios públicos con campo trampa (`additionalInfo`) contra bots y todo texto del cliente escapado en los correos.
+- El código de cotización/reparación es correlativo (`RU-2026-0001`, `RE-2026-0001`); por eso `/carrito/enviado` **no** muestra datos a partir del código (sería enumerable): los detalles viven solo en `sessionStorage` de esa pestaña.
+- **Persistencia y códigos**: hoy el contador es en memoria (`lib/data/mock/requests.ts`). En la Fase 2 pasa a una secuencia de Postgres y se insertan `quotes`/`quote_items`/`repair_requests`.
+
+**Accesibilidad**
+
+- `--muted-foreground` es `#5b6270` (no `#6b7280` del brief: daba 4.47:1 sobre `surface-2`) y el texto verde usa `--color-success-700`. El rojo `#E11B22` da 4.8:1 sobre blanco, suficiente para texto de 14 px en peso 600.
+- Animaciones: todo pasa por `lib/motion.ts` y respeta `prefers-reduced-motion`.
+
+## Rendimiento (medido, build de producción, móvil)
+
+Lighthouse (throttling simulado, esta máquina de desarrollo):
+
+| Página    | Perf  | A11y | Best Practices | SEO |
+| --------- | ----- | ---- | -------------- | --- |
+| Home      | 83–86 | 100  | 100            | 100 |
+| Tienda    | 89    | 100  | 100            | 100 |
+| Producto  | 92    | 100  | 100            | 100 |
+| Servicios | 91    | 100  | 100            | 100 |
+
+`/carrito` marca SEO 63 porque es `noindex` a propósito. **Experiencia real** (Chrome con 4G lenta y CPU 4× más lenta): LCP de 1.1 a 1.5 s en todas las páginas, CLS 0. El objetivo del brief (Perf ≥ 92) se cumple en producto y queda cerca en las demás; la home es la más pesada por la cantidad de componentes interactivos. Las cifras deben repetirse sobre el deploy real en Vercel (CDN y compresión Brotli), donde suelen mejorar.
 
 ## Despliegue (Vercel)
 
-Pendiente de documentar en la Fase 10 con los pasos concretos (variables de entorno en el dashboard de Vercel, dominio, ISR/caché).
+Pendiente de documentar en la Fase 10 con los pasos concretos (variables de entorno, dominio, remitente de Resend).
