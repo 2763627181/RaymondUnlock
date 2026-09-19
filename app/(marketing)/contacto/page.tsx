@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { InstagramIcon, ThreadsIcon } from "@/components/icons/social-icons";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
@@ -93,6 +93,21 @@ export default async function ContactPage() {
             {settings.email}
           </a>
         </section>
+
+        {settings.hours.length > 0 ? (
+          <section className={cardClass}>
+            <Clock className="text-ink-700 mb-4 size-6" aria-hidden="true" />
+            <h2 className="text-lg font-semibold">Horario de atención</h2>
+            <dl className="mt-1 space-y-1 text-[15px]">
+              {settings.hours.map((row) => (
+                <div key={row.label} className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">{row.label}</dt>
+                  <dd className="tabular-nums-price font-medium">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
       </div>
 
       <section className="mt-10">

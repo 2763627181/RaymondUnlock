@@ -42,6 +42,11 @@ export interface NavPromo {
   href: string;
 }
 
+export interface HoursRow {
+  label: string;
+  value: string;
+}
+
 export interface SiteSettings {
   businessName: string;
   tagline: string;
@@ -65,6 +70,8 @@ export interface SiteSettings {
   repairProcess: { title: string; text: string }[];
   testimonials: Testimonial[];
   navPromos: Record<string, NavPromo>;
+  /** Horarios de atención; vacío hasta que el negocio los configure. */
+  hours: HoursRow[];
 }
 
 export interface NavSubcategory {
