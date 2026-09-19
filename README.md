@@ -1,22 +1,22 @@
 # Raymond Unlock
 
-Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público con precio de mayorista protegido en servidor, cotización por WhatsApp/correo y (próximamente) panel de administración.
+Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público con precio de mayorista protegido en servidor, cotización por WhatsApp/correo, portal de mayoristas y panel de administración completo.
 
 ## Estado del proyecto
 
-| Fase | Contenido                                               | Estado                          |
-| ---- | ------------------------------------------------------- | ------------------------------- |
-| 0    | Scaffold, tooling, estructura                           | Hecha                           |
-| 1    | Design system, motion, Header/MegaMenu/Footer/MobileBar | Hecha                           |
-| 2    | Supabase: migraciones, RLS, vistas, seed                | Hecha                           |
-| 3    | Home                                                    | Hecha                           |
-| 4    | Catálogo con filtros en URL                             | Hecha                           |
-| 5    | Detalle de producto                                     | Hecha                           |
-| 6    | Carrito y cotización                                    | Hecha (se guarda en la BD)      |
-| 7    | Servicios y solicitudes de reparación                   | Hecha (se guarda en la BD)      |
-| 8    | Auth + portal mayorista                                 | **Pendiente (es lo siguiente)** |
-| 9    | Panel admin                                             | Pendiente                       |
-| 10   | Pasada final                                            | Parcial (ver "Rendimiento")     |
+| Fase | Contenido                                               | Estado                      |
+| ---- | ------------------------------------------------------- | --------------------------- |
+| 0    | Scaffold, tooling, estructura                           | Hecha                       |
+| 1    | Design system, motion, Header/MegaMenu/Footer/MobileBar | Hecha                       |
+| 2    | Supabase: migraciones, RLS, vistas, seed                | Hecha                       |
+| 3    | Home                                                    | Hecha                       |
+| 4    | Catálogo con filtros en URL                             | Hecha                       |
+| 5    | Detalle de producto                                     | Hecha                       |
+| 6    | Carrito y cotización                                    | Hecha (se guarda en la BD)  |
+| 7    | Servicios y solicitudes de reparación                   | Hecha (se guarda en la BD)  |
+| 8    | Auth + portal mayorista                                 | Hecha                       |
+| 9    | Panel admin                                             | Hecha                       |
+| 10   | Pasada final                                            | Parcial (ver "Rendimiento") |
 
 Las fases 3–7 se construyeron primero sobre datos de prueba y en la Fase 2 se conectaron a Supabase cambiando solo `lib/data/`: las páginas no se tocaron. Todas leen a través de `lib/data/index.ts`.
 
@@ -56,13 +56,13 @@ Ver `.env.example`. Ninguna variable sin prefijo `NEXT_PUBLIC_` puede usarse en 
 | `RESEND_FROM_EMAIL`                                          | remitente; ver nota abajo                                         |
 | `ORDER_NOTIFICATION_EMAIL`                                   | correo del negocio que recibe cada solicitud                      |
 
-Los datos de contacto (WhatsApp, correo, redes, dirección) ya no son variables de entorno: viven en la tabla `site_settings` y se editarán desde `/admin/ajustes` (Fase 9).
+Los datos de contacto (WhatsApp, correo, redes, dirección, horarios) no son variables de entorno: viven en la tabla `site_settings` y se editan desde `/admin/ajustes`.
 
-**Correo con Resend:** con el remitente de prueba (`onboarding@resend.dev`) Resend solo entrega al correo dueño de la cuenta. Para escribirle a clientes hay que verificar un dominio en Resend y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin `RESEND_API_KEY` el flujo de cotización funciona por WhatsApp y el canal correo informa el fallo al cliente en vez de fingir éxito.
+**Correo con Resend:** sirve para las cotizaciones, las reparaciones, los avisos de mayoristas **y los correos de cuenta** (confirmación y recuperación de contraseña; ver "Cuentas y mayoristas"). Con el remitente de prueba (`onboarding@resend.dev`) Resend solo entrega al correo dueño de la cuenta. Para escribirle a clientes hay que verificar un dominio en Resend y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin `RESEND_API_KEY` el flujo de cotización funciona por WhatsApp y el canal correo informa el fallo al cliente en vez de fingir éxito.
 
 ## Base de datos (Supabase)
 
-El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql` y `..._security.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
+El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql`, `..._security.sql` y `..._wholesale_accounts.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
 
 Para crear una base nueva:
 
@@ -81,38 +81,71 @@ Si cambias el esquema, regenera `types/database.ts` con `npx supabase gen types 
 - **Roles**: el trigger que crea el perfil nunca lee el rol del metadata; quien pide cuenta mayorista queda **sin aprobar** hasta que un admin la apruebe, y `profiles` solo permite editar `full_name`, `phone`, `business_name` y `rnc`.
 - **Storage**: el bucket `products` se lee públicamente y solo escribe un admin (imágenes de hasta 5 MB). Las URLs públicas se cachean en el CDN de Supabase: al reemplazar una foto, sube un archivo con nombre nuevo en vez de sobrescribir.
 
-Verificado contra el proyecto real, con peticiones REST como visitante anónimo y con usuarios reales de prueba (creados y borrados en la misma corrida): el anónimo no puede leer `price_wholesale` ni `product_variants`, ni escribir en ninguna tabla, vista o RPC interno; un usuario común no puede subirse el rol, auto-aprobarse como mayorista, editar catálogo ni subir a Storage; un admin sí puede crear y editar catálogo y subir imágenes. Ninguna llave secreta ni dato mayorista aparece en los bundles del navegador ni en el HTML prerenderizado.
+Verificado contra el proyecto real (peticiones REST y recorridos en un navegador, con usuarios de prueba creados y borrados en la misma corrida):
 
-**Caché del catálogo**: las lecturas públicas van por un snapshot cacheado 5 minutos (`unstable_cache`, etiqueta `catalog`); un cambio en la base tarda hasta 5 minutos en verse o hasta que el admin invalide la etiqueta. PostgREST devuelve como máximo 1000 filas por consulta: si el catálogo se acerca a ese tamaño el sitio falla con un mensaje explícito (en vez de ocultar productos en silencio) y toca mover el filtrado de `/tienda` a SQL.
+- Un visitante anónimo no puede leer `price_wholesale` ni `product_variants`, ni escribir en ninguna tabla, vista o RPC interno.
+- Un usuario común no puede subirse el rol, auto-aprobarse como mayorista, editar catálogo ni subir a Storage (y meter `role: admin` en el metadata al registrarse no sirve).
+- Un admin sí crea y edita catálogo, sube imágenes y aprueba mayoristas; una cuenta sin rol admin (anónima, cliente o rechazada) que repite la petición real de una Server Action del panel no logra escribir nada.
+- Ninguna llave secreta ni valor de precio al por mayor aparece en los bundles del navegador ni en el HTML prerenderizado de las páginas públicas (solo existe el _nombre_ `priceWholesale` en el código del carrito, sin datos).
+
+**Caché del catálogo**: las lecturas públicas van por un snapshot cacheado 5 minutos (`unstable_cache`, etiqueta `catalog`). Los cambios hechos desde `/admin` lo invalidan al instante; un cambio hecho directamente en la base tarda hasta 5 minutos en verse. PostgREST devuelve como máximo 1000 filas por consulta: si el catálogo se acerca a ese tamaño el sitio falla con un mensaje explícito (en vez de ocultar productos en silencio) y toca mover el filtrado de `/tienda` a SQL.
+
+## Cuentas y mayoristas
+
+- **Registro y acceso** (`/registro`, `/login`, `/recuperar`, `/cuenta`): una cuenta personal o de negocio. Quien pide cuenta al por mayor (en `/registro` o en el formulario de `/mayorista`) nace **sin aprobar** y ve precios por unidad con el aviso "Solicitud en revisión". Un cliente que ya tiene cuenta puede pedir el acceso desde `/cuenta`.
+- **Los correos de confirmación y recuperación los envía la aplicación con Resend**, no Supabase: el SMTP integrado de Supabase solo entrega a correos del equipo del proyecto y con un límite muy bajo. El enlace lleva un `token_hash` que `/auth/confirm` verifica en el servidor (sirve una sola vez y vence en 1 hora). Sin `RESEND_API_KEY` el registro crea la cuenta pero el correo no sale: en desarrollo el enlace se imprime en la consola del servidor; en producción el registro avisa del fallo y el usuario puede pedir un enlace nuevo desde "Iniciar sesión". **Para que funcione en producción hace falta la clave de Resend y un dominio verificado.**
+- La respuesta a "registrar" y "recuperar contraseña" es la misma exista o no el correo (no se revela quién tiene cuenta), hay campo trampa y un límite de intentos por IP. El límite es **en memoria y por instancia**: es un freno básico; para algo más fuerte hay que añadir un límite compartido (WAF de Vercel, Upstash).
+- Cuando el correo de un mayorista se verifica, el negocio recibe un aviso con un botón a `/admin/mayoristas`. Al aprobar o rechazar, la persona recibe un correo con la decisión.
+- **Ver precios al por mayor**: solo un mayorista aprobado (o un admin, para revisar el sitio) recibe el mapa de precios, mediante un Server Action que valida la sesión en el servidor. Las páginas públicas siguen siendo estáticas: sin cookie de sesión no se hace ninguna petición extra; con ella, el navegador pide su estado. El encabezado muestra el interruptor "Ver precios: Unidad / Por mayor" y el carrito muestra el precio al llegar a la cantidad mínima. Al enviar la cotización el servidor decide el tier por la sesión y guarda el tipo de precio **realmente aplicado** (un mayorista que no alcanza el mínimo paga precio por unidad).
+
+## Panel de administración (`/admin`)
+
+Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Cualquier otra persona recibe 404.
+
+| Sección                                | Qué permite                                                                                                                                                      |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel                                  | Cotizaciones nuevas, reparaciones pendientes, productos activos, variantes con poco stock, solicitudes mayoristas y últimas 10 cotizaciones                      |
+| Productos                              | Búsqueda, filtros y paginación en servidor; crear/editar con variantes en línea (los dos precios, mínimo mayorista, stock); duplicar; publicar u ocultar en lote |
+| Imágenes                               | Arrastrar y soltar, compresión en el navegador (WebP, máx. 1600 px), texto alternativo obligatorio, asignar a una variante, reordenar                            |
+| Categorías, marcas, servicios, banners | CRUD con reordenamiento arrastrando (o con flechas, para teclado)                                                                                                |
+| Cotizaciones / reparaciones            | Búsqueda, filtros, cambio de estado, detalle con botón de WhatsApp del cliente y **exportación CSV** de cotizaciones                                             |
+| Mayoristas                             | Solicitudes pendientes, aprobadas y rechazadas; aprobar, rechazar o revocar con correo de aviso                                                                  |
+| Ajustes                                | Datos del negocio, horarios, garantías, "por qué nosotros", proceso de reparación, testimonios y promos del menú                                                 |
+
+**Seguridad del panel (en capas)**: el `proxy` exige sesión; el layout y **cada página** verifican el rol; **cada Server Action** lo vuelve a verificar y, además, el RLS de la base sigue siendo la última barrera. `product_variants` (con el precio al por mayor) solo se escribe con `service_role` desde el servidor, después de verificar el rol. Se comprobó repitiendo la petición real de una acción del panel como visitante anónimo, cliente con sesión y cuenta rechazada: ninguna escribe.
+
+**Reglas de datos**: nunca se borra un producto ni una variante con cotizaciones asociadas (se desactivan); una categoría, marca o servicio en uso no se puede borrar; las imágenes solo pueden ser rutas del sitio o de nuestro bucket (`next/image` falla con otros hosts y tumbaría la página); al borrar una imagen se elimina de Storage solo si nadie más la usa. Los precios se editan con comas de miles ("74,900.50") y el precio al por mayor no puede superar el de unidad.
+
+**Cambios inmediatos**: cada guardado invalida la caché (`updateTag`) y las páginas estáticas, así que la tienda muestra el cambio al instante en vez de esperar los 5 minutos de ISR.
 
 ## Scripts
 
-| Script                              | Qué hace                                                   |
-| ----------------------------------- | ---------------------------------------------------------- |
-| `pnpm dev` / `pnpm build`           | Desarrollo / build de producción (Turbopack)               |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                       |
-| `pnpm format` / `pnpm format:check` | Prettier                                                   |
-| `pnpm typecheck`                    | `tsc --noEmit`                                             |
-| `pnpm test` / `pnpm test:watch`     | Vitest (58 pruebas: precios, catálogo, WhatsApp, teléfono) |
-| `pnpm analyze`                      | Build con `@next/bundle-analyzer`                          |
+| Script                              | Qué hace                                                |
+| ----------------------------------- | ------------------------------------------------------- |
+| `pnpm dev` / `pnpm build`           | Desarrollo / build de producción (Turbopack)            |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                    |
+| `pnpm format` / `pnpm format:check` | Prettier                                                |
+| `pnpm typecheck`                    | `tsc --noEmit`                                          |
+| `pnpm test` / `pnpm test:watch`     | Vitest (110 pruebas: precios, catálogo, cuentas, panel) |
+| `pnpm analyze`                      | Build con `@next/bundle-analyzer`                       |
 
 Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los archivos en stage.
 
 ## Datos y contenido de ejemplo (reemplazar antes de publicar)
 
-Todo esto es ficticio o provisional y vive en `supabase/seed.sql` (se edita desde `/admin` cuando esté la Fase 9, o directamente en la base):
+Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza desde `/admin`:
 
 - **Precios, stock, tiempos y precios "desde" de servicios**: inventados para poder probar el sitio.
 - **Precio mayorista**: derivado (10 % menos que la unidad, redondeado); solo lo lee el servidor con `service_role`.
 - **Testimonios**: 3 textos de ejemplo con nombres genéricos. **No publicar tal cual**: reemplazar por opiniones reales.
 - **Textos de garantías, "por qué nosotros" y proceso de reparación**: propuestas a confirmar con el cliente.
-- **Imágenes**: los productos usan una ilustración de respaldo teñida con el color de la variante; el hero usa 3 ilustraciones de ejemplo (`public/seed/`). Las fotos reales se suben desde `/admin` (Fase 9). Un producto de ejemplo (iPhone 15 Pro) trae 2 imágenes para probar la galería.
+- **Imágenes**: los productos usan una ilustración de respaldo teñida con el color de la variante; el hero usa 3 ilustraciones de ejemplo (`public/seed/`). Las fotos reales se suben desde `/admin/productos`. Un producto de ejemplo (iPhone 15 Pro) trae 2 imágenes para probar la galería.
 
 ## Pendiente del cliente
 
 - **Logo** con fondo transparente o SVG (solo existe el PNG con fondo blanco). Mientras tanto: wordmark tipográfico en `components/layout/logo.tsx` y monograma "RU" provisional en `app/icon.tsx`, `app/apple-icon.tsx` y `app/manifest.ts`.
 - **URL de la página de Facebook** (el brief solo da el nombre; la URL no se puede derivar). Instagram y Threads sí están enlazados.
-- **Horarios de atención**, sucursales adicionales y **métodos de pago**: no están en el brief, no se inventaron.
+- **Horarios de atención** (se cargan en `/admin/ajustes` → Horarios; mientras estén vacíos no se muestran), sucursales adicionales y **métodos de pago**: no están en el brief, no se inventaron.
 - **Newsletter**: el modelo de datos del brief no tiene tabla de suscriptores, así que no se construyó el formulario. Decidir si se agrega.
 - **"Más vendidos"** usa `is_featured` porque el esquema no registra ventas (las cotizaciones no son ventas confirmadas).
 
@@ -127,7 +160,7 @@ Todo esto es ficticio o provisional y vive en `supabase/seed.sql` (se edita desd
 **Next 16**
 
 - **Sin Cache Components**: el brief pide el modelo clásico (`revalidate`, `generateStaticParams`), que sigue soportado.
-- **`middleware.ts` será `proxy.ts`** (Fase 8/9): Next 16 renombró el archivo y la función.
+- **`proxy.ts` en vez de `middleware.ts`**: Next 16 renombró el archivo y la función. Solo refresca la sesión y protege `/admin` y `/cuenta`; la autorización real vive en cada página y cada acción.
 - **Producto, servicios, home, contacto y nosotros** son estáticos con ISR de 5 min (se prerenderizan desde la base en el build). **`/tienda` y `/tienda/[category]` son dinámicas**: leen `searchParams` (filtros en la URL, requisito del brief); para compensar, filtran en memoria sobre un snapshot del catálogo cacheado con `unstable_cache` (ver "Caché del catálogo").
 - **Un producto sin variantes activas (borrador) o con la categoría oculta no se muestra**, en vez de tumbar toda la tienda.
 - **Transición tarjeta → detalle con `<ViewTransition>`** de React, no con `layoutId` de Motion: entre rutas del App Router `layoutId` no es fiable, y `ViewTransition` es la vía soportada (se desactiva con `prefers-reduced-motion`).
@@ -162,4 +195,11 @@ Lighthouse (throttling simulado, esta máquina de desarrollo):
 
 ## Despliegue (Vercel)
 
-Pendiente de documentar en la Fase 10 con los pasos concretos (variables de entorno, dominio, remitente de Resend).
+1. **Base de datos de producción**: crea un proyecto de Supabase (o usa el actual) y sigue "Base de datos (Supabase)": migraciones, seed **solo si quieres el catálogo de ejemplo** y primer admin. Si usas el proyecto de desarrollo, **rota antes la contraseña de la base y la llave `service_role`** (circularon por chat).
+2. **Vercel**: importa el repositorio (framework Next.js, pnpm). Node ≥ 20.9.
+3. **Variables de entorno** (Production y Preview): `NEXT_PUBLIC_SITE_URL` (dominio final, sin slash), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (marcarla como sensible), `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ORDER_NOTIFICATION_EMAIL`. `SUPABASE_DB_URL` no hace falta en Vercel.
+4. **Resend**: verifica el dominio y usa un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin esto no salen las cotizaciones por correo ni los correos de cuenta.
+5. **Primer despliegue**: el build lee la base para prerenderizar los productos y servicios, así que la base debe estar lista _antes_. Comprueba `/`, `/tienda`, un producto, `/registro` y `/login`.
+6. **Después de publicar**: entra a `/admin` con el admin, carga las fotos reales, los precios y stock reales, los testimonios reales y los horarios (ver "Datos y contenido de ejemplo"), y repite las mediciones de Lighthouse sobre el dominio real.
+7. **Imágenes**: `next.config.ts` permite el host de Supabase Storage a partir de `NEXT_PUBLIC_SUPABASE_URL`; si cambias de proyecto de Supabase, vuelve a desplegar.
+8. **Límite de intentos**: el de inicio de sesión/registro es en memoria por instancia; para producción con tráfico real conviene un límite compartido (WAF de Vercel o Upstash).
