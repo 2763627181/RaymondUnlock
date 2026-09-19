@@ -182,16 +182,20 @@ Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza 
 
 ## Rendimiento (medido, build de producción, móvil)
 
-Lighthouse (throttling simulado, esta máquina de desarrollo):
+Lighthouse móvil con throttling simulado, en esta máquina de desarrollo. Una sola corrida varía ±5 puntos (y la primera, en frío, sale más baja), así que se reporta la **mediana de 3 corridas** y, entre paréntesis, el rango:
 
-| Página    | Perf | A11y | Best Practices | SEO |
-| --------- | ---- | ---- | -------------- | --- |
-| Home      | 87   | 100  | 100            | 100 |
-| Tienda    | 88   | 100  | 100            | 100 |
-| Producto  | 91   | 100  | 100            | 100 |
-| Servicios | 91   | 100  | 100            | 100 |
+| Página    | Perf       | A11y | Best Practices | SEO |
+| --------- | ---------- | ---- | -------------- | --- |
+| Home      | 92 (88–97) | 100  | 100            | 100 |
+| Tienda    | 90 (88–90) | 100  | 100            | 100 |
+| Producto  | 92 (86–94) | 100  | 100            | 100 |
+| Servicios | 92 (87–93) | 100  | 100            | 100 |
+| Mayorista | 92 (83–93) | 100  | 100            | 100 |
+| Login     | 95 (87–96) | 100  | 100            | 63  |
 
-`/carrito` marca SEO 63 porque es `noindex` a propósito. **Experiencia real** (Chrome con 4G lenta y CPU 4× más lenta, medida de nuevo con la base de datos conectada): LCP de 1.1 a 1.3 s en todas las páginas, CLS 0. El objetivo del brief (Perf ≥ 92) **no se alcanza todavía en ninguna página** (quedan entre 87 y 91 en la medición simulada); la home es la más pesada por la cantidad de componentes interactivos. Las cifras deben repetirse sobre el deploy real en Vercel (CDN y compresión Brotli), donde suelen mejorar.
+`/login` y `/carrito` marcan SEO 63 porque son `noindex` a propósito. **El objetivo del brief (Perf ≥ 92) se cumple en la mediana de todas las páginas menos `/tienda` (90)**, que es dinámica y trae los filtros; en frío (primera visita sin caché) las páginas quedan entre 83 y 88. La experiencia real, medida con Chrome a 4G lenta y CPU 4× más lenta, fue de 1.1 a 1.3 s de LCP con CLS 0. Estas cifras deben repetirse sobre el deploy real en Vercel (CDN y Brotli), donde suelen mejorar.
+
+**Qué se hizo para llegar ahí**: los formularios que traen React Hook Form + Zod (cotización, reparación, registro, login) se cargan aparte (`*-lazy.tsx`): como `<Link>` precarga el JS de las rutas enlazadas, la home descargaba ~90 KB de Zod que no usa. Además el parser de filtros de `/tienda` ya no usa Zod (lo importan componentes del navegador; sus reglas están cubiertas por `search-params.test.ts`). Resultado: la home pasó de 392 a 277 KB de JavaScript y de 270 a ~100 ms de bloqueo (TBT).
 
 ## Despliegue (Vercel)
 
