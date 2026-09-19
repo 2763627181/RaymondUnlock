@@ -10,7 +10,6 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
   return (
     <Link
       href="/"
-      aria-label="Raymond Unlock — inicio"
       className={cn(
         "flex items-center gap-0.5 font-semibold tracking-tight transition-all",
         compact ? "text-lg" : "text-xl",

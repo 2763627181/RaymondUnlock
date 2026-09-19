@@ -59,6 +59,7 @@ export default async function HomePage() {
       <JsonLd data={localBusinessJsonLd(settings)} />
       <JsonLd data={websiteJsonLd(settings)} />
 
+      <h1 className="sr-only">Raymond Unlock: celulares y más en Santo Domingo</h1>
       <HeroCarousel banners={banners} />
       <GuaranteeStrip items={settings.guarantees} />
 

@@ -24,7 +24,9 @@ export function ProductDetails({
     >
       {product.description ? (
         <AccordionItem value="descripcion">
-          <AccordionTrigger className="py-4 text-base">Descripción</AccordionTrigger>
+          <AccordionTrigger headingLevel={2} className="py-4 text-base">
+            Descripción
+          </AccordionTrigger>
           <AccordionContent>
             <RichText text={product.description} />
           </AccordionContent>
@@ -33,7 +35,9 @@ export function ProductDetails({
 
       {specs.length > 0 ? (
         <AccordionItem value="especificaciones">
-          <AccordionTrigger className="py-4 text-base">Especificaciones</AccordionTrigger>
+          <AccordionTrigger headingLevel={2} className="py-4 text-base">
+            Especificaciones
+          </AccordionTrigger>
           <AccordionContent>
             <dl className="divide-border divide-y text-[15px]">
               {specs.map(([label, value]) => (
@@ -49,7 +53,9 @@ export function ProductDetails({
 
       {product.warrantyNote ? (
         <AccordionItem value="garantia">
-          <AccordionTrigger className="py-4 text-base">Garantía</AccordionTrigger>
+          <AccordionTrigger headingLevel={2} className="py-4 text-base">
+            Garantía
+          </AccordionTrigger>
           <AccordionContent>
             <p className="text-[15px] leading-relaxed">{product.warrantyNote}</p>
           </AccordionContent>
@@ -57,7 +63,9 @@ export function ProductDetails({
       ) : null}
 
       <AccordionItem value="envio">
-        <AccordionTrigger className="py-4 text-base">Envío</AccordionTrigger>
+        <AccordionTrigger headingLevel={2} className="py-4 text-base">
+          Envío
+        </AccordionTrigger>
         <AccordionContent>
           <p className="text-[15px] leading-relaxed">{shippingNote}</p>
         </AccordionContent>

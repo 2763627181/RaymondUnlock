@@ -3,12 +3,46 @@
 import * as React from "react";
 import { cn } from "cn";
 import { Dialog as SheetPrimitive } from "radix-ui";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
+import { REDUCED_MOTION_DURATION, drawerSpring } from "@/lib/motion";
 import { XIcon } from "lucide-react";
 
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+type Side = "top" | "right" | "bottom" | "left";
+
+const OFFSCREEN: Record<Side, { x?: string; y?: string }> = {
+  top: { y: "-100%" },
+  right: { x: "100%" },
+  bottom: { y: "100%" },
+  left: { x: "-100%" },
+};
+
+const OpenContext = React.createContext(false);
+
+/** Lleva la cuenta de "abierto" para que AnimatePresence pueda animar la salida. */
+function Sheet({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Root>) {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+  const open = openProp ?? internalOpen;
+
+  return (
+    <OpenContext value={open}>
+      <SheetPrimitive.Root
+        data-slot="sheet"
+        open={open}
+        onOpenChange={(next) => {
+          setInternalOpen(next);
+          onOpenChange?.(next);
+        }}
+        {...props}
+      />
+    </OpenContext>
+  );
 }
 
 function SheetTrigger({ ...props }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
@@ -23,22 +57,6 @@ function SheetPortal({ ...props }: React.ComponentProps<typeof SheetPrimitive.Po
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-function SheetOverlay({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
-  return (
-    <SheetPrimitive.Overlay
-      data-slot="sheet-overlay"
-      className={cn(
-        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
 function SheetContent({
   className,
   children,
@@ -46,32 +64,56 @@ function SheetContent({
   showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  side?: "top" | "right" | "bottom" | "left";
+  side?: Side;
   showCloseButton?: boolean;
 }) {
+  const open = React.useContext(OpenContext);
+  const reduceMotion = useReducedMotion();
+  const offscreen = reduceMotion ? { opacity: 0 } : OFFSCREEN[side];
+  const onscreen = reduceMotion ? { opacity: 1 } : { x: 0, y: 0 };
+  const transition = reduceMotion ? { duration: REDUCED_MOTION_DURATION } : drawerSpring;
+
   return (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content
-        data-slot="sheet-content"
-        data-side={side}
-        className={cn(
-          "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10 data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10 fixed z-50 flex flex-col gap-4 bg-clip-padding text-sm shadow-lg transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-        {showCloseButton && (
-          <SheetPrimitive.Close data-slot="sheet-close" asChild>
-            <Button variant="ghost" className="absolute top-3 right-3" size="icon-sm">
-              <XIcon />
-              <span className="sr-only">Close</span>
-            </Button>
-          </SheetPrimitive.Close>
-        )}
-      </SheetPrimitive.Content>
-    </SheetPortal>
+    <AnimatePresence>
+      {open ? (
+        <SheetPortal forceMount>
+          <SheetPrimitive.Overlay asChild forceMount>
+            <m.div
+              data-slot="sheet-overlay"
+              className="fixed inset-0 z-50 bg-black/30 supports-backdrop-filter:backdrop-blur-xs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+          </SheetPrimitive.Overlay>
+          <SheetPrimitive.Content asChild forceMount {...props}>
+            <m.div
+              data-slot="sheet-content"
+              data-side={side}
+              className={cn(
+                "bg-popover text-popover-foreground fixed z-50 flex flex-col gap-4 bg-clip-padding text-sm shadow-lg outline-none data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
+                className,
+              )}
+              initial={offscreen}
+              animate={onscreen}
+              exit={offscreen}
+              transition={transition}
+            >
+              {children}
+              {showCloseButton && (
+                <SheetPrimitive.Close data-slot="sheet-close" asChild>
+                  <Button variant="ghost" className="absolute top-3 right-3" size="icon-sm">
+                    <XIcon />
+                    <span className="sr-only">Cerrar</span>
+                  </Button>
+                </SheetPrimitive.Close>
+              )}
+            </m.div>
+          </SheetPrimitive.Content>
+        </SheetPortal>
+      ) : null}
+    </AnimatePresence>
   );
 }
 

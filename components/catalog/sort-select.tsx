@@ -16,6 +16,7 @@ export function SortSelect() {
       </label>
       <select
         id="orden"
+        aria-label="Ordenar por"
         value={filters.sort}
         disabled={isPending}
         onChange={(event) => {

@@ -11,6 +11,8 @@
   --color-surface: #ffffff;
   --color-surface-2: #f5f6f8;
   --color-success: #16a34a;
+  /* Verde para texto: --color-success sobre blanco da 3.3:1, este da 5:1 (AA). */
+  --color-success-700: #15803d;
 }
 
 @layer base {
@@ -128,7 +130,8 @@
   --secondary: var(--color-surface-2);
   --secondary-foreground: var(--color-ink);
   --muted: var(--color-surface-2);
-  --muted-foreground: #6b7280;
+  /* #6b7280 da 4.47:1 sobre surface-2; este tono da 5.7:1 (AA en ambos fondos). */
+  --muted-foreground: #5b6270;
   --accent: var(--color-surface-2);
   --accent-foreground: var(--color-ink);
   --destructive: var(--color-brand-red-600);

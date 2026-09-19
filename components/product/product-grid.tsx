@@ -6,13 +6,17 @@ import type { ProductCardData } from "@/types/catalog";
 export function ProductGrid({
   products,
   wide = false,
-  priorityCount = 0,
+  immediateCount = 0,
+  headingLevel = 3,
   className,
 }: {
   products: ProductCardData[];
   /** 5 columnas en escritorio (más vendidos) en vez de 4. */
   wide?: boolean;
-  priorityCount?: number;
+  /** Tarjetas sobre el pliegue: visibles desde el HTML y con imagen prioritaria. */
+  immediateCount?: number;
+  /** h2 cuando la página no tiene un h2 previo (catálogo); h3 dentro de una sección con h2. */
+  headingLevel?: 2 | 3;
   className?: string;
 }) {
   return (
@@ -24,8 +28,12 @@ export function ProductGrid({
       )}
     >
       {products.map((product, index) => (
-        <StaggerItem key={product.id}>
-          <ProductCard product={product} priority={index < priorityCount} />
+        <StaggerItem key={product.id} immediate={index < immediateCount}>
+          <ProductCard
+            product={product}
+            priority={index < immediateCount}
+            headingLevel={headingLevel}
+          />
         </StaggerItem>
       ))}
     </Stagger>

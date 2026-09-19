@@ -45,7 +45,7 @@ export function MobileBar({ whatsappNumber }: { whatsappNumber: string }) {
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-success flex flex-col items-center gap-1 py-2 text-xs font-medium"
+          className="text-success-700 flex flex-col items-center gap-1 py-2 text-xs font-medium"
         >
           <MessageCircle className="size-5" aria-hidden="true" />
           WhatsApp

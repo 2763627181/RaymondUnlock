@@ -196,4 +196,13 @@ export const floatingButtonVariants: Variants = {
   },
 };
 
+/** Un pulso suave de 1.4 s cada 6 s. */
+export const floatingPulseTransition: Transition = {
+  duration: 1.4,
+  ease: EASE_DEFAULT,
+  repeat: Infinity,
+  repeatDelay: 4.6,
+  delay: 3,
+};
+
 export const springShort: Transition = { type: "spring", stiffness: 420, damping: 30 };

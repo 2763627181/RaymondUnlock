@@ -16,10 +16,13 @@ import type { ProductCardData } from "@/types/catalog";
 export function ProductCard({
   product,
   priority = false,
+  headingLevel = 3,
 }: {
   product: ProductCardData;
   priority?: boolean;
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   const reduceMotion = useReducedMotion() ?? false;
   const motion = getCardMotion(reduceMotion);
   const addToCart = useCartStore((state) => state.add);
@@ -129,14 +132,14 @@ export function ProductCard({
         {product.brandName ? (
           <p className="text-muted-foreground text-xs">{product.brandName}</p>
         ) : null}
-        <h3 className="text-sm leading-snug font-medium">
+        <Heading className="text-sm leading-snug font-medium">
           <Link
             href={`/producto/${product.slug}`}
             className="after:absolute after:inset-0 after:content-['']"
           >
             {product.name}
           </Link>
-        </h3>
+        </Heading>
         <ColorSwatches colors={product.colors} className="mt-0.5" />
         <PriceTag
           minPrice={product.minPrice}

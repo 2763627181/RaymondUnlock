@@ -13,7 +13,7 @@ function stockLabel(stock: number): { text: string; className: string } {
   if (stock <= 0) return { text: "Agotado", className: "text-muted-foreground" };
   if (stock <= LOW_STOCK_THRESHOLD)
     return { text: "Últimas unidades", className: "text-brand-red-600" };
-  return { text: "Disponible", className: "text-success" };
+  return { text: "Disponible", className: "text-success-700" };
 }
 
 export function PriceBlock({ variant }: { variant: CatalogVariant }) {

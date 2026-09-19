@@ -60,9 +60,10 @@ export default async function ServicesPage() {
       </Container>
 
       <Container className="pb-16 sm:pb-20">
+        <h2 className="sr-only">Servicios disponibles</h2>
         <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
-            <StaggerItem key={service.id}>
+          {services.map((service, index) => (
+            <StaggerItem key={service.id} immediate={index < 3}>
               <ServiceCard service={service} />
             </StaggerItem>
           ))}

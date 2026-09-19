@@ -74,7 +74,7 @@ export async function CatalogView({
           <ActiveFilters filters={filters} facets={page.facets} basePath={basePath} />
           {page.items.length > 0 ? (
             <>
-              <ProductGrid products={page.items} />
+              <ProductGrid products={page.items} headingLevel={2} immediateCount={4} />
               <LoadMore shown={page.items.length} total={page.total} />
             </>
           ) : (

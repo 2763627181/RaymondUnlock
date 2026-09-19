@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { MotionProvider } from "@/components/motion/motion-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { ToasterLoader } from "@/components/ui/toaster-loader";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <MotionProvider>
           {children}
-          <Toaster />
+          <ToasterLoader />
         </MotionProvider>
       </body>
     </html>

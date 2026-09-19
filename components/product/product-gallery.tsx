@@ -2,11 +2,17 @@
 
 import { useRef, useState, ViewTransition } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useReducedMotion } from "motion/react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { ProductMedia } from "@/components/product/product-media";
 import { cn } from "@/lib/utils";
 import type { ProductImage } from "@/types/catalog";
+
+// El zoom (Dialog) se descarga la primera vez que se amplía una imagen.
+const ProductZoomDialog = dynamic(
+  () => import("@/components/product/product-zoom-dialog").then((mod) => mod.ProductZoomDialog),
+  { ssr: false },
+);
 
 export function ProductGallery({
   images,
@@ -24,7 +30,11 @@ export function ProductGallery({
   const reduceMotion = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
-  const [zoomed, setZoomed] = useState<ProductImage | null>(null);
+  const [zoom, setZoom] = useState<{ image: ProductImage | null; open: boolean; loaded: boolean }>({
+    image: null,
+    open: false,
+    loaded: false,
+  });
 
   const views: (ProductImage | null)[] = images.length > 0 ? images : [null];
   const hasMany = views.length > 1;
@@ -80,7 +90,7 @@ export function ProductGallery({
                 {image ? (
                   <button
                     type="button"
-                    onClick={() => setZoomed(image)}
+                    onClick={() => setZoom({ image, open: true, loaded: true })}
                     aria-label="Ampliar imagen"
                     className="focus-visible:ring-ring absolute inset-0 cursor-zoom-in rounded-lg outline-none focus-visible:ring-2"
                   />
@@ -142,23 +152,14 @@ export function ProductGallery({
         </ul>
       ) : null}
 
-      <Dialog open={zoomed !== null} onOpenChange={(open) => !open && setZoomed(null)}>
-        <DialogContent className="sm:max-w-3xl">
-          <DialogTitle className="sr-only">{name}</DialogTitle>
-          <DialogDescription className="sr-only">Imagen ampliada del producto</DialogDescription>
-          {zoomed ? (
-            <div className="relative aspect-square w-full touch-pinch-zoom">
-              <Image
-                src={zoomed.url}
-                alt={zoomed.alt}
-                fill
-                sizes="(min-width: 768px) 768px, 100vw"
-                className="object-contain"
-              />
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      {zoom.loaded ? (
+        <ProductZoomDialog
+          open={zoom.open}
+          onOpenChange={(open) => setZoom((current) => ({ ...current, open }))}
+          image={zoom.image}
+          name={name}
+        />
+      ) : null}
     </div>
   );
 }

@@ -18,8 +18,21 @@ export function Stagger({ children, className }: { children: ReactNode; classNam
   );
 }
 
-export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+/**
+ * `immediate`: el elemento está sobre el pliegue, así que se pinta visible desde el HTML.
+ * Si arrancara con opacity 0 esperaría al JS para aparecer y retrasaría el LCP.
+ */
+export function StaggerItem({
+  children,
+  className,
+  immediate = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  immediate?: boolean;
+}) {
   const shouldReduceMotion = useReducedMotion();
+  if (immediate) return <div className={className}>{children}</div>;
 
   return (
     <m.div

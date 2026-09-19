@@ -169,7 +169,11 @@ export function ProductArt({
   const props = { base, gradient };
 
   return (
-    <svg viewBox="0 0 240 240" role="img" aria-label={label} className={cn("size-full", className)}>
+    <svg
+      viewBox="0 0 240 240"
+      {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
+      className={cn("size-full", className)}
+    >
       <defs>
         <linearGradient id={gradient} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor={shade(base, 0.22)} />

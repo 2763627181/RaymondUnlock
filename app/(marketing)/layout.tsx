@@ -1,8 +1,9 @@
-import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CartDrawerLoader } from "@/components/cart/cart-drawer-loader";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { MobileBar } from "@/components/layout/mobile-bar";
+import { WhatsAppFloat } from "@/components/layout/whatsapp-float";
 import { getNavCategories, getSiteSettings, getTopLevelCategories } from "@/lib/data";
 import { navSecondaryLinks, navWholesaleLink } from "@/lib/nav";
 
@@ -29,7 +30,8 @@ export default async function MarketingLayout({ children }: LayoutProps<"/">) {
       </main>
       <Footer settings={settings} categories={footerCategories} />
       <MobileBar whatsappNumber={settings.whatsappNumber} />
-      <CartDrawer />
+      <WhatsAppFloat whatsappNumber={settings.whatsappNumber} />
+      <CartDrawerLoader />
     </>
   );
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import { LazyMotion, domAnimation } from "motion/react";
+import { LazyMotion } from "motion/react";
 import type { ReactNode } from "react";
 
+const loadFeatures = () => import("@/lib/motion-features").then((module) => module.default);
+
 export function MotionProvider({ children }: { children: ReactNode }) {
-  return <LazyMotion features={domAnimation}>{children}</LazyMotion>;
+  return <LazyMotion features={loadFeatures}>{children}</LazyMotion>;
 }

@@ -22,6 +22,8 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   drawerOpen: boolean;
+  /** true desde la primera vez que se abre: el drawer se descarga bajo demanda. */
+  drawerMounted: boolean;
   add: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   setQuantity: (variantId: string, quantity: number) => void;
   remove: (variantId: string) => void;
@@ -38,6 +40,7 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       drawerOpen: false,
+      drawerMounted: false,
       add: (item, quantity = 1) =>
         set((state) => {
           const existing = state.items.find((line) => line.variantId === item.variantId);
@@ -65,7 +68,8 @@ export const useCartStore = create<CartState>()(
       remove: (variantId) =>
         set((state) => ({ items: state.items.filter((line) => line.variantId !== variantId) })),
       clear: () => set({ items: [] }),
-      setDrawerOpen: (open) => set({ drawerOpen: open }),
+      setDrawerOpen: (open) =>
+        set((state) => ({ drawerOpen: open, drawerMounted: state.drawerMounted || open })),
     }),
     {
       name: CART_STORAGE_KEY,
