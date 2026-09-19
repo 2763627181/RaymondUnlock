@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveLastQuote } from "@/lib/cart/last-quote";
-import { cartDisplaySubtotal, useCartStore } from "@/lib/cart/store";
+import { useCartStore } from "@/lib/cart/store";
+import { useCartPricing } from "@/lib/cart/use-cart-pricing";
 import { toast } from "@/lib/toast-store";
+import { useViewerStore } from "@/lib/viewer/store";
 import { quoteFormSchema, type QuoteFormInput, type QuoteFormValues } from "@/lib/validation/quote";
 
 const FORM_FIELDS: readonly string[] = [
@@ -32,6 +35,7 @@ export function QuoteForm() {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.remove);
+  const { subtotal: displaySubtotal } = useCartPricing(items);
 
   const form = useForm<QuoteFormInput, unknown, QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -46,8 +50,23 @@ export function QuoteForm() {
     },
     mode: "onTouched",
   });
-  const { register, control, handleSubmit, setError, formState } = form;
+  const { register, control, handleSubmit, setError, setValue, getValues, formState } = form;
   const { errors, isSubmitting } = formState;
+
+  // Con sesión iniciada se precargan sus datos, sin pisar lo que ya escribió.
+  const contact = useViewerStore((state) => state.contact);
+  useEffect(() => {
+    if (!contact) return;
+    const prefill = [
+      ["customerName", contact.fullName],
+      ["customerPhone", contact.phone],
+      ["customerEmail", contact.email],
+      ["businessName", contact.businessName],
+    ] as const;
+    for (const [field, value] of prefill) {
+      if (value && !getValues(field)) setValue(field, value);
+    }
+  }, [contact, getValues, setValue]);
 
   async function onSubmit(values: QuoteFormValues) {
     const result = await submitQuote({
@@ -79,7 +98,7 @@ export function QuoteForm() {
       emailStatus: result.emailStatus,
     });
 
-    if (Math.round(result.subtotal) !== Math.round(cartDisplaySubtotal(items))) {
+    if (Math.round(result.subtotal) !== Math.round(displaySubtotal)) {
       toast({
         title: "Actualizamos los precios",
         description: "Algunos precios cambiaron desde que agregaste los productos.",

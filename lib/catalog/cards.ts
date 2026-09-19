@@ -74,6 +74,7 @@ export function toCardData(input: {
     imageAlt: image?.alt || product.name,
     colors: uniqueColors(variants),
     variantCount: variants.length,
+    variantIds: variants.map((variant) => variant.id),
     quickAddVariantId: onlyVariant && onlyVariant.stock > 0 ? onlyVariant.id : null,
     quickAddLabel: onlyVariant ? variantLabel(onlyVariant) : null,
   };

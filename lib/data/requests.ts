@@ -28,6 +28,8 @@ export interface NewQuote {
   channel: Enums<"quote_channel">;
   subtotal: number;
   lines: PricedLine[];
+  /** Usuario con sesión que envió la cotización, si lo hay. */
+  userId: string | null;
 }
 
 /** Guarda la cotización con sus líneas y devuelve su código (RU-2026-0001). */
@@ -47,6 +49,7 @@ export async function createQuote(quote: NewQuote): Promise<string> {
       tier: quote.tier,
       channel: quote.channel,
       subtotal: quote.subtotal,
+      user_id: quote.userId,
     })
     .select("id")
     .single();

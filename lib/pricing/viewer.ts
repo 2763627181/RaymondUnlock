@@ -1,11 +1,18 @@
 import "server-only";
+import { getViewer } from "@/lib/auth/viewer";
+import { isWholesaleEligible } from "@/lib/auth/status";
 import type { PriceTier } from "@/types/catalog";
 
 /**
- * Tier real del visitante, decidido siempre en el servidor. Hasta la Fase 8 no
- * existen sesiones, así que todos los visitantes son clientes de precio unitario;
- * ahí pasa a leer el perfil (mayorista aprobado) con @supabase/ssr.
+ * Tier real del visitante y su usuario, decididos siempre en el servidor a
+ * partir de la sesión: mayorista aprobado (o admin) → "wholesale"; todos los
+ * demás → "retail". Lo que diga el navegador nunca cuenta.
  */
-export async function getViewerTier(): Promise<PriceTier> {
-  return "retail";
+export async function getQuoteViewer(): Promise<{ tier: PriceTier; userId: string | null }> {
+  const viewer = await getViewer();
+  if (!viewer) return { tier: "retail", userId: null };
+  return {
+    tier: isWholesaleEligible(viewer.status) ? "wholesale" : "retail",
+    userId: viewer.userId,
+  };
 }

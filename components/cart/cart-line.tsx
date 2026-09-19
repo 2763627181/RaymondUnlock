@@ -5,11 +5,20 @@ import { m, useReducedMotion } from "motion/react";
 import { Trash2 } from "lucide-react";
 import { ProductMedia } from "@/components/product/product-media";
 import { QuantityStepper } from "@/components/product/quantity-stepper";
+import type { DisplayLine } from "@/lib/cart/display-pricing";
 import { useCartStore, type CartItem } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
 import { cartLineReducedVariants, cartLineVariants } from "@/lib/motion";
 
-export function CartLine({ item, onNavigate }: { item: CartItem; onNavigate?: () => void }) {
+export function CartLine({
+  item,
+  pricing,
+  onNavigate,
+}: {
+  item: CartItem;
+  pricing: DisplayLine;
+  onNavigate?: () => void;
+}) {
   const reduceMotion = useReducedMotion();
   const setQuantity = useCartStore((state) => state.setQuantity);
   const remove = useCartStore((state) => state.remove);
@@ -74,9 +83,19 @@ export function CartLine({ item, onNavigate }: { item: CartItem; onNavigate?: ()
             label={`Cantidad de ${snapshot.productName}`}
           />
           <p className="tabular-nums-price text-sm font-semibold">
-            {formatPrice(snapshot.unitPrice * item.quantity)}
+            {formatPrice(pricing.lineTotal)}
           </p>
         </div>
+        {pricing.tierApplied === "wholesale" ? (
+          <p className="text-success-700 text-xs font-medium">
+            Precio al por mayor: {formatPrice(pricing.unitPrice)} c/u
+          </p>
+        ) : pricing.terms ? (
+          <p className="text-muted-foreground text-xs">
+            Al por mayor {formatPrice(pricing.terms.price)} c/u desde {pricing.terms.minQty}{" "}
+            unidades
+          </p>
+        ) : null}
       </div>
     </m.li>
   );

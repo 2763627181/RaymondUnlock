@@ -7,7 +7,8 @@ import { ShoppingBag, X } from "lucide-react";
 import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
 import { Button } from "@/components/ui/button";
-import { cartCount, cartDisplaySubtotal, useCartStore } from "@/lib/cart/store";
+import { cartCount, useCartStore } from "@/lib/cart/store";
+import { useCartPricing } from "@/lib/cart/use-cart-pricing";
 import { REDUCED_MOTION_DURATION, drawerSpring } from "@/lib/motion";
 import { useIsClient } from "@/lib/use-is-client";
 
@@ -17,6 +18,7 @@ export function CartDrawer() {
   const open = useCartStore((state) => state.drawerOpen);
   const setOpen = useCartStore((state) => state.setDrawerOpen);
   const items = useCartStore((state) => state.items);
+  const { lines, subtotal } = useCartPricing(items);
 
   const close = () => setOpen(false);
   const count = isClient ? cartCount(items) : 0;
@@ -60,16 +62,24 @@ export function CartDrawer() {
                   <>
                     <ul className="flex-1 overflow-y-auto px-5">
                       <AnimatePresence initial={false} mode="popLayout">
-                        {items.map((item) => (
-                          <CartLine key={item.variantId} item={item} onNavigate={close} />
-                        ))}
+                        {items.map((item) => {
+                          const pricing = lines.get(item.variantId);
+                          return pricing ? (
+                            <CartLine
+                              key={item.variantId}
+                              item={item}
+                              pricing={pricing}
+                              onNavigate={close}
+                            />
+                          ) : null;
+                        })}
                       </AnimatePresence>
                     </ul>
                     <footer className="border-border space-y-3 border-t px-5 py-4">
                       <div className="flex items-baseline justify-between">
                         <span className="text-muted-foreground text-sm">Subtotal</span>
                         <AnimatedPrice
-                          value={cartDisplaySubtotal(items)}
+                          value={subtotal}
                           className="tabular-nums-price text-xl font-semibold"
                         />
                       </div>

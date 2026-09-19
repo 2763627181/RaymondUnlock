@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/motion/stagger";
+import { WholesaleSignup } from "@/components/wholesale/wholesale-signup";
 import { Button } from "@/components/ui/button";
 import { getSiteSettings, getTopLevelCategories } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -64,9 +65,7 @@ export default async function WholesalePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="h-11 px-6 text-base">
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle aria-hidden="true" /> Solicitar mi cuenta
-                </a>
+                <a href="#solicitar">Solicitar mi cuenta</a>
               </Button>
               <Button
                 asChild
@@ -101,6 +100,29 @@ export default async function WholesalePage() {
               </StaggerItem>
             ))}
           </Stagger>
+        </Container>
+      </section>
+
+      <section id="solicitar" className="scroll-mt-24 py-16 sm:py-20">
+        <Container>
+          <Reveal>
+            <SectionHeading
+              title="Solicita tu cuenta al por mayor"
+              description="Revisamos cada solicitud y te respondemos por correo."
+            />
+          </Reveal>
+          <WholesaleSignup />
+          <p className="text-muted-foreground mt-6 text-center text-sm">
+            ¿Prefieres hablar con alguien?{" "}
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-blue inline-flex items-center gap-1 hover:underline"
+            >
+              <MessageCircle className="size-3.5" aria-hidden="true" /> Escríbenos por WhatsApp
+            </a>
+          </p>
         </Container>
       </section>
 

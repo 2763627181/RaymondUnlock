@@ -6,15 +6,36 @@ export function PriceTag({
   maxPrice,
   compareAtPrice,
   discountPercent,
+  wholesale,
   className,
 }: {
   minPrice: number;
   maxPrice: number;
   compareAtPrice: number | null;
   discountPercent: number | null;
+  /** Solo para mayoristas aprobados con "Por mayor" activo: el precio al por mayor es el principal. */
+  wholesale?: { price: number; minQty: number } | null;
   className?: string;
 }) {
   const isRange = minPrice !== maxPrice;
+
+  if (wholesale) {
+    return (
+      <div className={cn("tabular-nums-price", className)}>
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-muted-foreground text-xs">Por mayor desde</span>
+          <span className="text-success-700 text-base font-semibold">
+            {formatPrice(wholesale.price)}
+          </span>
+        </p>
+        <p className="text-muted-foreground text-xs">
+          Mín. {wholesale.minQty} {wholesale.minQty === 1 ? "unidad" : "unidades"} · Unidad{" "}
+          {isRange ? "desde " : ""}
+          {formatPrice(minPrice)}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <p className={cn("tabular-nums-price flex flex-wrap items-baseline gap-x-2", className)}>

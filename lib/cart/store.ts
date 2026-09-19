@@ -82,7 +82,3 @@ export const useCartStore = create<CartState>()(
 export function cartCount(items: CartItem[]): number {
   return items.reduce((sum, line) => sum + line.quantity, 0);
 }
-
-export function cartDisplaySubtotal(items: CartItem[]): number {
-  return items.reduce((sum, line) => sum + line.snapshot.unitPrice * line.quantity, 0);
-}

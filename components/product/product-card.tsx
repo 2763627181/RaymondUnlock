@@ -11,6 +11,7 @@ import { ColorSwatches } from "@/components/product/color-swatches";
 import { CONDITION_LABELS } from "@/lib/catalog/text";
 import { useCartStore } from "@/lib/cart/store";
 import { badgePopVariants, getCardMotion } from "@/lib/motion";
+import { useWholesaleFrom } from "@/lib/viewer/use-wholesale";
 import type { ProductCardData } from "@/types/catalog";
 
 export function ProductCard({
@@ -27,6 +28,7 @@ export function ProductCard({
   const motion = getCardMotion(reduceMotion);
   const addToCart = useCartStore((state) => state.add);
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
+  const wholesale = useWholesaleFrom(product.variantIds);
   const [focused, setFocused] = useState(false);
   // Solo la tarjeta con la que se interactúa lleva el nombre de la transición
   // compartida: dos elementos con el mismo nombre en la página cancelan el morph.
@@ -146,6 +148,7 @@ export function ProductCard({
           maxPrice={product.maxPrice}
           compareAtPrice={product.compareAtPrice}
           discountPercent={product.discountPercent}
+          wholesale={wholesale}
           className="mt-1"
         />
       </div>

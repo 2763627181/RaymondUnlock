@@ -8,7 +8,8 @@ import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
 import { QuoteForm } from "@/components/cart/quote-form";
 import { Button } from "@/components/ui/button";
-import { cartCount, cartDisplaySubtotal, useCartStore } from "@/lib/cart/store";
+import { cartCount, useCartStore } from "@/lib/cart/store";
+import { useCartPricing } from "@/lib/cart/use-cart-pricing";
 import { useIsClient } from "@/lib/use-is-client";
 
 function EmptyCart() {
@@ -65,6 +66,7 @@ function ClearCartButton() {
 export function CartPage() {
   const isClient = useIsClient();
   const items = useCartStore((state) => state.items);
+  const { lines, subtotal } = useCartPricing(items);
 
   if (!isClient) {
     return <div className="skeleton h-96 w-full" role="status" aria-label="Cargando carrito" />;
@@ -82,9 +84,12 @@ export function CartPage() {
         </div>
         <ul className="border-border border-t">
           <AnimatePresence initial={false} mode="popLayout">
-            {items.map((item) => (
-              <CartLine key={item.variantId} item={item} />
-            ))}
+            {items.map((item) => {
+              const pricing = lines.get(item.variantId);
+              return pricing ? (
+                <CartLine key={item.variantId} item={item} pricing={pricing} />
+              ) : null;
+            })}
           </AnimatePresence>
         </ul>
       </section>
@@ -93,14 +98,11 @@ export function CartPage() {
         <div className="bg-surface-2 rounded-lg p-5">
           <div className="flex items-baseline justify-between">
             <span className="text-muted-foreground text-sm">Subtotal</span>
-            <AnimatedPrice
-              value={cartDisplaySubtotal(items)}
-              className="tabular-nums-price text-2xl font-semibold"
-            />
+            <AnimatedPrice value={subtotal} className="tabular-nums-price text-2xl font-semibold" />
           </div>
           <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-            Precios de unidad, sujetos a confirmación y disponibilidad. Recalculamos el total al
-            enviar la cotización.
+            Precios sujetos a confirmación y disponibilidad. Recalculamos el total al enviar la
+            cotización.
           </p>
         </div>
         <QuoteForm />

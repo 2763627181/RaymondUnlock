@@ -26,3 +26,11 @@ ${input.body}
 </body>
 </html>`;
 }
+
+export function emailButton(href: string, label: string): string {
+  return `<p style="margin:24px 0;"><a href="${escapeHtml(href)}" style="display:inline-block;background:#e11b22;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:10px;">${escapeHtml(label)}</a></p>`;
+}
+
+export function emailParagraph(text: string): string {
+  return `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;">${escapeHtml(text)}</p>`;
+}

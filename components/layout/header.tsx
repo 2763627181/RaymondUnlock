@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { m, useMotionValueEvent, useScroll, useTransform } from "motion/react";
-import { User } from "lucide-react";
 import { Container } from "@/components/layout/container";
+import { AccountLink } from "@/components/layout/account-link";
+import { PriceViewSwitch } from "@/components/layout/price-view-switch";
 import { SearchDialog } from "@/components/layout/search-dialog";
 import { Logo } from "@/components/layout/logo";
 import { MegaMenu } from "@/components/layout/mega-menu";
@@ -57,28 +58,23 @@ export function Header({
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-ink-700 hover:text-brand-red rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                className="text-ink-700 hover:text-brand-red rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors"
               >
                 {link.name}
               </Link>
             ))}
             <Link
               href={wholesaleLink.href}
-              className="text-brand-red hover:text-brand-red-600 rounded-md px-3 py-2 text-sm font-semibold transition-colors"
+              className="text-brand-red hover:text-brand-red-600 rounded-md px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors"
             >
               {wholesaleLink.name}
             </Link>
           </div>
 
           <div className="flex items-center gap-1">
+            <PriceViewSwitch className="mr-2 hidden xl:flex" />
             <SearchDialog />
-            <Link
-              href="/login"
-              aria-label="Mi cuenta"
-              className="hover:bg-muted hidden size-9 items-center justify-center rounded-md transition-colors sm:flex"
-            >
-              <User className="text-ink-700 size-5" aria-hidden="true" />
-            </Link>
+            <AccountLink />
             <CartButton />
           </div>
         </m.div>

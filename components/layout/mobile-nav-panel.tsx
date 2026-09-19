@@ -9,6 +9,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Logo } from "@/components/layout/logo";
+import { PriceViewSwitch } from "@/components/layout/price-view-switch";
+import { useViewerStore } from "@/lib/viewer/store";
 import type { NavCategory, NavLink as NavLinkItem } from "@/types/site";
 
 export function MobileNavPanel({
@@ -25,6 +27,8 @@ export function MobileNavPanel({
   wholesaleLink: NavLinkItem;
 }) {
   const close = () => onOpenChange(false);
+  const status = useViewerStore((state) => state.status);
+  const loggedIn = status !== "unknown" && status !== "anonymous";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -35,6 +39,7 @@ export function MobileNavPanel({
         </SheetHeader>
 
         <nav className="flex flex-col overflow-y-auto px-4 pb-4" aria-label="Menú principal">
+          <PriceViewSwitch className="flex py-3" labelClassName="inline" />
           <Accordion type="single" collapsible className="w-full">
             {categories.map((category) => (
               <AccordionItem key={category.slug} value={category.slug}>
@@ -78,6 +83,13 @@ export function MobileNavPanel({
               className="text-brand-red-600 py-2.5 text-sm font-semibold"
             >
               {wholesaleLink.name}
+            </Link>
+            <Link
+              href={loggedIn ? "/cuenta" : "/login"}
+              onClick={close}
+              className="border-border mt-2 border-t py-2.5 pt-4 text-sm font-medium"
+            >
+              {loggedIn ? "Mi cuenta" : "Iniciar sesión"}
             </Link>
           </div>
         </nav>
