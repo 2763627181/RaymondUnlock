@@ -4,7 +4,7 @@ import { z } from "zod";
 import { MAX_LINE_QUANTITY } from "@/lib/cart/constants";
 import { computeSubtotal, priceLine } from "@/lib/cart/pricing";
 import { buildQuoteWhatsAppUrl } from "@/lib/cart/whatsapp";
-import { getPricingRows, getSiteSettings, nextRequestCode } from "@/lib/data";
+import { createQuote, getPricingRows, getSiteSettings } from "@/lib/data";
 import {
   renderQuoteConfirmationEmail,
   renderQuoteNotificationEmail,
@@ -12,7 +12,7 @@ import {
 import { sendEmail } from "@/lib/email/send";
 import { getViewerTier } from "@/lib/pricing/viewer";
 import { SITE_URL } from "@/lib/seo";
-import { quoteSubmissionSchema } from "@/lib/validation/quote";
+import { quoteSubmissionSchema, type QuoteSubmission } from "@/lib/validation/quote";
 
 export type QuoteEmailStatus = "not_requested" | "sent" | "partial" | "failed";
 
@@ -42,8 +42,20 @@ export async function submitQuote(input: unknown): Promise<SubmitQuoteResult> {
       fieldErrors,
     };
   }
-  const data = parsed.data;
 
+  try {
+    return await processQuote(parsed.data);
+  } catch (error) {
+    console.error("[cotización] No se pudo procesar la solicitud:", error);
+    return {
+      ok: false,
+      message:
+        "No pudimos registrar tu cotización en este momento. Inténtalo de nuevo en unos minutos o escríbenos por WhatsApp.",
+    };
+  }
+}
+
+async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
   // El precio que envía el navegador nunca se usa: se vuelve a leer todo aquí.
   const tier = await getViewerTier();
 
@@ -73,9 +85,20 @@ export async function submitQuote(input: unknown): Promise<SubmitQuoteResult> {
     return row ? [priceLine(row, tier, quantity)] : [];
   });
   const subtotal = computeSubtotal(lines);
-  // La persistencia (quotes + quote_items) se agrega en la Fase 2 junto con la base de datos.
-  const code = await nextRequestCode("RU");
+  // Los ajustes se leen antes de guardar: después de persistir nada puede lanzar,
+  // o el cliente vería un error de una cotización que sí quedó registrada.
   const settings = await getSiteSettings();
+  const code = await createQuote({
+    customerName: data.customerName,
+    customerPhone: data.customerPhone,
+    customerEmail: data.customerEmail,
+    businessName: data.businessName,
+    note: data.note,
+    tier,
+    channel: data.channel,
+    subtotal,
+    lines,
+  });
 
   const messageData = {
     code,

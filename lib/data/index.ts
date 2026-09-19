@@ -1,25 +1,21 @@
 import "server-only";
 
-/**
- * Único punto de entrada a los datos. Hoy apunta a la implementación mock;
- * en la Fase 2 se reemplaza por Supabase sin tocar las páginas.
- */
+/** Único punto de entrada a los datos: las páginas y acciones no importan Supabase directamente. */
+export { getBanners } from "./banners";
 export {
   getAllProductSlugs,
-  getBanners,
   getBrands,
   getCategories,
   getCategoryBySlug,
   getFeaturedProducts,
   getNavCategories,
-  getPricingRows,
   getProductBySlug,
   getPromoProducts,
   getRelatedProducts,
-  getServiceBySlug,
-  getServices,
-  getSiteSettings,
   getTopLevelCategories,
   listProducts,
-} from "./mock/repo";
-export { nextRequestCode } from "./mock/requests";
+} from "./catalog";
+export { getPricingRows } from "./pricing";
+export { createQuote, createRepairRequest } from "./requests";
+export { getServiceBySlug, getServices } from "./services";
+export { getSiteSettings } from "./settings";
