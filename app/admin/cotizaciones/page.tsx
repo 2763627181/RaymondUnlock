@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { ExportButtons } from "@/components/admin/export-buttons";
 import { ListFilters } from "@/components/admin/list-filters";
 import { PageHeader } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
 import { RequestStatusSelect } from "@/components/admin/request-status-select";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -51,21 +50,13 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
     .range(from, to);
   if (error) throw new Error(error.message);
 
-  const exportParams = new URLSearchParams(
-    Object.entries(filtersToParams(filters)).filter(([, value]) => value !== ""),
-  ).toString();
-
   return (
     <>
       <PageHeader
         title="Cotizaciones"
         description="Solicitudes que llegan del carrito. Cambia el estado según avances con cada cliente."
         actions={
-          <Button asChild variant="outline" className="h-10">
-            <a href={`/admin/cotizaciones/export${exportParams ? `?${exportParams}` : ""}`}>
-              <Download /> Exportar CSV
-            </a>
-          </Button>
+          <ExportButtons path="/admin/cotizaciones/export" params={filtersToParams(filters)} />
         }
       />
 

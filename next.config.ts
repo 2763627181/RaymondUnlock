@@ -8,6 +8,8 @@ const withBundleAnalyzer = createBundleAnalyzer({
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 const nextConfig: NextConfig = {
+  // Generadores de Excel y PDF: se cargan tal cual desde node_modules, sin empaquetarlos.
+  serverExternalPackages: ["exceljs", "@react-pdf/renderer"],
   images: {
     // Fotos de productos y banners que se suben al bucket público "products".
     remotePatterns: supabaseUrl

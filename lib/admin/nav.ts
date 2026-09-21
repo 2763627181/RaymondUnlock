@@ -8,6 +8,7 @@ import {
   Search,
   Settings,
   Tags,
+  TrendingUp,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -33,6 +34,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/banners", label: "Banners", icon: ImageIcon },
   { href: "/admin/cotizaciones", label: "Cotizaciones", icon: FileText, badge: "quotes" },
   { href: "/admin/reparaciones", label: "Reparaciones", icon: Hammer, badge: "repairs" },
+  { href: "/admin/ventas", label: "Ventas", icon: TrendingUp },
   { href: "/admin/ajustes", label: "Ajustes", icon: Settings },
 ];
 

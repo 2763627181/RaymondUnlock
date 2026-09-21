@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { toCsv } from "./csv";
 import { parseRequestFilters, searchClause } from "./quotes-query";
 import { pageRange, parsePage, totalPages } from "./pagination";
 import { SLUG_PATTERN, slugify } from "./slug";
@@ -22,33 +21,6 @@ describe("slugify", () => {
     const slug = slugify(`${"a".repeat(79)} b`);
     expect(slug.length).toBeLessThanOrEqual(80);
     expect(slug.endsWith("-")).toBe(false);
-  });
-});
-
-describe("toCsv", () => {
-  it("escapa comillas, comas y saltos de línea", () => {
-    const csv = toCsv(
-      ["a", "b"],
-      [
-        ['dijo "hola"', "x,y"],
-        ["l1\nl2", 5],
-      ],
-    );
-    expect(csv).toContain('"dijo ""hola""","x,y"');
-    expect(csv).toContain('"l1\nl2",5');
-  });
-  it("neutraliza fórmulas en texto pero no en números", () => {
-    const csv = toCsv(["v"], [["=HYPERLINK(1)"], ["+52"], ["@cmd"], ["-1"], [-5]]);
-    expect(csv).toContain("'=HYPERLINK(1)");
-    expect(csv).toContain("'+52");
-    expect(csv).toContain("'@cmd");
-    expect(csv).toContain("'-1");
-    expect(csv).toContain("\r\n-5\r\n");
-  });
-  it("incluye BOM UTF-8 y celdas vacías", () => {
-    const csv = toCsv(["a", "b"], [[null, undefined]]);
-    expect(csv.startsWith("\uFEFF")).toBe(true);
-    expect(csv).toContain("\r\n,\r\n");
   });
 });
 

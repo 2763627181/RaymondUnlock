@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ExportButtons } from "@/components/admin/export-buttons";
 import { ListFilters } from "@/components/admin/list-filters";
 import { PageHeader } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/admin/format-date";
 import { ADMIN_PAGE_SIZE, pageRange, totalPages } from "@/lib/admin/pagination";
-import { parseRequestFilters, searchClause } from "@/lib/admin/quotes-query";
+import { filtersToParams, parseRequestFilters, searchClause } from "@/lib/admin/quotes-query";
 import { REQUEST_STATUSES, REQUEST_STATUS_LABELS } from "@/lib/admin/status";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createSessionClient } from "@/lib/supabase/server";
@@ -47,6 +48,9 @@ export default async function AdminRepairsPage(props: PageProps<"/admin/reparaci
       <PageHeader
         title="Reparaciones"
         description="Solicitudes de diagnóstico y reparación que llegan desde /servicios."
+        actions={
+          <ExportButtons path="/admin/reparaciones/export" params={filtersToParams(filters)} />
+        }
       />
 
       <ListFilters

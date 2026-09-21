@@ -1,9 +1,9 @@
 import type { NextRequest } from "next/server";
-import { parseRequestFilters } from "@/lib/admin/quotes-query";
-import { loadQuotesReport } from "@/lib/reports/queries";
+import { parseMonth } from "@/lib/reports/month";
+import { loadSalesReport } from "@/lib/reports/queries";
 import { badFormat, guardAdmin, parseFormat, reportResponse } from "@/lib/reports/respond";
 
-/** Cotizaciones en Excel o PDF (`?formato=xlsx|pdf`), con los mismos filtros del listado. */
+/** Ventas de un mes en Excel o PDF (`?mes=2026-09&formato=xlsx|pdf`). Sin `mes`, el mes en curso. */
 export async function GET(request: NextRequest) {
   const denied = await guardAdmin();
   if (denied) return denied;
@@ -12,6 +12,6 @@ export async function GET(request: NextRequest) {
   const format = parseFormat(params.get("formato"));
   if (!format) return badFormat();
 
-  const report = await loadQuotesReport(parseRequestFilters(Object.fromEntries(params)));
+  const report = await loadSalesReport(parseMonth(params.get("mes") ?? undefined));
   return reportResponse(report, format);
 }
