@@ -610,6 +610,159 @@ export type Database = {
         };
         Relationships: [];
       };
+      wholesale_contacts: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          label: string;
+          person_name: string | null;
+          sort_order: number;
+          whatsapp: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          label: string;
+          person_name?: string | null;
+          sort_order?: number;
+          whatsapp: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          label?: string;
+          person_name?: string | null;
+          sort_order?: number;
+          whatsapp?: string;
+        };
+        Relationships: [];
+      };
+      wholesale_order_items: {
+        Row: {
+          category: string | null;
+          condition: string | null;
+          id: string;
+          line_total: number;
+          order_id: string;
+          product_id: string | null;
+          product_name: string;
+          quantity: number;
+          unit_price: number;
+        };
+        Insert: {
+          category?: string | null;
+          condition?: string | null;
+          id?: string;
+          line_total: number;
+          order_id: string;
+          product_id?: string | null;
+          product_name: string;
+          quantity: number;
+          unit_price: number;
+        };
+        Update: {
+          category?: string | null;
+          condition?: string | null;
+          id?: string;
+          line_total?: number;
+          order_id?: string;
+          product_id?: string | null;
+          product_name?: string;
+          quantity?: number;
+          unit_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wholesale_order_items_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "wholesale_orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "wholesale_order_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "wholesale_products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wholesale_orders: {
+        Row: {
+          code: string;
+          contact_label: string | null;
+          contact_whatsapp: string | null;
+          created_at: string;
+          id: string;
+          status: Database["public"]["Enums"]["quote_status"];
+          total: number;
+        };
+        Insert: {
+          code: string;
+          contact_label?: string | null;
+          contact_whatsapp?: string | null;
+          created_at?: string;
+          id?: string;
+          status?: Database["public"]["Enums"]["quote_status"];
+          total: number;
+        };
+        Update: {
+          code?: string;
+          contact_label?: string | null;
+          contact_whatsapp?: string | null;
+          created_at?: string;
+          id?: string;
+          status?: Database["public"]["Enums"]["quote_status"];
+          total?: number;
+        };
+        Relationships: [];
+      };
+      wholesale_products: {
+        Row: {
+          category: string;
+          condition: string;
+          created_at: string;
+          id: string;
+          image_url: string | null;
+          is_active: boolean;
+          name: string;
+          price: number;
+          product_type: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          category: string;
+          condition?: string;
+          created_at?: string;
+          id?: string;
+          image_url?: string | null;
+          is_active?: boolean;
+          name: string;
+          price: number;
+          product_type?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          category?: string;
+          condition?: string;
+          created_at?: string;
+          id?: string;
+          image_url?: string | null;
+          is_active?: boolean;
+          name?: string;
+          price?: number;
+          product_type?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       v_catalog_images: {
