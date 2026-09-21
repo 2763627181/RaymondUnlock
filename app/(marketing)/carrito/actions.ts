@@ -9,6 +9,7 @@ import {
   renderQuoteConfirmationEmail,
   renderQuoteNotificationEmail,
 } from "@/lib/email/quote-email";
+import { effectiveChannel, isEmailEnabled } from "@/lib/email/availability";
 import { sendEmail } from "@/lib/email/send";
 import { SITE_URL } from "@/lib/seo";
 import { quoteSubmissionSchema, type QuoteSubmission } from "@/lib/validation/quote";
@@ -86,12 +87,13 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
   // Los ajustes se leen antes de guardar: después de persistir nada puede lanzar,
   // o el cliente vería un error de una cotización que sí quedó registrada.
   const settings = await getSiteSettings();
+  const channel = effectiveChannel(data.channel, isEmailEnabled());
   const code = await createQuote({
     customerName: data.customerName,
     customerPhone: data.customerPhone,
     customerEmail: data.customerEmail,
     note: data.note,
-    channel: data.channel,
+    channel,
     subtotal,
     lines,
   });
@@ -110,7 +112,7 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
   });
 
   let emailStatus: QuoteEmailStatus = "not_requested";
-  if (data.channel !== "whatsapp") {
+  if (channel !== "whatsapp") {
     const emailData = { ...messageData, customerEmail: data.customerEmail };
     const notification = renderQuoteNotificationEmail(emailData);
     const confirmation = renderQuoteConfirmationEmail(emailData, {

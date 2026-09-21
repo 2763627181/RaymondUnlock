@@ -5,7 +5,7 @@ import { Container } from "@/components/layout/container";
 
 export const metadata: Metadata = {
   title: "Tu cotización",
-  description: "Revisa los productos de tu cotización y envíala por WhatsApp o correo.",
+  description: "Revisa los productos de tu cotización y envíala por WhatsApp.",
   robots: { index: false, follow: true },
 };
 

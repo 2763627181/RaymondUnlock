@@ -6,6 +6,7 @@ import {
   renderRepairConfirmationEmail,
   renderRepairNotificationEmail,
 } from "@/lib/email/repair-email";
+import { effectiveChannel, isEmailEnabled } from "@/lib/email/availability";
 import { sendEmail } from "@/lib/email/send";
 import { buildRepairWhatsAppUrl } from "@/lib/repairs/whatsapp";
 import { SITE_URL } from "@/lib/seo";
@@ -76,7 +77,7 @@ async function processRepairRequest(data: RepairFormValues): Promise<SubmitRepai
   });
 
   let emailStatus: RepairEmailStatus = "not_requested";
-  if (data.channel !== "whatsapp") {
+  if (effectiveChannel(data.channel, isEmailEnabled()) !== "whatsapp") {
     const emailData = { ...details, customerEmail: data.customerEmail };
     const [notified, confirmed] = await Promise.all([
       sendEmail({

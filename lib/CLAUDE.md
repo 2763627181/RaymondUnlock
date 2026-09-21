@@ -13,7 +13,7 @@
 - `validation/`: esquemas Zod (`quote`, `repair`, `auth`, `settings`, `admin/*`). `admin/` está en `app/admin/CLAUDE.md`.
 - `reports/`: informes de cotizaciones, reparaciones y ventas del mes. `*-report.ts` arman el informe (puro, con pruebas), `excel.ts` y `pdf-document.tsx`/`pdf-parts.tsx` lo dibujan, `queries.ts` lee la base con la sesión del admin y `respond.ts` valida el rol y responde el archivo. `month.ts` trabaja siempre en hora de Santo Domingo.
 - `admin/`: utilidades del panel (acciones, paginación, slug, imágenes), `product-search.ts` (buscar por código/ID/nombre) y `product-history.ts` (convierte `product_history` en cambios legibles).
-- `email/`: plantillas HTML (todo texto de cliente pasa por `escapeHtml`) y `sendEmail` (Resend).
+- `email/`: plantillas HTML (todo texto de cliente pasa por `escapeHtml`), `sendEmail` (Resend) y `availability.ts`: el correo solo existe si hay `RESEND_API_KEY` (`isEmailEnabled`); sin ella los formularios ofrecen solo WhatsApp y el servidor fuerza ese canal (`effectiveChannel`), aunque el navegador pida otro.
 - `motion.ts`, `format.ts`, `seo.ts`, `icons.tsx` (lista cerrada de iconos), `rate-limit.ts`.
 
 ## Reglas

@@ -6,6 +6,7 @@ import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { ShoppingBag, X } from "lucide-react";
 import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
+import { useEmailEnabled } from "@/components/forms/email-availability";
 import { Button } from "@/components/ui/button";
 import { cartCount, cartSubtotal, useCartStore } from "@/lib/cart/store";
 import { REDUCED_MOTION_DURATION, drawerSpring } from "@/lib/motion";
@@ -13,6 +14,7 @@ import { useIsClient } from "@/lib/use-is-client";
 
 export function CartDrawer() {
   const reduceMotion = useReducedMotion();
+  const emailEnabled = useEmailEnabled();
   const isClient = useIsClient();
   const open = useCartStore((state) => state.drawerOpen);
   const setOpen = useCartStore((state) => state.setDrawerOpen);
@@ -91,7 +93,8 @@ export function CartDrawer() {
                     <div>
                       <p className="font-medium">Tu cotización está vacía</p>
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Agrega productos para pedir tu cotización por WhatsApp o correo.
+                        Agrega productos para pedir tu cotización por WhatsApp
+                        {emailEnabled ? " o correo" : ""}.
                       </p>
                     </div>
                     <Button asChild onClick={close}>

@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import { CartDrawerLoader } from "@/components/cart/cart-drawer-loader";
+import { EmailAvailabilityProvider } from "@/components/forms/email-availability";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { MobileBar } from "@/components/layout/mobile-bar";
 import { WhatsAppFloat } from "@/components/layout/whatsapp-float";
 import { getNavCategories, getSiteSettings, getTopLevelCategories } from "@/lib/data";
+import { isEmailEnabled } from "@/lib/email/availability";
 import { navSecondaryLinks, navWholesaleLink } from "@/lib/nav";
 
 /**
@@ -21,7 +23,7 @@ export async function SiteShell({ children }: { children: ReactNode }) {
   ]);
 
   return (
-    <>
+    <EmailAvailabilityProvider enabled={isEmailEnabled()}>
       <AnnouncementBar
         phoneDisplay={settings.phoneDisplay}
         whatsappNumber={settings.whatsappNumber}
@@ -38,6 +40,6 @@ export async function SiteShell({ children }: { children: ReactNode }) {
       <MobileBar whatsappNumber={settings.whatsappNumber} />
       <WhatsAppFloat whatsappNumber={settings.whatsappNumber} />
       <CartDrawerLoader />
-    </>
+    </EmailAvailabilityProvider>
   );
 }

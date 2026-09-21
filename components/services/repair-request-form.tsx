@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, MessageCircle } from "lucide-react";
 import { submitRepairRequest, type RepairEmailStatus } from "@/app/(marketing)/servicios/actions";
 import { ChannelField } from "@/components/forms/channel-field";
+import { useEmailEnabled } from "@/components/forms/email-availability";
 import { FieldError } from "@/components/forms/field-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ export function RepairRequestForm({
   services: { id: string; name: string }[];
   defaultServiceId?: string;
 }) {
+  const emailEnabled = useEmailEnabled();
   const [sent, setSent] = useState<SentState | null>(null);
 
   const form = useForm<RepairFormInput, unknown, RepairFormValues>({
@@ -212,24 +214,30 @@ export function RepairRequestForm({
         <FieldError id="issueDescription-error" message={errors.issueDescription?.message} />
       </div>
 
-      <ChannelField control={control} question="¿Cómo quieres que te respondamos?" />
+      {emailEnabled ? (
+        <>
+          <ChannelField control={control} question="¿Cómo quieres que te respondamos?" />
 
-      <div>
-        <Label htmlFor="rr-customerEmail">
-          Correo{" "}
-          <span className="text-muted-foreground font-normal">(obligatorio si eliges correo)</span>
-        </Label>
-        <Input
-          id="rr-customerEmail"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          className="mt-1.5 h-11"
-          {...inputProps("customerEmail")}
-          {...register("customerEmail")}
-        />
-        <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
-      </div>
+          <div>
+            <Label htmlFor="rr-customerEmail">
+              Correo{" "}
+              <span className="text-muted-foreground font-normal">
+                (obligatorio si eliges correo)
+              </span>
+            </Label>
+            <Input
+              id="rr-customerEmail"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              className="mt-1.5 h-11"
+              {...inputProps("customerEmail")}
+              {...register("customerEmail")}
+            />
+            <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
+          </div>
+        </>
+      ) : null}
 
       <input
         type="text"

@@ -1,6 +1,6 @@
 # Raymond Unlock
 
-Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público, cotización por WhatsApp/correo (con el equipo exacto: estado, batería, liberación y código), un listado de precios al por mayor con pedido por WhatsApp (`/proveedores`) y panel de administración completo. Los clientes no crean cuenta ni inician sesión: solo existe la cuenta del administrador.
+Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público, cotización por WhatsApp (y por correo si se activa Resend) (con el equipo exacto: estado, batería, liberación y código), un listado de precios al por mayor con pedido por WhatsApp (`/proveedores`) y panel de administración completo. Los clientes no crean cuenta ni inician sesión: solo existe la cuenta del administrador.
 
 ## Estado del proyecto
 
@@ -47,19 +47,19 @@ El sitio necesita una base de datos con las migraciones y el seed aplicados: sin
 
 Ver `.env.example`. Ninguna variable sin prefijo `NEXT_PUBLIC_` puede usarse en un archivo `"use client"`.
 
-| Variable                                                     | Uso                                                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                                       | metadata, JSON-LD, sitemap, OG (sin slash final)                    |
-| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | lecturas públicas (RLS) y configuración de `next/image`             |
-| `SUPABASE_SERVICE_ROLE_KEY`                                  | **solo servidor**: variantes (precio mayorista), solicitudes, admin |
-| `SUPABASE_DB_URL`                                            | solo para aplicar migraciones desde tu máquina; la app no la lee    |
-| `RESEND_API_KEY`                                             | envío de correos de cotización y reparación                         |
-| `RESEND_FROM_EMAIL`                                          | remitente; ver nota abajo                                           |
-| `ORDER_NOTIFICATION_EMAIL`                                   | correo del negocio que recibe cada solicitud                        |
+| Variable                                                     | Uso                                                                     |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                                       | metadata, JSON-LD, sitemap, OG (sin slash final)                        |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | lecturas públicas (RLS) y configuración de `next/image`                 |
+| `SUPABASE_SERVICE_ROLE_KEY`                                  | **solo servidor**: variantes (precio mayorista), solicitudes, admin     |
+| `SUPABASE_DB_URL`                                            | solo para aplicar migraciones desde tu máquina; la app no la lee        |
+| `RESEND_API_KEY`                                             | **opcional**: sin ella el correo queda apagado y todo sale por WhatsApp |
+| `RESEND_FROM_EMAIL`                                          | remitente; ver nota abajo                                               |
+| `ORDER_NOTIFICATION_EMAIL`                                   | correo del negocio que recibe cada solicitud                            |
 
 Los datos de contacto (WhatsApp, correo, redes, dirección, horarios) no son variables de entorno: viven en la tabla `site_settings` y se editan desde `/admin/ajustes`.
 
-**Correo con Resend:** sirve para las cotizaciones y las reparaciones. Con el remitente de prueba (`onboarding@resend.dev`) Resend solo entrega al correo dueño de la cuenta. Para escribirle a clientes hay que verificar un dominio en Resend y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin `RESEND_API_KEY` el flujo de cotización funciona por WhatsApp y el canal correo informa el fallo al cliente en vez de fingir éxito.
+**Correo con Resend (opcional):** mientras no exista `RESEND_API_KEY` el correo queda apagado: los formularios de cotización y reparación ofrecen solo WhatsApp y el servidor ignora cualquier otro canal (`lib/email/availability.ts`). Al poner la llave y volver a desplegar reaparece la opción de correo. Sirve para las cotizaciones y las reparaciones. Con el remitente de prueba (`onboarding@resend.dev`) Resend solo entrega al correo dueño de la cuenta. Para escribirle a clientes hay que verificar un dominio en Resend y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin `RESEND_API_KEY` el flujo de cotización funciona por WhatsApp y el canal correo informa el fallo al cliente en vez de fingir éxito.
 
 ## Base de datos (Supabase)
 
@@ -96,7 +96,7 @@ Verificado contra el proyecto real (peticiones REST y recorridos en un navegador
 
 ## Acceso y mayoristas
 
-- **Solo el administrador inicia sesión.** No hay registro, cuenta de cliente, recuperación de contraseña ni portal mayorista. Los clientes navegan, arman su cotización y la piden por WhatsApp o correo. `/login` existe solo para el panel: si las credenciales son válidas pero la cuenta no tiene rol `admin`, se cierra la sesión y se responde "Correo o contraseña incorrectos" (igual que con una clave errónea). Hay un límite de 10 intentos por IP cada 15 minutos, **en memoria y por instancia**: es un freno básico; para algo más fuerte hay que añadir un límite compartido (WAF de Vercel, Upstash).
+- **Solo el administrador inicia sesión.** No hay registro, cuenta de cliente, recuperación de contraseña ni portal mayorista. Los clientes navegan, arman su cotización y la piden por WhatsApp (o por correo, si Resend está activo). `/login` existe solo para el panel: si las credenciales son válidas pero la cuenta no tiene rol `admin`, se cierra la sesión y se responde "Correo o contraseña incorrectos" (igual que con una clave errónea). Hay un límite de 10 intentos por IP cada 15 minutos, **en memoria y por instancia**: es un freno básico; para algo más fuerte hay que añadir un límite compartido (WAF de Vercel, Upstash).
 - **Al por mayor**: `/mayorista` explica el servicio y lleva al listado de `/proveedores` (ver abajo) o a WhatsApp. El precio al por mayor y la cantidad mínima **de las variantes** siguen en la base (lo que ya estaba guardado se conserva) pero **ya no se editan en el panel y nadie los ve en la tienda**: las cotizaciones se cobran siempre por unidad.
 - **Mensaje de WhatsApp predeterminado**: al pedir un producto (o al enviar la cotización) el mensaje trae el equipo exacto que se eligió: nombre, estado (nuevo, usado…), capacidad, color, **batería**, **liberación** (_factory_ o _por artista_) y **código**. Ver `lib/whatsapp.ts` y `lib/cart/whatsapp.ts` (con pruebas).
 - **Liberación**: _Factory_ es un equipo liberado de fábrica; _Por artista_ es el liberado por un técnico. Se elige por variante en el panel. Si un producto tiene varias variantes que se distinguen solo por batería o liberación, la ficha muestra esos selectores.
@@ -220,8 +220,8 @@ Lighthouse móvil con throttling simulado, en esta máquina de desarrollo. Una s
 
 1. **Base de datos de producción**: crea un proyecto de Supabase (o usa el actual) y sigue "Base de datos (Supabase)": migraciones, seed **solo si quieres el catálogo de ejemplo** y primer admin. Si usas el proyecto de desarrollo, **rota antes la contraseña de la base y la llave `service_role`** (circularon por chat). No olvides **desactivar el registro público** en Supabase (paso 4).
 2. **Vercel**: importa el repositorio (framework Next.js, pnpm). Node ≥ 20.9.
-3. **Variables de entorno** (Production y Preview): `NEXT_PUBLIC_SITE_URL` (dominio final, sin slash), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (marcarla como sensible), `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `ORDER_NOTIFICATION_EMAIL`. `SUPABASE_DB_URL` no hace falta en Vercel.
-4. **Resend**: verifica el dominio y usa un remitente de ese dominio en `RESEND_FROM_EMAIL`. Sin esto no salen las cotizaciones por correo.
+3. **Variables de entorno** (Production y Preview): `NEXT_PUBLIC_SITE_URL` (dominio final, sin slash), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (marcarla como sensible), y, solo si activas el correo, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` y `ORDER_NOTIFICATION_EMAIL`. `SUPABASE_DB_URL` no hace falta en Vercel.
+4. **Resend (opcional)**: sin `RESEND_API_KEY` el sitio funciona solo con WhatsApp. Para activar el correo, crea la llave y ponla en Vercel: con el remitente de prueba solo te llegan los avisos a ti (al correo de la cuenta de Resend). Para que los clientes reciban su copia hay que verificar un dominio propio (`*.vercel.app` no sirve) y usar un remitente de ese dominio en `RESEND_FROM_EMAIL`.
 5. **Primer despliegue**: el build lee la base para prerenderizar los productos y servicios, así que la base debe estar lista _antes_. Comprueba `/`, `/tienda`, un producto y `/login`.
 6. **Después de publicar**: entra a `/admin` con el admin, carga las fotos reales, los precios y stock reales, los testimonios reales y los horarios (ver "Datos y contenido de ejemplo"), y repite las mediciones de Lighthouse sobre el dominio real.
 7. **Imágenes**: `next.config.ts` permite el host de Supabase Storage a partir de `NEXT_PUBLIC_SUPABASE_URL`; si cambias de proyecto de Supabase, vuelve a desplegar.

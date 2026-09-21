@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitQuote } from "@/app/(marketing)/carrito/actions";
 import { ChannelField } from "@/components/forms/channel-field";
+import { useEmailEnabled } from "@/components/forms/email-availability";
 import { FieldError } from "@/components/forms/field-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ function isFormField(name: string): name is keyof QuoteFormInput {
 
 export function QuoteForm() {
   const router = useRouter();
+  const emailEnabled = useEmailEnabled();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.remove);
   const displaySubtotal = cartSubtotal(items);
@@ -127,24 +129,30 @@ export function QuoteForm() {
         <FieldError id="customerPhone-error" message={errors.customerPhone?.message} />
       </div>
 
-      <ChannelField control={control} question="¿Cómo quieres recibir tu cotización?" />
+      {emailEnabled ? (
+        <>
+          <ChannelField control={control} question="¿Cómo quieres recibir tu cotización?" />
 
-      <div>
-        <Label htmlFor="customerEmail">
-          Correo{" "}
-          <span className="text-muted-foreground font-normal">(obligatorio si eliges correo)</span>
-        </Label>
-        <Input
-          id="customerEmail"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          className="mt-1.5 h-11"
-          {...inputProps("customerEmail")}
-          {...register("customerEmail")}
-        />
-        <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
-      </div>
+          <div>
+            <Label htmlFor="customerEmail">
+              Correo{" "}
+              <span className="text-muted-foreground font-normal">
+                (obligatorio si eliges correo)
+              </span>
+            </Label>
+            <Input
+              id="customerEmail"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              className="mt-1.5 h-11"
+              {...inputProps("customerEmail")}
+              {...register("customerEmail")}
+            />
+            <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
+          </div>
+        </>
+      ) : null}
 
       <div>
         <Label htmlFor="note">

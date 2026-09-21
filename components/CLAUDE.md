@@ -11,6 +11,7 @@
 - Pesado y no imprescindible al cargar → `next/dynamic` (drawer del carrito, búsqueda, panel del menú móvil, filtros, zoom, toaster, editor del admin). No dejes overlays en el bundle inicial.
 - **Primer pintado**: los elementos visibles al cargar no empiezan en `opacity: 0` (`<StaggerItem immediate>` en las primeras tarjetas); lo contrario retrasa el LCP.
 - **Accesibilidad**: contraste AA (`--muted-foreground` es `#5b6270` a propósito, texto verde `text-success-700`), foco visible, `aria-label` en botones de icono, un solo `h1` por página y niveles de encabezado sin saltos, mensajes de error con `role="alert"` enlazados por `aria-describedby`. `text-muted` es un color de _fondo_ de shadcn: para texto usa `text-muted-foreground`.
+- **Correo opcional**: `EmailAvailabilityProvider` (en `SiteShell`, lo llena el servidor con `isEmailEnabled`) y `useEmailEnabled()`; los formularios de cotización y reparación solo muestran canal y correo si es `true`, igual que los textos que dicen "WhatsApp o correo".
 - **Campos de formulario**: `TextField`, `PasswordField`, `SelectField`, `TextareaField`, `SwitchField` (en `forms/`); no repitas Label+Input+Error a mano.
 - El precio de un producto se pinta con `formatPrice` (RD$ 74,900); documentos (WhatsApp, correo) usan `formatMoney`.
 - Los componentes públicos reciben siempre precio por unidad: el precio al por mayor no existe en la tienda (salvo `wholesale/`, que muestra el listado mayorista propio, público a propósito).

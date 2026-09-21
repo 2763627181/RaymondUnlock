@@ -7,17 +7,20 @@ import { ShoppingBag } from "lucide-react";
 import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
 import { QuoteForm } from "@/components/cart/quote-form-lazy";
+import { useEmailEnabled } from "@/components/forms/email-availability";
 import { Button } from "@/components/ui/button";
 import { cartCount, cartSubtotal, useCartStore } from "@/lib/cart/store";
 import { useIsClient } from "@/lib/use-is-client";
 
 function EmptyCart() {
+  const emailEnabled = useEmailEnabled();
   return (
     <div className="border-border flex flex-col items-center rounded-lg border border-dashed px-6 py-20 text-center">
       <ShoppingBag className="text-muted-foreground mb-4 size-10" aria-hidden="true" />
       <h2 className="text-xl font-semibold">Tu cotización está vacía</h2>
       <p className="text-muted-foreground mt-2 max-w-md text-[15px] leading-relaxed">
-        Agrega productos desde la tienda y pide tu cotización por WhatsApp o correo.
+        Agrega productos desde la tienda y pide tu cotización por WhatsApp
+        {emailEnabled ? " o correo" : ""}.
       </p>
       <Button asChild className="mt-6 h-11 px-6 text-base">
         <Link href="/tienda">Ir a la tienda</Link>
