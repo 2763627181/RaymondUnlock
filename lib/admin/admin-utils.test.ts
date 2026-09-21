@@ -94,18 +94,16 @@ describe("storagePathFromUrl", () => {
 });
 
 describe("filtros de solicitudes", () => {
-  it("valida estado, tipo y página de la URL", () => {
+  it("valida estado y página de la URL", () => {
     const filters = parseRequestFilters({
       q: " ana ",
       estado: "nueva",
-      tipo: "wholesale",
       page: "2",
     });
-    expect(filters).toEqual({ q: " ana ", status: "nueva", tier: "wholesale", page: 2 });
-    expect(parseRequestFilters({ estado: "hack", tipo: "x", page: "-1" })).toEqual({
+    expect(filters).toEqual({ q: " ana ", status: "nueva", page: 2 });
+    expect(parseRequestFilters({ estado: "hack", page: "-1" })).toEqual({
       q: "",
       status: "",
-      tier: "",
       page: 1,
     });
   });

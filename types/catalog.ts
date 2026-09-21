@@ -91,8 +91,6 @@ export interface ProductCardData {
   imageAlt: string;
   colors: CardColor[];
   variantCount: number;
-  /** Ids de sus variantes (públicos): sirven para buscar el precio al por mayor de quien puede verlo. */
-  variantIds: string[];
   /** Variante con la que se agrega al carrito desde la tarjeta (solo si es única). */
   quickAddVariantId: string | null;
   quickAddLabel: string | null;

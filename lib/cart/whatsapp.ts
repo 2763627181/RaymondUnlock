@@ -1,4 +1,3 @@
-import type { PriceTier } from "@/types/catalog";
 import type { PricedLine } from "@/lib/cart/pricing";
 import { formatMoney } from "@/lib/format";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -10,7 +9,6 @@ export interface QuoteMessageInput {
   customerName: string;
   customerPhone: string;
   businessName?: string | undefined;
-  tier: PriceTier;
   lines: PricedLine[];
   subtotal: number;
   note?: string | undefined;
@@ -34,7 +32,6 @@ export function buildQuoteMessage(input: QuoteMessageInput): string {
     `*Cliente:* ${input.customerName}`,
     `*Teléfono:* ${input.customerPhone}`,
     ...(input.businessName ? [`*Negocio:* ${input.businessName}`] : []),
-    `*Tipo de precio:* ${input.tier === "wholesale" ? "Al por mayor" : "Unidad"}`,
     "",
     "*ARTÍCULOS*",
   ].join("\n");

@@ -149,11 +149,7 @@ export default async function AdminQuoteDetailPage(props: PageProps<"/admin/coti
               </Detail>
             ) : null}
             {q.business_name ? <Detail label="Negocio">{q.business_name}</Detail> : null}
-            <Detail label="Tipo de precio">
-              {q.tier === "wholesale" ? "Al por mayor" : "Unidad"}
-            </Detail>
             <Detail label="Canal elegido">{CHANNEL_LABELS[q.channel]}</Detail>
-            <Detail label="Cuenta">{q.user_id ? "Con cuenta" : "Sin cuenta (visitante)"}</Detail>
             {q.note ? <Detail label="Nota del cliente">{q.note}</Detail> : null}
           </dl>
         </aside>

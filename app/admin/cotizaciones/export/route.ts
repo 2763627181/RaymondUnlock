@@ -15,7 +15,6 @@ const HEADERS = [
   "Teléfono",
   "Correo",
   "Negocio",
-  "Tipo de precio",
   "Canal",
   "Nota",
   "Producto",
@@ -30,7 +29,7 @@ const HEADERS = [
 export async function GET(request: NextRequest) {
   // El proxy solo comprueba la sesión: aquí se exige el rol admin.
   const viewer = await getViewer();
-  if (!viewer || viewer.status !== "admin") {
+  if (!viewer || !viewer.isAdmin) {
     return new NextResponse("No encontrado", { status: 404 });
   }
 
@@ -41,7 +40,6 @@ export async function GET(request: NextRequest) {
     .from("quotes")
     .select("*, quote_items(product_name, variant_label, quantity, unit_price, line_total)");
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.tier) query = query.eq("tier", filters.tier);
   const clause = searchClause(filters.q, [
     "code",
     "customer_name",
@@ -63,7 +61,6 @@ export async function GET(request: NextRequest) {
       quote.customer_phone,
       quote.customer_email,
       quote.business_name,
-      quote.tier === "wholesale" ? "Al por mayor" : "Unidad",
       quote.channel,
       quote.note,
     ];

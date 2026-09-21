@@ -4,7 +4,6 @@ import { parsePage } from "@/lib/admin/pagination";
 export interface RequestFilters {
   q: string;
   status: RequestStatus | "";
-  tier: "retail" | "wholesale" | "";
   page: number;
 }
 
@@ -14,14 +13,12 @@ function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
 }
 
-/** Filtros de la URL (?q=&estado=&tipo=&page=), ya validados. */
+/** Filtros de la URL (?q=&estado=&page=), ya validados. */
 export function parseRequestFilters(params: RawParams): RequestFilters {
   const status = first(params.estado);
-  const tier = first(params.tipo);
   return {
     q: first(params.q).slice(0, 80),
     status: isRequestStatus(status) ? status : "",
-    tier: tier === "retail" || tier === "wholesale" ? tier : "",
     page: parsePage(params.page),
   };
 }
@@ -35,5 +32,5 @@ export function searchClause(query: string, columns: string[]): string | null {
 }
 
 export function filtersToParams(filters: RequestFilters): Record<string, string> {
-  return { q: filters.q, estado: filters.status, tipo: filters.tier };
+  return { q: filters.q, estado: filters.status };
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, FileText, Hammer, Package, Users } from "lucide-react";
+import { AlertTriangle, FileText, Hammer, Package } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { RequestStatusBadge } from "@/components/admin/status-badge";
 import {
@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
       .lte("stock", LOW_STOCK_THRESHOLD),
     supabase
       .from("quotes")
-      .select("id, code, customer_name, tier, status, subtotal, created_at")
+      .select("id, code, customer_name, status, subtotal, created_at")
       .order("created_at", { ascending: false })
       .limit(10),
   ]);
@@ -66,12 +66,6 @@ export default async function AdminDashboardPage() {
       label: "Variantes con poco stock",
       value: lowStock.count ?? 0,
       icon: AlertTriangle,
-    },
-    {
-      href: "/admin/mayoristas",
-      label: "Solicitudes mayoristas",
-      value: counts.wholesale,
-      icon: Users,
     },
   ];
 
@@ -112,7 +106,6 @@ export default async function AdminDashboardPage() {
               <TableRow>
                 <TableHead>Código</TableHead>
                 <TableHead>Cliente</TableHead>
-                <TableHead>Precio</TableHead>
                 <TableHead className="text-right">Subtotal</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Fecha</TableHead>
@@ -130,7 +123,6 @@ export default async function AdminDashboardPage() {
                     </Link>
                   </TableCell>
                   <TableCell>{quote.customer_name}</TableCell>
-                  <TableCell>{quote.tier === "wholesale" ? "Por mayor" : "Unidad"}</TableCell>
                   <TableCell className="tabular-nums-price text-right">
                     {formatPrice(quote.subtotal)}
                   </TableCell>

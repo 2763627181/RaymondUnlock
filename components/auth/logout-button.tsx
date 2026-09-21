@@ -11,8 +11,8 @@ export function LogoutButton({ className }: { className?: string }) {
   async function onClick() {
     setPending(true);
     await logout();
-    // Recarga completa a propósito: con navegación suave el mapa de precios al
-    // por mayor seguiría en memoria en esta pestaña después de cerrar sesión.
+    // Recarga completa a propósito: con navegación suave el panel seguiría en
+    // memoria en esta pestaña después de cerrar sesión.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/");
   }

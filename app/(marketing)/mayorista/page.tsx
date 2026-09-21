@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, MessageCircle, Package, Percent } from "lucide-react";
+import { Headset, MessageCircle, Package, Percent } from "lucide-react";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/motion/stagger";
-import { WholesaleSignup } from "@/components/wholesale/wholesale-signup";
 import { Button } from "@/components/ui/button";
 import { getSiteSettings, getTopLevelCategories } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -16,7 +15,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Al por mayor: precios especiales para tu negocio",
   description:
-    "Suministro de celulares, tablets, audio, smartwatches y accesorios al por mayor en Santo Domingo. Solicita tu cuenta de mayorista y consulta el precio por volumen.",
+    "Suministro de celulares, tablets, audio, smartwatches y accesorios al por mayor en Santo Domingo. Escríbenos por WhatsApp y te damos el precio por volumen.",
   alternates: { canonical: "/mayorista" },
 };
 
@@ -24,7 +23,7 @@ const benefits = [
   {
     icon: Percent,
     title: "Precio por volumen",
-    text: "Cada producto tiene su precio al por mayor y la cantidad mínima para aplicarlo.",
+    text: "Dinos qué equipos y cuántos necesitas y te damos el precio por cantidad.",
   },
   {
     icon: Package,
@@ -32,9 +31,9 @@ const benefits = [
     text: "Celulares, tablets, audio, smartwatches y accesorios en un solo proveedor.",
   },
   {
-    icon: BadgeCheck,
-    title: "Cuenta aprobada",
-    text: "Revisamos tu solicitud y, al aprobarla, ves los precios al por mayor en todo el catálogo.",
+    icon: Headset,
+    title: "Atención directa",
+    text: "Te respondemos por WhatsApp, sin cuentas ni trámites.",
   },
 ];
 
@@ -42,7 +41,7 @@ export default async function WholesalePage() {
   const [settings, categories] = await Promise.all([getSiteSettings(), getTopLevelCategories()]);
   const whatsappHref = buildWhatsAppUrl(
     settings.whatsappNumber,
-    "Hola, tengo un negocio y quiero solicitar mi cuenta de mayorista.",
+    "Hola, tengo un negocio y quiero cotizar al por mayor.",
   );
 
   return (
@@ -61,12 +60,14 @@ export default async function WholesalePage() {
               ¿Tienes un negocio? Compra al por mayor.
             </h1>
             <p className="mt-4 text-base leading-relaxed text-white/70 sm:text-lg">
-              Precios especiales por volumen para tiendas, revendedores y empresas. Solicita tu
-              cuenta y consulta el precio por cantidad de cada producto.
+              Precios especiales por volumen para tiendas, revendedores y empresas. Escríbenos con
+              lo que necesitas y te cotizamos.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="h-11 px-6 text-base">
-                <a href="#solicitar">Solicitar mi cuenta</a>
+                <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle aria-hidden="true" /> Cotizar por WhatsApp
+                </a>
               </Button>
               <Button
                 asChild
@@ -101,29 +102,6 @@ export default async function WholesalePage() {
               </StaggerItem>
             ))}
           </Stagger>
-        </Container>
-      </section>
-
-      <section id="solicitar" className="scroll-mt-24 py-16 sm:py-20">
-        <Container>
-          <Reveal>
-            <SectionHeading
-              title="Solicita tu cuenta al por mayor"
-              description="Revisamos cada solicitud y te respondemos por correo."
-            />
-          </Reveal>
-          <WholesaleSignup />
-          <p className="text-muted-foreground mt-6 text-center text-sm">
-            ¿Prefieres hablar con alguien?{" "}
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-brand-blue inline-flex items-center gap-1 underline underline-offset-4"
-            >
-              <MessageCircle className="size-3.5" aria-hidden="true" /> Escríbenos por WhatsApp
-            </a>
-          </p>
         </Container>
       </section>
 

@@ -10,10 +10,8 @@ import {
   renderQuoteNotificationEmail,
 } from "@/lib/email/quote-email";
 import { sendEmail } from "@/lib/email/send";
-import { getQuoteViewer } from "@/lib/pricing/viewer";
 import { SITE_URL } from "@/lib/seo";
 import { quoteSubmissionSchema, type QuoteSubmission } from "@/lib/validation/quote";
-import type { PriceTier } from "@/types/catalog";
 
 export type QuoteEmailStatus = "not_requested" | "sent" | "partial" | "failed";
 
@@ -58,8 +56,6 @@ export async function submitQuote(input: unknown): Promise<SubmitQuoteResult> {
 
 async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
   // El precio que envía el navegador nunca se usa: se vuelve a leer todo aquí.
-  const { tier, userId } = await getQuoteViewer();
-
   const quantities = new Map<string, number>();
   for (const item of data.items) {
     const current = quantities.get(item.variantId) ?? 0;
@@ -83,14 +79,9 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
 
   const lines = [...quantities.entries()].flatMap(([variantId, quantity]) => {
     const row = rowById.get(variantId);
-    return row ? [priceLine(row, tier, quantity)] : [];
+    return row ? [priceLine(row, quantity)] : [];
   });
   const subtotal = computeSubtotal(lines);
-  // El tipo de precio es el que realmente se cobró: un mayorista cuyas líneas no
-  // alcanzan la cantidad mínima paga precio por unidad.
-  const appliedTier: PriceTier = lines.some((line) => line.tierApplied === "wholesale")
-    ? "wholesale"
-    : "retail";
   // Los ajustes se leen antes de guardar: después de persistir nada puede lanzar,
   // o el cliente vería un error de una cotización que sí quedó registrada.
   const settings = await getSiteSettings();
@@ -100,11 +91,9 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
     customerEmail: data.customerEmail,
     businessName: data.businessName,
     note: data.note,
-    tier: appliedTier,
     channel: data.channel,
     subtotal,
     lines,
-    userId,
   });
 
   const messageData = {
@@ -113,7 +102,6 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
     customerPhone: data.customerPhone,
     businessName: data.businessName,
     note: data.note,
-    tier: appliedTier,
     lines,
     subtotal,
   };

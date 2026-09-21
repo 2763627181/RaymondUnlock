@@ -35,7 +35,7 @@ const pillars = [
     title: "Suministramos al por mayor",
     text: "Si tienes un negocio, te damos precios especiales por volumen.",
     href: "/mayorista",
-    cta: "Solicitar acceso",
+    cta: "Cotizar al por mayor",
   },
 ];
 

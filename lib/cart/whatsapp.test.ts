@@ -17,7 +17,6 @@ function line(index: number, overrides: Partial<PricedLine> = {}): PricedLine {
     quantity: 2,
     unitPrice: 1000,
     lineTotal: 2000,
-    tierApplied: "retail",
     ...overrides,
   };
 }
@@ -26,7 +25,6 @@ const base: QuoteMessageInput = {
   code: "RU-2026-0001",
   customerName: "Juan Pérez",
   customerPhone: "809-000-0000",
-  tier: "retail",
   lines: [line(1), line(2, { variantLabel: null, quantity: 1, lineTotal: 1000 })],
   subtotal: 3000,
   siteHost: "raymondunlock.com",
@@ -41,7 +39,6 @@ describe("buildQuoteMessage", () => {
     expect(lines[1]).toBe("Código: RU-2026-0001");
     expect(message).toContain("*Cliente:* Juan Pérez");
     expect(message).toContain("*Teléfono:* 809-000-0000");
-    expect(message).toContain("*Tipo de precio:* Unidad");
     expect(message).toContain("1) Producto 1\n   128 GB · Titanio natural\n   Cantidad: 2 ×");
     expect(message).toContain(`= ${formatMoney(2000)}`);
     expect(message).toContain(`*Subtotal:* ${formatMoney(3000)}`);
@@ -54,15 +51,13 @@ describe("buildQuoteMessage", () => {
     expect(message).toContain("2) Producto 2\n   Cantidad: 1 ×");
   });
 
-  it("incluye negocio y nota solo si existen, y marca el precio al por mayor", () => {
+  it("incluye negocio y nota solo si existen", () => {
     const withExtras = buildQuoteMessage({
       ...base,
-      tier: "wholesale",
       businessName: "Celulares JP",
       note: "Necesito factura",
     });
     expect(withExtras).toContain("*Negocio:* Celulares JP");
-    expect(withExtras).toContain("*Tipo de precio:* Al por mayor");
     expect(withExtras).toContain("*Nota del cliente:* Necesito factura");
 
     const plain = buildQuoteMessage(base);

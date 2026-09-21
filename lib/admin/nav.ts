@@ -7,12 +7,11 @@ import {
   Package,
   Settings,
   Tags,
-  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
 
-export type AdminBadgeKey = "quotes" | "repairs" | "wholesale";
+export type AdminBadgeKey = "quotes" | "repairs";
 
 export interface AdminNavItem {
   href: string;
@@ -32,7 +31,6 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/banners", label: "Banners", icon: ImageIcon },
   { href: "/admin/cotizaciones", label: "Cotizaciones", icon: FileText, badge: "quotes" },
   { href: "/admin/reparaciones", label: "Reparaciones", icon: Hammer, badge: "repairs" },
-  { href: "/admin/mayoristas", label: "Mayoristas", icon: Users, badge: "wholesale" },
   { href: "/admin/ajustes", label: "Ajustes", icon: Settings },
 ];
 

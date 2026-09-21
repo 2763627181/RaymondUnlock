@@ -6,9 +6,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Filas de precios CON precio mayorista, para volver a calcular una cotización
- * en el servidor. Es la única lectura de product_variants: la tabla base está
- * cerrada a anon y authenticated, y este cliente usa service_role.
+ * Filas de precios para volver a calcular una cotización en el servidor. Es la
+ * única lectura pública de product_variants: la tabla base está cerrada a anon y
+ * authenticated (guarda el precio al por mayor), y este cliente usa service_role.
  */
 export async function getPricingRows(variantIds: string[]): Promise<VariantPricingRow[]> {
   // Un id que no es UUID (un carrito guardado antes de conectar la base) no
@@ -19,7 +19,7 @@ export async function getPricingRows(variantIds: string[]): Promise<VariantPrici
   const { data, error } = await createAdminClient()
     .from("product_variants")
     .select(
-      "id, capacity, color, price_retail, price_wholesale, min_wholesale_qty, stock, is_active, products!inner(name, slug, is_active)",
+      "id, capacity, color, price_retail, stock, is_active, products!inner(name, slug, is_active)",
     )
     .in("id", ids);
   if (error) throw new Error(`No se pudieron leer los precios: ${error.message}`);
@@ -32,8 +32,6 @@ export async function getPricingRows(variantIds: string[]): Promise<VariantPrici
       productSlug: row.products.slug,
       variantLabel: variantLabel({ capacity: row.capacity, color: row.color }),
       priceRetail: row.price_retail,
-      priceWholesale: row.price_wholesale,
-      minWholesaleQty: row.min_wholesale_qty,
       stock: row.stock,
     }));
 }

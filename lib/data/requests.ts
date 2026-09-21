@@ -1,7 +1,6 @@
 import "server-only";
 import type { PricedLine } from "@/lib/cart/pricing";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { PriceTier } from "@/types/catalog";
 import type { Enums } from "@/types/database";
 
 /**
@@ -24,12 +23,9 @@ export interface NewQuote {
   customerEmail: string | undefined;
   businessName: string | undefined;
   note: string | undefined;
-  tier: PriceTier;
   channel: Enums<"quote_channel">;
   subtotal: number;
   lines: PricedLine[];
-  /** Usuario con sesión que envió la cotización, si lo hay. */
-  userId: string | null;
 }
 
 /** Guarda la cotización con sus líneas y devuelve su código (RU-2026-0001). */
@@ -46,10 +42,8 @@ export async function createQuote(quote: NewQuote): Promise<string> {
       customer_email: quote.customerEmail ?? null,
       business_name: quote.businessName ?? null,
       note: quote.note ?? null,
-      tier: quote.tier,
       channel: quote.channel,
       subtotal: quote.subtotal,
-      user_id: quote.userId,
     })
     .select("id")
     .single();

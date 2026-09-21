@@ -1,7 +1,6 @@
 import type { PricedLine } from "@/lib/cart/pricing";
 import { emailLayout, escapeHtml } from "@/lib/email/html";
 import { formatMoney } from "@/lib/format";
-import type { PriceTier } from "@/types/catalog";
 
 export interface QuoteEmailData {
   code: string;
@@ -10,7 +9,6 @@ export interface QuoteEmailData {
   customerEmail?: string | undefined;
   businessName?: string | undefined;
   note?: string | undefined;
-  tier: PriceTier;
   lines: PricedLine[];
   subtotal: number;
 }
@@ -60,7 +58,6 @@ export function renderQuoteNotificationEmail(data: QuoteEmailData): {
     detailRow("Teléfono", data.customerPhone),
     ...(data.customerEmail ? [detailRow("Correo", data.customerEmail)] : []),
     ...(data.businessName ? [detailRow("Negocio", data.businessName)] : []),
-    detailRow("Tipo de precio", data.tier === "wholesale" ? "Al por mayor" : "Unidad"),
   ].join("");
 
   const note = data.note

@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { m, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import { Container } from "@/components/layout/container";
-import { AccountLink } from "@/components/layout/account-link";
-import { PriceViewSwitch } from "@/components/layout/price-view-switch";
 import { SearchDialog } from "@/components/layout/search-dialog";
 import { Logo } from "@/components/layout/logo";
 import { MegaMenu } from "@/components/layout/mega-menu";
@@ -72,9 +70,7 @@ export function Header({
           </div>
 
           <div className="flex items-center gap-1">
-            <PriceViewSwitch className="mr-2 hidden xl:flex" />
             <SearchDialog />
-            <AccountLink />
             <CartButton />
           </div>
         </m.div>

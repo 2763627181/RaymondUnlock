@@ -82,3 +82,12 @@ export const useCartStore = create<CartState>()(
 export function cartCount(items: CartItem[]): number {
   return items.reduce((sum, line) => sum + line.quantity, 0);
 }
+
+/** Total de una línea, solo para mostrar: el servidor recalcula con el precio real al enviar. */
+export function lineTotal(item: CartItem): number {
+  return Math.round(item.snapshot.unitPrice * item.quantity * 100) / 100;
+}
+
+export function cartSubtotal(items: CartItem[]): number {
+  return Math.round(items.reduce((sum, line) => sum + lineTotal(line), 0) * 100) / 100;
+}

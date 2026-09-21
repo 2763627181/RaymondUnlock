@@ -8,8 +8,7 @@ import { AnimatedPrice } from "@/components/cart/animated-price";
 import { CartLine } from "@/components/cart/cart-line";
 import { QuoteForm } from "@/components/cart/quote-form-lazy";
 import { Button } from "@/components/ui/button";
-import { cartCount, useCartStore } from "@/lib/cart/store";
-import { useCartPricing } from "@/lib/cart/use-cart-pricing";
+import { cartCount, cartSubtotal, useCartStore } from "@/lib/cart/store";
 import { useIsClient } from "@/lib/use-is-client";
 
 function EmptyCart() {
@@ -66,7 +65,7 @@ function ClearCartButton() {
 export function CartPage() {
   const isClient = useIsClient();
   const items = useCartStore((state) => state.items);
-  const { lines, subtotal } = useCartPricing(items);
+  const subtotal = cartSubtotal(items);
 
   if (!isClient) {
     return <div className="skeleton h-96 w-full" role="status" aria-label="Cargando carrito" />;
@@ -84,12 +83,9 @@ export function CartPage() {
         </div>
         <ul className="border-border border-t">
           <AnimatePresence initial={false} mode="popLayout">
-            {items.map((item) => {
-              const pricing = lines.get(item.variantId);
-              return pricing ? (
-                <CartLine key={item.variantId} item={item} pricing={pricing} />
-              ) : null;
-            })}
+            {items.map((item) => (
+              <CartLine key={item.variantId} item={item} />
+            ))}
           </AnimatePresence>
         </ul>
       </section>

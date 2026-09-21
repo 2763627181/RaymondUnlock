@@ -1,19 +1,18 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { failure, type ActionFailure } from "@/lib/actions/result";
 import { createSessionClient } from "@/lib/supabase/server";
 import { getViewer, type Viewer } from "./viewer";
 
 /**
- * Guarda para páginas y layouts del panel: sin sesión manda a /login; con
- * sesión pero sin rol admin manda a /cuenta con un aviso. Un 404 aquí solo
- * confundía: que /admin existe ya lo delata el redirect a /login, y quien
- * acaba de iniciar sesión necesita saber por qué no entra.
+ * Guarda para páginas y layouts del panel: sin sesión manda a /login. Una sesión
+ * sin rol admin no debería existir (el login la rechaza), así que si aparece
+ * —una cuenta creada por fuera de la app— recibe 404.
  */
 export async function requireAdmin(nextPath = "/admin"): Promise<Viewer> {
   const viewer = await getViewer();
   if (!viewer) redirect(`/login?next=${encodeURIComponent(nextPath)}`);
-  if (viewer.status !== "admin") redirect("/cuenta?acceso=admin");
+  if (!viewer.isAdmin) notFound();
   return viewer;
 }
 
@@ -27,6 +26,6 @@ export type AdminContext = {
 /** Guarda para Server Actions: se llama al inicio de CADA acción del panel. */
 export async function assertAdmin(): Promise<AdminContext | ActionFailure> {
   const viewer = await getViewer();
-  if (!viewer || viewer.status !== "admin") return failure("No tienes permiso para hacer esto.");
+  if (!viewer || !viewer.isAdmin) return failure("No tienes permiso para hacer esto.");
   return { ok: true, viewer, supabase: await createSessionClient() };
 }

@@ -13,11 +13,11 @@ export function WholesaleCta() {
               ¿Tienes un negocio? Precios especiales por volumen.
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-white/70">
-              Solicita tu cuenta de mayorista y consulta el precio por cantidad de cada producto.
+              Escríbenos con lo que necesitas y te damos el precio por cantidad.
             </p>
           </div>
           <Button asChild className="h-11 shrink-0 px-6 text-base">
-            <Link href="/mayorista">Solicitar acceso</Link>
+            <Link href="/mayorista">Cotizar al por mayor</Link>
           </Button>
         </div>
       </Container>

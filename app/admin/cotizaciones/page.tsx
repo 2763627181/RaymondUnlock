@@ -33,14 +33,10 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
 
   let query = supabase
     .from("quotes")
-    .select(
-      "id, code, customer_name, customer_phone, tier, channel, status, subtotal, created_at",
-      {
-        count: "exact",
-      },
-    );
+    .select("id, code, customer_name, customer_phone, channel, status, subtotal, created_at", {
+      count: "exact",
+    });
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.tier) query = query.eq("tier", filters.tier);
   const clause = searchClause(filters.q, [
     "code",
     "customer_name",
@@ -85,14 +81,6 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
               label: REQUEST_STATUS_LABELS[value],
             })),
           },
-          {
-            name: "tipo",
-            label: "Cualquier precio",
-            options: [
-              { value: "retail", label: "Unidad" },
-              { value: "wholesale", label: "Por mayor" },
-            ],
-          },
         ]}
       />
 
@@ -102,7 +90,6 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
             <TableRow>
               <TableHead>Código</TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Precio</TableHead>
               <TableHead>Canal</TableHead>
               <TableHead className="text-right">Subtotal</TableHead>
               <TableHead>Estado</TableHead>
@@ -124,7 +111,6 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
                   <p className="font-medium">{quote.customer_name}</p>
                   <p className="text-muted-foreground text-xs">{quote.customer_phone}</p>
                 </TableCell>
-                <TableCell>{quote.tier === "wholesale" ? "Por mayor" : "Unidad"}</TableCell>
                 <TableCell>{CHANNEL_LABELS[quote.channel]}</TableCell>
                 <TableCell className="tabular-nums-price text-right whitespace-nowrap">
                   {formatPrice(quote.subtotal)}
