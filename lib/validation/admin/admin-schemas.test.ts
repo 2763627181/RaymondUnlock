@@ -7,7 +7,6 @@ import { categorySchema } from "./taxonomy";
 
 const variant = {
   priceRetail: "74,900.50",
-  minWholesaleQty: "3",
   stock: "6",
   isActive: true,
 };
@@ -30,19 +29,11 @@ describe("variantSchema", () => {
   it("acepta dinero con comas de miles y decimales", () => {
     const parsed = variantSchema.parse(variant);
     expect(parsed.priceRetail).toBe(74900.5);
-    expect(parsed.minWholesaleQty).toBe(3);
-    expect(parsed.priceWholesale).toBeUndefined();
   });
 
   it("acepta los valores ya numéricos (el servidor recibe el resultado del formulario)", () => {
     const first = variantSchema.parse(variant);
     expect(variantSchema.parse(first)).toEqual(first);
-  });
-
-  it("el precio al por mayor no puede superar el de unidad", () => {
-    const result = variantSchema.safeParse({ ...variant, priceWholesale: "80000" });
-    expect(result.success).toBe(false);
-    expect(variantSchema.safeParse({ ...variant, priceWholesale: "60000" }).success).toBe(true);
   });
 
   it("el precio tachado debe ser mayor que el de unidad", () => {
@@ -55,7 +46,6 @@ describe("variantSchema", () => {
     expect(variantSchema.safeParse({ ...variant, priceRetail: "abc" }).success).toBe(false);
     expect(variantSchema.safeParse({ ...variant, priceRetail: "" }).success).toBe(false);
     expect(variantSchema.safeParse({ ...variant, stock: "1.5" }).success).toBe(false);
-    expect(variantSchema.safeParse({ ...variant, minWholesaleQty: "0" }).success).toBe(false);
   });
 
   it("valida el color #RRGGBB y deja vacío lo que no se escribe", () => {

@@ -75,7 +75,7 @@ export function ProductInfoPanel({
               <TableHead>Liberación</TableHead>
               <TableHead className="text-right">Stock</TableHead>
               <TableHead className="text-right">Precio unidad</TableHead>
-              <TableHead className="text-right">Por mayor (mín.)</TableHead>
+              <TableHead className="text-right">Precio tachado</TableHead>
               <TableHead>Activa</TableHead>
               <TableHead>Creada</TableHead>
               <TableHead>Modificada</TableHead>
@@ -101,9 +101,7 @@ export function ProductInfoPanel({
                   {formatPrice(variant.price_retail)}
                 </TableCell>
                 <TableCell className="tabular-nums-price text-right whitespace-nowrap">
-                  {variant.price_wholesale === null
-                    ? "—"
-                    : `${formatPrice(variant.price_wholesale)} (${variant.min_wholesale_qty})`}
+                  {variant.compare_at_price === null ? "—" : formatPrice(variant.compare_at_price)}
                 </TableCell>
                 <TableCell>{variant.is_active ? "Sí" : "No"}</TableCell>
                 <TableCell className="text-muted-foreground whitespace-nowrap">

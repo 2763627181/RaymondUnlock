@@ -34,20 +34,11 @@ export const variantSchema = z
       .optional()
       .transform((value) => (value ? value : undefined)),
     priceRetail: money,
-    priceWholesale: optionalMoney,
     compareAtPrice: optionalMoney,
-    minWholesaleQty: integer(1, 100_000, "Ingresa un entero de 1 en adelante"),
     stock: integer(0, 1_000_000, "Ingresa un entero de 0 en adelante"),
     isActive: z.boolean(),
   })
   .superRefine((variant, ctx) => {
-    if (variant.priceWholesale !== undefined && variant.priceWholesale > variant.priceRetail) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["priceWholesale"],
-        message: "No puede superar el precio por unidad",
-      });
-    }
     if (variant.compareAtPrice !== undefined && variant.compareAtPrice <= variant.priceRetail) {
       ctx.addIssue({
         code: "custom",

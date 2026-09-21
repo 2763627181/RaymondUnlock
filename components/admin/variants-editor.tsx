@@ -202,7 +202,7 @@ export function VariantsEditor() {
                 </SelectField>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <TextField
                   id={`variants-${index}-priceRetail`}
                   label="Precio unidad (RD$)"
@@ -211,25 +211,9 @@ export function VariantsEditor() {
                   {...register(name("priceRetail"))}
                 />
                 <TextField
-                  id={`variants-${index}-priceWholesale`}
-                  label="Precio por mayor"
-                  hint=" (RD$)"
-                  inputMode="decimal"
-                  error={variantErrors?.priceWholesale?.message}
-                  {...register(name("priceWholesale"))}
-                />
-                <TextField
-                  id={`variants-${index}-minWholesaleQty`}
-                  label="Mín. mayorista"
-                  hint=" (uds.)"
-                  inputMode="numeric"
-                  error={variantErrors?.minWholesaleQty?.message}
-                  {...register(name("minWholesaleQty"))}
-                />
-                <TextField
                   id={`variants-${index}-compareAtPrice`}
                   label="Precio tachado"
-                  hint=" (opcional)"
+                  hint=" (opcional: el precio de antes)"
                   inputMode="decimal"
                   error={variantErrors?.compareAtPrice?.message}
                   {...register(name("compareAtPrice"))}
