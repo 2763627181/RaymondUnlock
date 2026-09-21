@@ -125,6 +125,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      product_history: {
+        Row: {
+          action: string;
+          changed_at: string;
+          entity: string;
+          entity_id: string;
+          id: number;
+          new_data: Json | null;
+          old_data: Json | null;
+          product_id: string;
+        };
+        Insert: {
+          action: string;
+          changed_at?: string;
+          entity: string;
+          entity_id: string;
+          id?: never;
+          new_data?: Json | null;
+          old_data?: Json | null;
+          product_id: string;
+        };
+        Update: {
+          action?: string;
+          changed_at?: string;
+          entity?: string;
+          entity_id?: string;
+          id?: never;
+          new_data?: Json | null;
+          old_data?: Json | null;
+          product_id?: string;
+        };
+        Relationships: [];
+      };
       product_images: {
         Row: {
           alt: string | null;
@@ -183,10 +216,12 @@ export type Database = {
       };
       product_variants: {
         Row: {
+          battery_health: number | null;
           capacity: string | null;
           color: string | null;
           color_hex: string | null;
           compare_at_price: number | null;
+          created_at: string;
           id: string;
           is_active: boolean;
           min_wholesale_qty: number;
@@ -196,12 +231,16 @@ export type Database = {
           sku: string | null;
           sort_order: number;
           stock: number;
+          unlock_type: Database["public"]["Enums"]["unlock_type"] | null;
+          updated_at: string;
         };
         Insert: {
+          battery_health?: number | null;
           capacity?: string | null;
           color?: string | null;
           color_hex?: string | null;
           compare_at_price?: number | null;
+          created_at?: string;
           id?: string;
           is_active?: boolean;
           min_wholesale_qty?: number;
@@ -211,12 +250,16 @@ export type Database = {
           sku?: string | null;
           sort_order?: number;
           stock?: number;
+          unlock_type?: Database["public"]["Enums"]["unlock_type"] | null;
+          updated_at?: string;
         };
         Update: {
+          battery_health?: number | null;
           capacity?: string | null;
           color?: string | null;
           color_hex?: string | null;
           compare_at_price?: number | null;
+          created_at?: string;
           id?: string;
           is_active?: boolean;
           min_wholesale_qty?: number;
@@ -226,6 +269,8 @@ export type Database = {
           sku?: string | null;
           sort_order?: number;
           stock?: number;
+          unlock_type?: Database["public"]["Enums"]["unlock_type"] | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -672,6 +717,7 @@ export type Database = {
       };
       v_catalog_variants: {
         Row: {
+          battery_health: number | null;
           capacity: string | null;
           color: string | null;
           color_hex: string | null;
@@ -683,6 +729,7 @@ export type Database = {
           sku: string | null;
           sort_order: number | null;
           stock: number | null;
+          unlock_type: Database["public"]["Enums"]["unlock_type"] | null;
         };
         Relationships: [
           {
@@ -711,6 +758,7 @@ export type Database = {
       product_condition: "nuevo" | "open_box" | "usado" | "reacondicionado";
       quote_channel: "whatsapp" | "email" | "both";
       quote_status: "nueva" | "contactada" | "cotizada" | "cerrada" | "cancelada";
+      unlock_type: "factory" | "artista";
       user_role: "customer" | "wholesale" | "admin";
     };
     CompositeTypes: {
@@ -837,6 +885,7 @@ export const Constants = {
       product_condition: ["nuevo", "open_box", "usado", "reacondicionado"],
       quote_channel: ["whatsapp", "email", "both"],
       quote_status: ["nueva", "contactada", "cotizada", "cerrada", "cancelada"],
+      unlock_type: ["factory", "artista"],
       user_role: ["customer", "wholesale", "admin"],
     },
   },
