@@ -9,7 +9,7 @@ import type { Enums } from "@/types/database";
  * authenticated no tienen permiso de insertar en estas tablas.
  */
 
-async function nextRequestCode(prefix: "RU" | "RE"): Promise<string> {
+async function nextRequestCode(prefix: "RU" | "RE" | "PM"): Promise<string> {
   const { data, error } = await createAdminClient().rpc("next_request_code", {
     p_prefix: prefix,
   });
@@ -95,5 +95,58 @@ export async function createRepairRequest(request: NewRepairRequest): Promise<st
     });
   if (error) throw new Error(`No se pudo guardar la solicitud ${code}: ${error.message}`);
 
+  return code;
+}
+
+export interface NewWholesaleOrder {
+  contactLabel: string | null;
+  contactWhatsapp: string;
+  total: number;
+  lines: {
+    productId: string;
+    name: string;
+    category: string;
+    condition: string;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+  }[];
+}
+
+/** Guarda el pedido al por mayor con sus líneas y devuelve su código (PM-2026-0001). */
+export async function createWholesaleOrder(order: NewWholesaleOrder): Promise<string> {
+  const supabase = createAdminClient();
+  const code = await nextRequestCode("PM");
+
+  const { data: header, error } = await supabase
+    .from("wholesale_orders")
+    .insert({
+      code,
+      contact_label: order.contactLabel,
+      contact_whatsapp: order.contactWhatsapp,
+      total: order.total,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(`No se pudo guardar el pedido ${code}: ${error.message}`);
+
+  const { error: itemsError } = await supabase.from("wholesale_order_items").insert(
+    order.lines.map((line) => ({
+      order_id: header.id,
+      product_id: line.productId,
+      product_name: line.name,
+      category: line.category,
+      condition: line.condition,
+      unit_price: line.unitPrice,
+      quantity: line.quantity,
+      line_total: line.lineTotal,
+    })),
+  );
+  if (itemsError) {
+    // PostgREST no abre transacciones entre tablas: se deshace la cabecera para
+    // no dejar en el panel un pedido sin productos.
+    await supabase.from("wholesale_orders").delete().eq("id", header.id);
+    throw new Error(`No se pudieron guardar las líneas de ${code}: ${itemsError.message}`);
+  }
   return code;
 }

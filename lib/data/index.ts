@@ -16,6 +16,7 @@ export {
   listProducts,
 } from "./catalog";
 export { getPricingRows } from "./pricing";
-export { createQuote, createRepairRequest } from "./requests";
+export { createQuote, createRepairRequest, createWholesaleOrder } from "./requests";
 export { getServiceBySlug, getServices } from "./services";
 export { getSiteSettings } from "./settings";
+export { WHOLESALE_TAG, getWholesaleListing, getWholesalePriceRows } from "./wholesale";

@@ -9,11 +9,13 @@ export function QuantityStepper({
   onChange,
   label = "Cantidad",
   size = "md",
+  max = MAX_LINE_QUANTITY,
 }: {
   value: number;
   onChange: (value: number) => void;
   label?: string;
   size?: "sm" | "md";
+  max?: number;
 }) {
   const buttonClass = cn(
     "hover:bg-surface-2 focus-visible:ring-ring flex items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 disabled:opacity-40",
@@ -47,7 +49,7 @@ export function QuantityStepper({
       <button
         type="button"
         aria-label="Aumentar cantidad"
-        disabled={value >= MAX_LINE_QUANTITY}
+        disabled={value >= max}
         onClick={() => onChange(value + 1)}
         className={buttonClass}
       >
