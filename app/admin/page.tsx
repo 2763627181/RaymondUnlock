@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, FileText, Hammer, Package } from "lucide-react";
+import { AlertTriangle, FileText, Hammer, Package, Store } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { RequestStatusBadge } from "@/components/admin/status-badge";
 import {
@@ -54,6 +54,12 @@ export default async function AdminDashboardPage() {
       label: "Reparaciones pendientes",
       value: counts.repairs,
       icon: Hammer,
+    },
+    {
+      href: "/admin/proveedores/pedidos?estado=nueva",
+      label: "Pedidos mayoristas nuevos",
+      value: counts.wholesale,
+      icon: Store,
     },
     {
       href: "/admin/productos?estado=activo",

@@ -3,6 +3,7 @@
 import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setQuoteStatus } from "@/app/admin/cotizaciones/actions";
+import { setWholesaleOrderStatus } from "@/app/admin/proveedores/actions";
 import { setRepairStatus } from "@/app/admin/reparaciones/actions";
 import { NativeSelect } from "@/components/ui/native-select";
 import {
@@ -20,7 +21,7 @@ export function RequestStatusSelect({
   status,
   className,
 }: {
-  kind: "quote" | "repair";
+  kind: "quote" | "repair" | "wholesale";
   id: string;
   status: RequestStatus;
   className?: string;
@@ -36,7 +37,12 @@ export function RequestStatusSelect({
     if (!isRequestStatus(value)) return;
     startTransition(async () => {
       setOptimistic(value);
-      const action = kind === "quote" ? setQuoteStatus(id, value) : setRepairStatus(id, value);
+      const action =
+        kind === "quote"
+          ? setQuoteStatus(id, value)
+          : kind === "repair"
+            ? setRepairStatus(id, value)
+            : setWholesaleOrderStatus(id, value);
       const result = await runAction(action, "Estado actualizado");
       if (result.ok) router.refresh();
     });

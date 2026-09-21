@@ -7,6 +7,7 @@ import { BANNERS_TAG } from "@/lib/data/banners";
 import { SETTINGS_TAG } from "@/lib/data/settings";
 import { SERVICES_TAG } from "@/lib/data/services";
 import { CATALOG_TAG } from "@/lib/data/snapshot";
+import { WHOLESALE_TAG } from "@/lib/data/wholesale";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -32,6 +33,7 @@ const TAG_BY_AREA = {
   settings: SETTINGS_TAG,
   services: SERVICES_TAG,
   banners: BANNERS_TAG,
+  wholesale: WHOLESALE_TAG,
 } as const;
 
 /**

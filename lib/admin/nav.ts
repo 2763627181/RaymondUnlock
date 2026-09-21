@@ -7,13 +7,14 @@ import {
   Package,
   Search,
   Settings,
+  Store,
   Tags,
   TrendingUp,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
 
-export type AdminBadgeKey = "quotes" | "repairs";
+export type AdminBadgeKey = "quotes" | "repairs" | "wholesale";
 
 export interface AdminNavItem {
   href: string;
@@ -35,6 +36,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/cotizaciones", label: "Cotizaciones", icon: FileText, badge: "quotes" },
   { href: "/admin/reparaciones", label: "Reparaciones", icon: Hammer, badge: "repairs" },
   { href: "/admin/ventas", label: "Ventas", icon: TrendingUp },
+  { href: "/admin/proveedores", label: "Listado mayorista", icon: Store, badge: "wholesale" },
   { href: "/admin/ajustes", label: "Ajustes", icon: Settings },
 ];
 
