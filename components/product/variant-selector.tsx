@@ -2,6 +2,8 @@
 
 import { LayoutGroup, m, useReducedMotion } from "motion/react";
 import { Check } from "lucide-react";
+import { OptionPills } from "@/components/product/option-pills";
+import { UNLOCK_LABELS, formatBattery, isUnlockType } from "@/lib/catalog/text";
 import { selectOption, variantOptions, type VariantDimension } from "@/lib/catalog/variants";
 import { springShort } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -19,6 +21,8 @@ export function VariantSelector({
   const reduceMotion = useReducedMotion();
   const capacities = variantOptions(variants, "capacity");
   const colors = variantOptions(variants, "color");
+  const unlocks = variantOptions(variants, "unlock");
+  const batteries = variantOptions(variants, "battery");
 
   function choose(dimension: VariantDimension, value: string) {
     const next = selectOption(variants, selected, dimension, value);
@@ -31,48 +35,14 @@ export function VariantSelector({
     <LayoutGroup id="variant-selector">
       <div className="space-y-6">
         {capacities.length > 0 ? (
-          <div>
-            <p id="grupo-capacidad" className="mb-2.5 text-sm font-medium">
-              Capacidad:{" "}
-              <span className="text-muted-foreground font-normal">{selected.capacity}</span>
-            </p>
-            <div
-              role="radiogroup"
-              aria-labelledby="grupo-capacidad"
-              className="flex flex-wrap gap-2"
-            >
-              {capacities.map((option) => {
-                const isSelected = option.value === selected.capacity;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    disabled={!option.available}
-                    title={option.available ? undefined : "Agotado"}
-                    onClick={() => choose("capacity", option.value)}
-                    className={cn(
-                      "focus-visible:ring-ring relative min-w-16 rounded-full px-4 py-2 text-sm font-medium outline-none focus-visible:ring-2",
-                      "border-border border transition-colors",
-                      option.available
-                        ? "hover:bg-surface-2"
-                        : "text-muted-foreground cursor-not-allowed line-through opacity-50",
-                    )}
-                  >
-                    {isSelected ? (
-                      <m.span
-                        layoutId="variant-pill-capacity"
-                        transition={pillTransition}
-                        className="border-ink absolute -inset-px rounded-full border-2"
-                      />
-                    ) : null}
-                    <span className="relative">{option.value}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <OptionPills
+            groupId="capacity"
+            label="Capacidad"
+            selectedLabel={selected.capacity}
+            options={capacities}
+            selectedValue={selected.capacity}
+            onChoose={(value) => choose("capacity", value)}
+          />
         ) : null}
 
         {colors.length > 0 ? (
@@ -124,6 +94,32 @@ export function VariantSelector({
               })}
             </div>
           </div>
+        ) : null}
+
+        {unlocks.length > 1 ? (
+          <OptionPills
+            groupId="unlock"
+            label="Liberación"
+            selectedLabel={selected.unlockType ? UNLOCK_LABELS[selected.unlockType] : null}
+            options={unlocks}
+            selectedValue={selected.unlockType}
+            display={(value) => (isUnlockType(value) ? UNLOCK_LABELS[value] : value)}
+            onChoose={(value) => choose("unlock", value)}
+          />
+        ) : null}
+
+        {batteries.length > 1 ? (
+          <OptionPills
+            groupId="battery"
+            label="Batería"
+            selectedLabel={
+              selected.batteryHealth === null ? null : formatBattery(selected.batteryHealth)
+            }
+            options={batteries}
+            selectedValue={selected.batteryHealth === null ? null : String(selected.batteryHealth)}
+            display={(value) => formatBattery(Number(value))}
+            onChoose={(value) => choose("battery", value)}
+          />
         ) : null}
       </div>
     </LayoutGroup>

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PriceBlock } from "@/components/product/price-block";
 import { QuantityStepper } from "@/components/product/quantity-stepper";
+import { UnitDetails } from "@/components/product/unit-details";
 import { VariantSelector } from "@/components/product/variant-selector";
 import { variantLabel } from "@/lib/catalog/cards";
 import { CONDITION_LABELS } from "@/lib/catalog/text";
@@ -43,12 +44,20 @@ export function PurchasePanel({
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const outOfStock = selected.stock <= 0;
   const label = variantLabel(selected);
+  const facts = {
+    condition: product.condition,
+    capacity: selected.capacity,
+    color: selected.color,
+    batteryHealth: selected.batteryHealth,
+    unlockType: selected.unlockType,
+    code: selected.sku,
+  };
 
   const inquiryUrl = buildWhatsAppUrl(
     whatsappNumber,
     buildProductInquiryMessage({
       productName: product.name,
-      variantLabel: label,
+      facts,
       priceLabel: formatMoney(selected.priceRetail),
       productUrl: absoluteUrl(`/producto/${product.slug}`),
     }),
@@ -98,6 +107,8 @@ export function PurchasePanel({
 
       <VariantSelector variants={variants} selected={selected} onSelect={onSelect} />
 
+      <UnitDetails facts={facts} />
+
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-4">
           <QuantityStepper value={quantity} onChange={setQuantity} />
@@ -109,7 +120,7 @@ export function PurchasePanel({
         <Button asChild variant="outline" className="h-12 text-base">
           <a href={inquiryUrl} target="_blank" rel="noopener noreferrer">
             <MessageCircle aria-hidden="true" />
-            Consultar por WhatsApp
+            Pedir por WhatsApp
           </a>
         </Button>
         <p className="text-muted-foreground text-xs leading-relaxed">

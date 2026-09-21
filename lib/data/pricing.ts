@@ -19,7 +19,7 @@ export async function getPricingRows(variantIds: string[]): Promise<VariantPrici
   const { data, error } = await createAdminClient()
     .from("product_variants")
     .select(
-      "id, capacity, color, price_retail, stock, is_active, products!inner(name, slug, is_active)",
+      "id, sku, capacity, color, battery_health, unlock_type, price_retail, stock, is_active, products!inner(name, slug, condition, is_active)",
     )
     .in("id", ids);
   if (error) throw new Error(`No se pudieron leer los precios: ${error.message}`);
@@ -30,7 +30,14 @@ export async function getPricingRows(variantIds: string[]): Promise<VariantPrici
       variantId: row.id,
       productName: row.products.name,
       productSlug: row.products.slug,
-      variantLabel: variantLabel({ capacity: row.capacity, color: row.color }),
+      variantLabel: variantLabel({
+        capacity: row.capacity,
+        color: row.color,
+        batteryHealth: row.battery_health,
+        unlockType: row.unlock_type,
+      }),
+      condition: row.products.condition,
+      code: row.sku,
       priceRetail: row.price_retail,
       stock: row.stock,
     }));

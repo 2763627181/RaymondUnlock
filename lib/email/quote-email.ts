@@ -1,5 +1,6 @@
 import type { PricedLine } from "@/lib/cart/pricing";
 import { emailLayout, escapeHtml } from "@/lib/email/html";
+import { CONDITION_LABELS } from "@/lib/catalog/text";
 import { formatMoney } from "@/lib/format";
 
 export interface QuoteEmailData {
@@ -15,15 +16,17 @@ export interface QuoteEmailData {
 
 const cell = "padding:8px 6px;border-bottom:1px solid #e6e8ec;font-size:14px;vertical-align:top;";
 
+function subtext(text: string | null): string {
+  return text ? `<br><span style="color:#6b7280;font-size:13px;">${escapeHtml(text)}</span>` : "";
+}
+
 function itemsTable(lines: PricedLine[], subtotal: number): string {
   const rows = lines
     .map(
       (line) => `<tr>
 <td style="${cell}">${escapeHtml(line.productName)}${
-        line.variantLabel
-          ? `<br><span style="color:#6b7280;font-size:13px;">${escapeHtml(line.variantLabel)}</span>`
-          : ""
-      }</td>
+        line.condition === "nuevo" ? "" : ` (${CONDITION_LABELS[line.condition]})`
+      }${subtext(line.variantLabel)}${subtext(line.code ? `Código: ${line.code}` : null)}</td>
 <td style="${cell}text-align:center;">${line.quantity}</td>
 <td style="${cell}text-align:right;white-space:nowrap;">${formatMoney(line.unitPrice)}</td>
 <td style="${cell}text-align:right;white-space:nowrap;">${formatMoney(line.lineTotal)}</td>

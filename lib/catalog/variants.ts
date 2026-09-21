@@ -1,6 +1,9 @@
 import type { CatalogVariant } from "@/types/catalog";
 
-export type VariantDimension = "capacity" | "color";
+/** Lo que el cliente puede elegir. "unlock" es factory/por artista y "battery" la salud de la batería. */
+export type VariantDimension = "capacity" | "color" | "unlock" | "battery";
+
+const DIMENSIONS: readonly VariantDimension[] = ["capacity", "color", "unlock", "battery"];
 
 export interface VariantOption {
   value: string;
@@ -12,7 +15,16 @@ export interface VariantOption {
 }
 
 function valueOf(variant: CatalogVariant, dimension: VariantDimension): string | null {
-  return dimension === "capacity" ? variant.capacity : variant.color;
+  switch (dimension) {
+    case "capacity":
+      return variant.capacity;
+    case "color":
+      return variant.color;
+    case "unlock":
+      return variant.unlockType;
+    case "battery":
+      return variant.batteryHealth === null ? null : String(variant.batteryHealth);
+  }
 }
 
 export function defaultVariant(variants: CatalogVariant[]): CatalogVariant | null {
@@ -21,7 +33,8 @@ export function defaultVariant(variants: CatalogVariant[]): CatalogVariant | nul
 
 /**
  * Opciones de una dimensión. Una opción sin stock en ninguna variante se marca
- * como no disponible pero se sigue mostrando (deshabilitada).
+ * como no disponible pero se sigue mostrando (deshabilitada). La batería va de
+ * mayor a menor porque es la que más importa.
  */
 export function variantOptions(
   variants: CatalogVariant[],
@@ -39,13 +52,14 @@ export function variantOptions(
       available: (existing?.available ?? false) || variant.stock > 0,
     });
   }
-  return [...options.values()];
+  const list = [...options.values()];
+  return dimension === "battery" ? list.sort((a, b) => Number(b.value) - Number(a.value)) : list;
 }
 
 /**
- * Variante resultante de elegir `value` en una dimensión. Conserva la otra
- * dimensión si esa combinación existe con stock; si no, salta a la primera
- * variante con stock que tenga la opción elegida.
+ * Variante resultante de elegir `value` en una dimensión: entre las que tienen
+ * esa opción y stock, la más parecida a la selección actual (la que conserva más
+ * de las otras dimensiones). Con empate, la primera.
  */
 export function selectOption(
   variants: CatalogVariant[],
@@ -53,14 +67,19 @@ export function selectOption(
   dimension: VariantDimension,
   value: string,
 ): CatalogVariant | null {
-  const other: VariantDimension = dimension === "capacity" ? "color" : "capacity";
-  const withOption = variants.filter((variant) => valueOf(variant, dimension) === value);
+  const others = DIMENSIONS.filter((other) => other !== dimension);
+  let best: CatalogVariant | null = null;
+  let bestScore = -1;
 
-  return (
-    withOption.find(
-      (variant) => variant.stock > 0 && valueOf(variant, other) === valueOf(current, other),
-    ) ??
-    withOption.find((variant) => variant.stock > 0) ??
-    null
-  );
+  for (const variant of variants) {
+    if (valueOf(variant, dimension) !== value || variant.stock <= 0) continue;
+    const score = others.filter(
+      (other) => valueOf(variant, other) === valueOf(current, other),
+    ).length;
+    if (score > bestScore) {
+      best = variant;
+      bestScore = score;
+    }
+  }
+  return best;
 }

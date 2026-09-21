@@ -15,6 +15,8 @@ function variant(
     capacity,
     color,
     colorHex: color ? `#${id}` : null,
+    batteryHealth: null,
+    unlockType: null,
     priceRetail: 100,
     compareAtPrice: null,
     stock,
@@ -75,5 +77,48 @@ describe("selectOption", () => {
 
   it("cambia de color conservando la capacidad cuando se puede", () => {
     expect(d && selectOption(variants, d, "color", "Natural")?.id).toBe("a");
+  });
+});
+
+describe("equipos que solo se distinguen por batería y liberación", () => {
+  function unit(
+    id: string,
+    capacity: string,
+    batteryHealth: number,
+    unlockType: CatalogVariant["unlockType"],
+    stock = 1,
+  ): CatalogVariant {
+    return { ...variant(id, capacity, "Azul", stock), batteryHealth, unlockType };
+  }
+
+  const units = [
+    unit("u1", "128 GB", 92, "factory"),
+    unit("u2", "128 GB", 85, "artista"),
+    unit("u3", "256 GB", 90, "factory"),
+  ];
+  const [u1, u2] = units;
+
+  it("lista la liberación y la batería (de mayor a menor)", () => {
+    expect(variantOptions(units, "unlock").map((o) => o.value)).toEqual(["factory", "artista"]);
+    expect(variantOptions(units, "battery").map((o) => o.value)).toEqual(["92", "90", "85"]);
+  });
+
+  it("no ofrece opciones de una dimensión que ninguna variante tiene", () => {
+    expect(variantOptions(variants, "unlock")).toEqual([]);
+    expect(variantOptions(variants, "battery")).toEqual([]);
+  });
+
+  it("elegir liberación conserva la capacidad y el resto", () => {
+    expect(u1 && selectOption(units, u1, "unlock", "artista")?.id).toBe("u2");
+  });
+
+  it("elegir una capacidad salta a la unidad que la tiene", () => {
+    expect(u2 && selectOption(units, u2, "capacity", "256 GB")?.id).toBe("u3");
+  });
+
+  it("no se puede elegir la unidad agotada", () => {
+    const sold = [unit("s1", "128 GB", 92, "factory"), unit("s2", "128 GB", 85, "artista", 0)];
+    const [first] = sold;
+    expect(first && selectOption(sold, first, "battery", "85")).toBeNull();
   });
 });

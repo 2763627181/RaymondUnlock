@@ -14,6 +14,8 @@ function line(index: number, overrides: Partial<PricedLine> = {}): PricedLine {
     productName: `Producto ${index}`,
     productSlug: `producto-${index}`,
     variantLabel: "128 GB · Titanio natural",
+    condition: "nuevo",
+    code: null,
     quantity: 2,
     unitPrice: 1000,
     lineTotal: 2000,
@@ -44,6 +46,23 @@ describe("buildQuoteMessage", () => {
     expect(message).toContain(`*Subtotal:* ${formatMoney(3000)}`);
     expect(message).toContain("_Precios sujetos a confirmación y disponibilidad._");
     expect(lines.at(-1)).toBe("Enviado desde raymondunlock.com");
+  });
+
+  it("de un equipo usado muestra estado, batería, liberación y código", () => {
+    const message = buildQuoteMessage({
+      ...base,
+      lines: [
+        line(1, {
+          productName: "iPhone 13",
+          condition: "usado",
+          variantLabel: "128 GB · Azul · Batería 92 % · Factory",
+          code: "RU-00012",
+        }),
+      ],
+    });
+    expect(message).toContain(
+      "1) iPhone 13 (Usado)\n   128 GB · Azul · Batería 92 % · Factory\n   Código: RU-00012\n   Cantidad: 2 ×",
+    );
   });
 
   it("omite la línea de variante cuando el producto no tiene", () => {

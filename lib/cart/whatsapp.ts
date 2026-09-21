@@ -1,4 +1,5 @@
 import type { PricedLine } from "@/lib/cart/pricing";
+import { CONDITION_LABELS } from "@/lib/catalog/text";
 import { formatMoney } from "@/lib/format";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
@@ -16,8 +17,10 @@ export interface QuoteMessageInput {
 }
 
 function itemBlock(line: PricedLine, position: number): string {
-  const lines = [`${position}) ${line.productName}`];
+  const condition = line.condition === "nuevo" ? "" : ` (${CONDITION_LABELS[line.condition]})`;
+  const lines = [`${position}) ${line.productName}${condition}`];
   if (line.variantLabel) lines.push(`   ${line.variantLabel}`);
+  if (line.code) lines.push(`   Código: ${line.code}`);
   lines.push(
     `   Cantidad: ${line.quantity} × ${formatMoney(line.unitPrice)} = ${formatMoney(line.lineTotal)}`,
   );

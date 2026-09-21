@@ -26,6 +26,8 @@ const variantRow: Tables<"v_catalog_variants"> = {
   capacity: "128 GB",
   color: null,
   color_hex: null,
+  battery_health: null,
+  unlock_type: null,
   price_retail: 62900,
   compare_at_price: null,
   stock: 3,
@@ -60,6 +62,14 @@ describe("toVariant", () => {
     expect(variant.priceRetail).toBe(62900);
     expect(Object.keys(variant)).not.toContain("priceWholesale");
     expect(Object.keys(variant)).not.toContain("minWholesaleQty");
+  });
+
+  it("lee la batería y el tipo de liberación", () => {
+    expect(toVariant({ ...variantRow, battery_health: 92, unlock_type: "artista" })).toMatchObject({
+      batteryHealth: 92,
+      unlockType: "artista",
+    });
+    expect(toVariant(variantRow)).toMatchObject({ batteryHealth: null, unlockType: null });
   });
 
   it("rechaza una variante sin precio", () => {

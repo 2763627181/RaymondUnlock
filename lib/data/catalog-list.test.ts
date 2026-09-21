@@ -58,6 +58,8 @@ function variant(
     capacity,
     color: null,
     colorHex: null,
+    batteryHealth: null,
+    unlockType: null,
     priceRetail: price,
     compareAtPrice: null,
     stock,

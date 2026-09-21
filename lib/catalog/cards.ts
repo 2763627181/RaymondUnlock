@@ -7,12 +7,22 @@ import type {
   ProductCardData,
   ProductImage,
 } from "@/types/catalog";
+import { UNLOCK_LABELS, formatBattery } from "@/lib/catalog/text";
 import { discountPercent } from "@/lib/format";
 
 const MAX_CARD_COLORS = 5;
 
-export function variantLabel(variant: Pick<CatalogVariant, "capacity" | "color">): string | null {
-  const parts = [variant.capacity, variant.color].filter((part): part is string => Boolean(part));
+/** "128 GB · Azul · Batería 92 % · Factory": lo que distingue a una variante de otra. */
+export function variantLabel(
+  variant: Pick<CatalogVariant, "capacity" | "color"> &
+    Partial<Pick<CatalogVariant, "batteryHealth" | "unlockType">>,
+): string | null {
+  const parts = [
+    variant.capacity,
+    variant.color,
+    variant.batteryHealth != null ? `Batería ${formatBattery(variant.batteryHealth)}` : null,
+    variant.unlockType ? UNLOCK_LABELS[variant.unlockType] : null,
+  ].filter((part): part is string => Boolean(part));
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 

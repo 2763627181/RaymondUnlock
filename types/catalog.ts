@@ -1,6 +1,7 @@
 export type ProductCondition = "nuevo" | "open_box" | "usado" | "reacondicionado";
 
-export type PriceTier = "retail" | "wholesale";
+/** Cómo se liberó el equipo: de fábrica ("factory") o por un técnico ("artista"). */
+export type UnlockType = "factory" | "artista";
 
 export type SortOption = "relevancia" | "precio-asc" | "precio-desc" | "nuevos";
 
@@ -31,6 +32,9 @@ export interface CatalogVariant {
   capacity: string | null;
   color: string | null;
   colorHex: string | null;
+  /** Salud de la batería en porcentaje (equipos usados). */
+  batteryHealth: number | null;
+  unlockType: UnlockType | null;
   priceRetail: number;
   compareAtPrice: number | null;
   stock: number;

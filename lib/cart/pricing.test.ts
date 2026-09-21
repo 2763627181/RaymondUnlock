@@ -6,6 +6,8 @@ const row: VariantPricingRow = {
   productName: "iPhone 15 Pro",
   productSlug: "iphone-15-pro",
   variantLabel: "128 GB · Titanio natural",
+  condition: "nuevo",
+  code: "RU-00001",
   priceRetail: 1000,
   stock: 10,
 };
@@ -13,6 +15,13 @@ const row: VariantPricingRow = {
 describe("priceLine", () => {
   it("cobra siempre el precio por unidad", () => {
     expect(priceLine(row, 10)).toMatchObject({ unitPrice: 1000, lineTotal: 10000, quantity: 10 });
+  });
+
+  it("conserva estado y código para el mensaje y el admin", () => {
+    expect(priceLine({ ...row, condition: "usado" }, 1)).toMatchObject({
+      condition: "usado",
+      code: "RU-00001",
+    });
   });
 
   it.each([0, -1, 1.5, Number.NaN])("rechaza cantidades inválidas (%s)", (quantity) => {

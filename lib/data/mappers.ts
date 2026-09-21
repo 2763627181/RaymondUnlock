@@ -40,6 +40,9 @@ const variantRowSchema = z.object({
   capacity: z.string().nullable(),
   color: z.string().nullable(),
   color_hex: z.string().nullable(),
+  // Opcionales: PostgREST declara nulables todas las columnas de una vista.
+  battery_health: z.number().int().nullish(),
+  unlock_type: z.enum(Constants.public.Enums.unlock_type).nullish(),
   price_retail: z.number(),
   compare_at_price: z.number().nullable(),
   stock: z.number().int(),
@@ -107,6 +110,8 @@ export function toVariant(row: Tables<"v_catalog_variants">): CatalogVariant {
     capacity: parsed.capacity,
     color: parsed.color,
     colorHex: parsed.color_hex,
+    batteryHealth: parsed.battery_health ?? null,
+    unlockType: parsed.unlock_type ?? null,
     priceRetail: parsed.price_retail,
     compareAtPrice: parsed.compare_at_price,
     stock: parsed.stock,

@@ -54,7 +54,8 @@ export async function createQuote(quote: NewQuote): Promise<string> {
       quote_id: header.id,
       variant_id: line.variantId,
       product_name: line.productName,
-      variant_label: line.variantLabel,
+      // El código va en la etiqueta para que el admin lo vea (y lo busque) aunque la variante se borre.
+      variant_label: [line.variantLabel, line.code].filter(Boolean).join(" · ") || null,
       unit_price: line.unitPrice,
       quantity: line.quantity,
       line_total: line.lineTotal,
