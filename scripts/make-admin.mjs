@@ -1,9 +1,26 @@
 // Uso: pnpm admin:make correo@del.admin
 //
-// Da el rol de administrador a una cuenta que YA existe (registrada en /registro
-// o creada en Authentication → Users). Desde la aplicación nadie puede otorgarse
-// ese rol, por eso el primer admin se crea aquí, con la service role del .env.local.
+// Da el rol de administrador a una cuenta que YA existe (creada en Supabase →
+// Authentication → Users). Desde la aplicación nadie puede otorgarse ese rol, por
+// eso el admin se asigna aquí, con la service role del .env.local.
 import { createClient } from "@supabase/supabase-js";
+
+/** El registro público de Supabase debe estar cerrado: la app no ofrece crear cuentas. */
+async function warnIfSignupOpen(url) {
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!anonKey) return;
+  try {
+    const response = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: anonKey } });
+    const settings = await response.json();
+    if (settings.disable_signup === false) {
+      console.warn(
+        "AVISO: el registro público de Supabase sigue ACTIVO. Ciérralo en Authentication → Sign In / Providers → desactiva «Allow new users to sign up».",
+      );
+    }
+  } catch {
+    // Solo es un aviso: si no se puede consultar, no se bloquea el comando.
+  }
+}
 
 // Devuelve el código de salida en vez de llamar a process.exit(): en Windows,
 // salir con conexiones de red abiertas hace que Node aborte con un "Assertion failed".
@@ -25,6 +42,8 @@ async function main() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  await warnIfSignupOpen(url);
+
   const { data, error } = await supabase
     .from("profiles")
     .update({ role: "admin" })
@@ -37,7 +56,7 @@ async function main() {
   }
   if (!data?.length) {
     console.error(
-      `No hay ninguna cuenta con el correo ${email}. Regístrala primero en /registro (o créala en Supabase → Authentication → Users) y vuelve a correr el comando.`,
+      `No hay ninguna cuenta con el correo ${email}. Créala primero en Supabase → Authentication → Users (Add user, con «Auto Confirm User») y vuelve a correr el comando.`,
     );
     return 1;
   }
