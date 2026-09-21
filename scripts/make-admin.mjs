@@ -61,7 +61,9 @@ async function main() {
     return 1;
   }
 
-  console.log(`Listo: ${data[0].email} ahora es administrador. Ya puede entrar a /admin.`);
+  process.stdout.write(
+    `Listo: ${data[0].email} ahora es administrador. Ya puede entrar a /admin.\n`,
+  );
   return 0;
 }
 
