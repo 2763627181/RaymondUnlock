@@ -1,74 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { saveBanner } from "@/app/admin/banners/actions";
-import { ImageDropzone } from "@/components/admin/image-dropzone";
+import { ImageUrlField } from "@/components/admin/image-url-field";
 import { SelectField } from "@/components/forms/select-field";
 import { SwitchField } from "@/components/forms/switch-field";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { runAction } from "@/lib/admin/run-action";
-import { uploadImage } from "@/lib/admin/upload-image";
-import { toast } from "@/lib/toast-store";
 import { bannerSchema, type BannerInput, type BannerValues } from "@/lib/validation/admin/content";
 import type { Tables } from "@/types/database";
 
 export type BannerRow = Tables<"banners">;
-
-function BannerImageField({
-  value,
-  onChange,
-  error,
-}: {
-  value: string;
-  onChange: (url: string) => void;
-  error?: string | undefined;
-}) {
-  const [uploading, setUploading] = useState(false);
-
-  async function handleFiles(files: File[]) {
-    const file = files[0];
-    if (!file) return;
-    setUploading(true);
-    const result = await uploadImage(file, "banners");
-    setUploading(false);
-    if (result.ok) onChange(result.url);
-    else toast({ title: "No se pudo subir", description: result.message, variant: "destructive" });
-  }
-
-  return (
-    <div className="space-y-3">
-      {value ? (
-        <div className="bg-ink relative aspect-[16/7] overflow-hidden rounded-lg">
-          <Image
-            src={value}
-            alt="Vista previa del banner"
-            fill
-            unoptimized
-            className="object-contain"
-          />
-        </div>
-      ) : null}
-      <ImageDropzone
-        onFiles={handleFiles}
-        disabled={uploading}
-        title={uploading ? "Subiendo…" : value ? "Cambiar imagen" : "Subir imagen"}
-      />
-      <TextField
-        id="imageUrl"
-        label="URL de la imagen"
-        hint=" (se llena al subir)"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        error={error}
-      />
-    </div>
-  );
-}
 
 export function BannerForm({ banner, onDone }: { banner?: BannerRow; onDone: () => void }) {
   const router = useRouter();
@@ -121,7 +66,8 @@ export function BannerForm({ banner, onDone }: { banner?: BannerRow; onDone: () 
         control={control}
         name="imageUrl"
         render={({ field }) => (
-          <BannerImageField
+          <ImageUrlField
+            folder="banners"
             value={field.value}
             onChange={field.onChange}
             error={errors.imageUrl?.message}
