@@ -44,10 +44,12 @@ const STATUS_COPY: Partial<
   },
 };
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: PageProps<"/cuenta">) {
   const viewer = await getViewer();
   if (!viewer) redirect("/login?next=/cuenta");
 
+  const { acceso } = await searchParams;
+  const deniedAdmin = acceso === "admin" && viewer.status !== "admin";
   const status = STATUS_COPY[viewer.status];
   const canRequestWholesale =
     viewer.status === "customer" || viewer.status === "wholesale_rejected";
@@ -56,6 +58,20 @@ export default async function AccountPage() {
     <Container className="max-w-3xl py-12 sm:py-16">
       <h1 className="text-3xl font-semibold tracking-tight">Mi cuenta</h1>
       <p className="text-muted-foreground mt-1">{viewer.email}</p>
+
+      {deniedAdmin ? (
+        <div
+          role="alert"
+          className="border-brand-red-600/30 bg-brand-red-600/5 mt-8 rounded-xl border p-5"
+        >
+          <h2 className="font-semibold">Esta cuenta no tiene acceso al panel</h2>
+          <p className="text-muted-foreground mt-1 text-[15px] leading-relaxed">
+            El panel de administración es solo para cuentas con rol de administrador. Si formas
+            parte del equipo, pide que te lo asignen; mientras tanto tu cuenta funciona con
+            normalidad.
+          </p>
+        </div>
+      ) : null}
 
       {status ? (
         <div className={`mt-8 flex gap-4 rounded-xl border p-5 ${status.tone}`}>

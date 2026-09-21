@@ -69,7 +69,7 @@ Para crear una base nueva:
 1. Crear un proyecto en Supabase y copiar a `.env.local` la URL, la llave `anon`, la `service_role` (Project Settings → API) y el connection string del **Session pooler** (Connect). La conexión directa (`db.<ref>.supabase.co`) es solo IPv6 y falla en muchas redes.
 2. Aplicar las migraciones: `npx supabase db push --db-url "$SUPABASE_DB_URL"`.
 3. Cargar los datos de ejemplo: ejecutar `supabase/seed.sql` en el SQL Editor del dashboard (o con `psql`). Es idempotente (`on conflict do nothing`): no pisa lo que ya se editó.
-4. Crear el primer admin: crear el usuario en Authentication → Users y ejecutar `update public.profiles set role = 'admin' where email = 'correo@del.admin';`. Desde la aplicación nadie puede otorgarse ese rol.
+4. Crear el primer admin: registrar la cuenta en `/registro` (o crearla en Authentication → Users) y correr `pnpm admin:make correo@del.admin`. Es lo mismo que `update public.profiles set role = 'admin' where email = 'correo@del.admin';` en el SQL Editor. Desde la aplicación nadie puede otorgarse ese rol.
 
 Si cambias el esquema, regenera `types/database.ts` con `npx supabase gen types typescript --db-url "$SUPABASE_DB_URL" --schema public` (requiere Docker Desktop). Sin Docker se puede correr `@supabase/postgres-meta` en modo CLI con `PG_META_GENERATE_TYPES=typescript`, que produce el mismo archivo.
 
@@ -100,7 +100,7 @@ Verificado contra el proyecto real (peticiones REST y recorridos en un navegador
 
 ## Panel de administración (`/admin`)
 
-Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Cualquier otra persona recibe 404.
+Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Sin sesión, `/admin` manda a `/login`; con una cuenta sin ese rol, manda a `/cuenta` con un aviso.
 
 | Sección                                | Qué permite                                                                                                                                                      |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |

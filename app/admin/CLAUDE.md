@@ -3,7 +3,7 @@
 ## Autorización (defensa en capas)
 
 1. `proxy.ts`: sin sesión → `/login?next=…`.
-2. `layout.tsx`: `requireAdmin()` (sin sesión → login; sin rol admin → 404, no se revela que existe).
+2. `layout.tsx`: `requireAdmin()` (sin sesión → login; sin rol admin → `/cuenta?acceso=admin` con aviso; un 404 confundía a quien acababa de iniciar sesión). `not-found.tsx` da el 404 dentro del panel para ids que no existen.
 3. **Cada página** vuelve a llamar `await requireAdmin("/ruta")`: los layouts se renderizan en paralelo con la página y no se re-ejecutan al navegar dentro del panel, así que el layout solo no alcanza. Es gratis: `getViewer()` está memoizado por petición.
 4. **Cada Server Action** entra por `withAdmin()` (`lib/admin/action-helpers.ts`), que verifica el rol otra vez y convierte excepciones en mensajes. Se comprobó repitiendo la petición de una acción real como anónimo, cliente y cuenta rechazada: ninguna escribe.
 5. La base: el RLS sigue siendo la última barrera. Se usa el cliente con la **sesión del admin** (`ctx.supabase`) siempre que el RLS lo permite; `service_role` (`createAdminClient()`) solo para lo que está cerrado a la API: `product_variants` (precio mayorista), aprobar/rechazar mayoristas (rol) y borrar de Storage.
