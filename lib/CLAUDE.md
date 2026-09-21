@@ -7,6 +7,7 @@
 - `auth/`: `getViewer()` (quién es y si es admin, validado con `getUser`), `admin.ts` (`requireAdmin` para páginas, `assertAdmin` para acciones), `paths.ts` (`safeNextPath` contra redirecciones abiertas).
 - `cart/`: `pricing.ts` (puro: siempre precio por unidad), `store.ts` (Zustand `ru-cart-v1`, con `lineTotal`/`cartSubtotal` solo para mostrar), `whatsapp.ts` (mensaje de la cotización).
 - `catalog/`: `unit-facts.ts` (estado, capacidad, color, batería, liberación y código de un equipo), `variants.ts` (selección por capacidad, color, liberación y batería), `text.ts` (etiquetas), `cards.ts`.
+- `wholesale/`: el listado al por mayor. `filter.ts` (búsqueda, filtros y agrupación por categoría), `cart.ts` (Zustand `ru-wholesale-v1`; `sync` quita los productos retirados y actualiza precios), `message.ts` (mensaje y enlace de WhatsApp) y `format.ts` (fecha y números deterministas). Con pruebas.
 - `whatsapp.ts`: `buildProductInquiryMessage`, el mensaje predeterminado al pedir un producto.
 - `validation/`: esquemas Zod (`quote`, `repair`, `auth`, `settings`, `admin/*`). `admin/` está en `app/admin/CLAUDE.md`.
 - `reports/`: informes de cotizaciones, reparaciones y ventas del mes. `*-report.ts` arman el informe (puro, con pruebas), `excel.ts` y `pdf-document.tsx`/`pdf-parts.tsx` lo dibujan, `queries.ts` lee la base con la sesión del admin y `respond.ts` valida el rol y responde el archivo. `month.ts` trabaja siempre en hora de Santo Domingo.
@@ -19,7 +20,8 @@
 - Los módulos que tocan secretos o la base llevan `import "server-only"`.
 - **Filas de vistas y `jsonb` se validan con Zod** antes de usarse (`data/mappers.ts`, `validation/settings.ts`): PostgREST declara todas las columnas de una vista como nulables y un jsonb mal formado tumbaría el sitio.
 - Un producto sin variantes activas o con la categoría oculta se omite (no rompe la tienda).
-- Los códigos `RU-AAAA-NNNN` / `RE-AAAA-NNNN` los genera Postgres (`next_request_code`, solo `service_role`); si no se puede guardar la solicitud no se entrega un código.
+- Los códigos `RU-AAAA-NNNN` / `RE-AAAA-NNNN` / `PM-AAAA-NNNN` (pedidos al por mayor) los genera Postgres (`next_request_code`, solo `service_role`); si no se puede guardar la solicitud no se entrega un código.
 - Lo que persiste después de guardar una solicitud no debe poder lanzar: lee lo que necesites _antes_ de `createQuote`/`createRepairRequest`, o el cliente vería error de algo que sí se registró.
 - El limitador de intentos (`rate-limit.ts`) es en memoria y por instancia: freno básico, no un límite compartido. En pruebas manuales con muchos inicios de sesión hay que reiniciar el servidor.
+- La caché de datos (`unstable_cache`) persiste entre builds en `.next/cache`: si mides o pruebas el build con datos recién cambiados en la base, haz `rm -rf .next/cache` antes de `pnpm build`, o la página saldrá con los datos viejos.
 - Toda función pura con lógica (precios, filtros, esquemas, CSV) lleva prueba en `*.test.ts` al lado.

@@ -2,7 +2,7 @@
 
 # Raymond Unlock
 
-Tienda de celulares, electrónicos y servicios técnicos en Santo Domingo (RD). Catálogo público, cotización por WhatsApp/correo y panel de administración. **Los clientes no tienen cuenta ni inician sesión**: solo existe la cuenta del administrador. Todo el texto visible va en español dominicano (es-DO); moneda DOP (`RD$`).
+Tienda de celulares, electrónicos y servicios técnicos en Santo Domingo (RD). Catálogo público, cotización por WhatsApp/correo, listado al por mayor (`/proveedores`) y panel de administración. **Los clientes no tienen cuenta ni inician sesión**: solo existe la cuenta del administrador. Todo el texto visible va en español dominicano (es-DO); moneda DOP (`RD$`).
 
 Cada carpeta principal tiene su propio `CLAUDE.md` con las reglas de ese módulo: `app/`, `app/admin/`, `components/`, `lib/`, `supabase/`. Léelo antes de tocar esa zona.
 
@@ -22,7 +22,7 @@ Next 16.3 (App Router, `proxy.ts` en vez de `middleware.ts`), React 19, TypeScri
 
 ## Reglas que no se rompen
 
-1. **El precio al por mayor solo vive en la base y en el panel.** `product_variants` está cerrada a `anon` y `authenticated`; el público lee las vistas `v_catalog_*`. Nunca lo pongas en HTML estático, RSC de páginas públicas ni en un tipo público (`CatalogVariant` no lo tiene a propósito). Nadie lo ve en la tienda: no hay cuentas de mayorista.
+1. **El precio al por mayor solo vive en la base y en el panel.** `product_variants` está cerrada a `anon` y `authenticated`; el público lee las vistas `v_catalog_*`. Nunca lo pongas en HTML estático, RSC de páginas públicas ni en un tipo público (`CatalogVariant` no lo tiene a propósito). Nadie lo ve en la tienda: no hay cuentas de mayorista. **Excepción deliberada:** `/proveedores` publica su propia lista de precios al por mayor (`wholesale_products`, decisión del dueño): es otro dato, no lo mezcles con `product_variants`.
 2. **Los precios del carrito son solo para mostrar.** `submitQuote` valida con Zod y vuelve a leer todo en el servidor (precio, estado, batería, liberación y código). Todo se cobra por unidad.
 3. **Secretos**: `SUPABASE_SERVICE_ROLE_KEY` y `RESEND_API_KEY` jamás en un archivo `"use client"` ni con prefijo `NEXT_PUBLIC_`. `.env.local` nunca se commitea.
 4. **Todo input pasa por Zod en el servidor**, aunque el formulario ya lo haya validado.

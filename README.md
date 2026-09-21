@@ -1,6 +1,6 @@
 # Raymond Unlock
 
-Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público, cotización por WhatsApp/correo (con el equipo exacto: estado, batería, liberación y código) y panel de administración completo. Los clientes no crean cuenta ni inician sesión: solo existe la cuenta del administrador.
+Sitio web de Raymond Unlock — celulares, tablets, audio, smartwatches, accesorios y servicios técnicos en Santo Domingo, República Dominicana. Catálogo público, cotización por WhatsApp/correo (con el equipo exacto: estado, batería, liberación y código), un listado de precios al por mayor con pedido por WhatsApp (`/proveedores`) y panel de administración completo. Los clientes no crean cuenta ni inician sesión: solo existe la cuenta del administrador.
 
 ## Estado del proyecto
 
@@ -63,7 +63,7 @@ Los datos de contacto (WhatsApp, correo, redes, dirección, horarios) no son var
 
 ## Base de datos (Supabase)
 
-El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql`, `..._security.sql`, `..._wholesale_accounts.sql`, `..._unit_details_and_history.sql` y `..._quote_closed_at.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
+El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql`, `..._security.sql`, `..._wholesale_accounts.sql`, `..._unit_details_and_history.sql`, `..._quote_closed_at.sql` y `..._wholesale_listing.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
 
 Para crear una base nueva:
 
@@ -90,32 +90,43 @@ Verificado contra el proyecto real (peticiones REST y recorridos en un navegador
 - Un visitante anónimo no puede leer `price_wholesale` ni `product_variants`, ni escribir en ninguna tabla, vista o RPC interno.
 - Un usuario común no puede subirse el rol, editar catálogo, leer el historial ni subir a Storage (y meter `role: admin` en el metadata al registrarse no sirve).
 - Un admin sí crea y edita catálogo, sube imágenes y lee el historial; una cuenta sin rol admin (anónima o cliente) que repite la petición real de una Server Action del panel no logra escribir nada.
-- Ninguna llave secreta ni valor de precio al por mayor aparece en los bundles del navegador ni en el HTML prerenderizado de las páginas públicas (el precio al por mayor solo existe en la base y en el panel).
+- Ninguna llave secreta ni valor de precio al por mayor aparece en los bundles del navegador ni en el HTML prerenderizado de las páginas públicas (el precio al por mayor **de las variantes** solo existe en la base y en el panel; el listado de `/proveedores` es aparte y sus precios son públicos a propósito).
 
 **Caché del catálogo**: las lecturas públicas van por un snapshot cacheado 5 minutos (`unstable_cache`, etiqueta `catalog`). Los cambios hechos desde `/admin` lo invalidan al instante; un cambio hecho directamente en la base tarda hasta 5 minutos en verse. PostgREST devuelve como máximo 1000 filas por consulta: si el catálogo se acerca a ese tamaño el sitio falla con un mensaje explícito (en vez de ocultar productos en silencio) y toca mover el filtrado de `/tienda` a SQL.
 
 ## Acceso y mayoristas
 
 - **Solo el administrador inicia sesión.** No hay registro, cuenta de cliente, recuperación de contraseña ni portal mayorista. Los clientes navegan, arman su cotización y la piden por WhatsApp o correo. `/login` existe solo para el panel: si las credenciales son válidas pero la cuenta no tiene rol `admin`, se cierra la sesión y se responde "Correo o contraseña incorrectos" (igual que con una clave errónea). Hay un límite de 10 intentos por IP cada 15 minutos, **en memoria y por instancia**: es un freno básico; para algo más fuerte hay que añadir un límite compartido (WAF de Vercel, Upstash).
-- **Al por mayor** es solo contacto: `/mayorista` y el aviso de la home llevan a WhatsApp. El precio al por mayor y la cantidad mínima siguen en la base (lo que ya estaba guardado se conserva) pero **ya no se editan en el panel y nadie los ve en la tienda**: las cotizaciones se cobran siempre por unidad.
+- **Al por mayor**: `/mayorista` explica el servicio y lleva al listado de `/proveedores` (ver abajo) o a WhatsApp. El precio al por mayor y la cantidad mínima **de las variantes** siguen en la base (lo que ya estaba guardado se conserva) pero **ya no se editan en el panel y nadie los ve en la tienda**: las cotizaciones se cobran siempre por unidad.
 - **Mensaje de WhatsApp predeterminado**: al pedir un producto (o al enviar la cotización) el mensaje trae el equipo exacto que se eligió: nombre, estado (nuevo, usado…), capacidad, color, **batería**, **liberación** (_factory_ o _por artista_) y **código**. Ver `lib/whatsapp.ts` y `lib/cart/whatsapp.ts` (con pruebas).
 - **Liberación**: _Factory_ es un equipo liberado de fábrica; _Por artista_ es el liberado por un técnico. Se elige por variante en el panel. Si un producto tiene varias variantes que se distinguen solo por batería o liberación, la ficha muestra esos selectores.
+
+## Listado al por mayor (`/proveedores`)
+
+Página pública con la lista de precios al por mayor del negocio, pensada para que otros negocios armen su pedido desde el teléfono y lo manden por WhatsApp. Se usa como una app: encabezado con la fecha de actualización, buscador, filtros por tipo, categoría y condición (salen de los datos), categorías que se despliegan, botón "+" por producto, barra "Ver pedido", hoja "Tu pedido" (cantidades, total y "Vaciar") y menú inferior con Listado, Buscar, Pedido y Más.
+
+- **Los precios son públicos** (decisión del dueño, 2026-09-21): cualquiera con el enlace ve la lista. Es un dato aparte del catálogo: vive en sus propias tablas (`wholesale_products`, `wholesale_contacts`, `wholesale_orders`, `wholesale_order_items`) y no toca `product_variants` ni el precio por mayor de las variantes.
+- **El pedido**: el navegador solo manda ids y cantidades; el servidor vuelve a leer nombre y precio (`submitWholesaleOrder`), guarda el pedido con un código `PM-AAAA-NNNN` y sus renglones tal como se vendieron, y devuelve el enlace de WhatsApp con el mensaje armado. Si un producto ya no está en la lista se rechaza el pedido y se quita del carrito del cliente. Con varios vendedores el cliente elige a quién escribirle; con uno sale directo; sin ninguno va al WhatsApp del negocio (Ajustes). Límite de 15 pedidos por IP por hora (en memoria, por instancia).
+- **Panel** (`/admin/proveedores`): pestañas Productos, Contactos de venta y Pedidos. El tablero y el menú lateral avisan de los pedidos nuevos. Lo que se guarda se ve al instante en la página.
+- **Cómo se carga la lista**: por ahora a mano, desde el panel. Importarla desde Excel o CSV queda pendiente de decidir.
+- El enlace de WhatsApp del pedido termina con "enviado desde <dominio>", tomado de `NEXT_PUBLIC_SITE_URL`: hay que ponerlo al dominio real antes de publicar.
 
 ## Panel de administración (`/admin`)
 
 Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Sin sesión, `/admin` manda a `/login` y, tras entrar, a la página que se pidió.
 
-| Sección                                | Qué permite                                                                                                                                                  |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Panel                                  | Cotizaciones nuevas, reparaciones pendientes, productos activos, variantes con poco stock y últimas 10 cotizaciones                                          |
-| Buscar producto                        | Por **código (SKU)**, ID del producto o de una variante, enlace o nombre. Un código o ID exacto abre directo la ficha. También está en la barra superior     |
-| Productos                              | Búsqueda, filtros y paginación en servidor; crear/editar con variantes en línea (batería, liberación, precios, stock); duplicar; publicar u ocultar en lote  |
-| Ficha del producto                     | Todo lo del producto y de cada variante: ID, fechas de creación y última modificación, batería, liberación, precios y stock, más el **historial de cambios** |
-| Imágenes                               | Arrastrar y soltar, compresión en el navegador (WebP, máx. 1600 px), texto alternativo obligatorio, asignar a una variante, reordenar                        |
-| Categorías, marcas, servicios, banners | CRUD con reordenamiento arrastrando (o con flechas, para teclado)                                                                                            |
-| Cotizaciones / reparaciones            | Búsqueda, filtros, cambio de estado, detalle con botón de WhatsApp del cliente y **exportación a Excel y PDF** con los mismos filtros del listado            |
-| Ventas                                 | Informe del mes: total vendido (con comparación con el mes anterior), ventas, ticket promedio, unidades y productos vendidos; **Excel y PDF**                |
-| Ajustes                                | Datos del negocio, horarios, garantías, "por qué nosotros", proceso de reparación, testimonios y promos del menú                                             |
+| Sección                                | Qué permite                                                                                                                                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel                                  | Cotizaciones nuevas, reparaciones pendientes, productos activos, variantes con poco stock y últimas 10 cotizaciones                                                        |
+| Buscar producto                        | Por **código (SKU)**, ID del producto o de una variante, enlace o nombre. Un código o ID exacto abre directo la ficha. También está en la barra superior                   |
+| Productos                              | Búsqueda, filtros y paginación en servidor; crear/editar con variantes en línea (batería, liberación, precios, stock); duplicar; publicar u ocultar en lote                |
+| Ficha del producto                     | Todo lo del producto y de cada variante: ID, fechas de creación y última modificación, batería, liberación, precios y stock, más el **historial de cambios**               |
+| Imágenes                               | Arrastrar y soltar, compresión en el navegador (WebP, máx. 1600 px), texto alternativo obligatorio, asignar a una variante, reordenar                                      |
+| Categorías, marcas, servicios, banners | CRUD con reordenamiento arrastrando (o con flechas, para teclado)                                                                                                          |
+| Cotizaciones / reparaciones            | Búsqueda, filtros, cambio de estado, detalle con botón de WhatsApp del cliente y **exportación a Excel y PDF** con los mismos filtros del listado                          |
+| Listado mayorista                      | Productos del listado de `/proveedores` (con foto opcional, visible u oculto), contactos de venta (WhatsApp de cada vendedor, con orden) y pedidos recibidos con su estado |
+| Ventas                                 | Informe del mes: total vendido (con comparación con el mes anterior), ventas, ticket promedio, unidades y productos vendidos; **Excel y PDF**                              |
+| Ajustes                                | Datos del negocio, horarios, garantías, "por qué nosotros", proceso de reparación, testimonios y promos del menú                                                           |
 
 **Informes y exportaciones**: cada informe se arma una sola vez (`lib/reports/*-report.ts`, datos ya listos para mostrar) y se dibuja igual en pantalla, en Excel (`excel.ts`, con la marca, tarjetas de indicadores, encabezados fijos, filtros, estados con color, formato de pesos y totales, listo para imprimir) y en PDF (`pdf-document.tsx`, A4 horizontal con encabezado repetido en cada página y numeración). Las descargas son rutas del panel (`/admin/cotizaciones/export`, `/admin/reparaciones/export`, `/admin/ventas/export`, con `?formato=xlsx|pdf`) que exigen rol admin, respetan los filtros del listado y traen como máximo 5000 filas. Una **venta** es una cotización en estado _Cerrada_ y cuenta en el mes en que se cerró (`quotes.closed_at`, que guarda un trigger); si se reabre o se cancela, deja de contar. El importe es el de la cotización.
 
@@ -191,14 +202,15 @@ Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza 
 
 Lighthouse móvil con throttling simulado, en esta máquina de desarrollo. Una sola corrida varía ±5 puntos (y la primera, en frío, sale más baja), así que se reporta la **mediana de 3 corridas** y, entre paréntesis, el rango:
 
-| Página    | Perf       | A11y | Best Practices | SEO |
-| --------- | ---------- | ---- | -------------- | --- |
-| Home      | 92 (88–97) | 100  | 100            | 100 |
-| Tienda    | 90 (88–90) | 100  | 100            | 100 |
-| Producto  | 92 (86–94) | 100  | 100            | 100 |
-| Servicios | 92 (87–93) | 100  | 100            | 100 |
-| Mayorista | 92 (83–93) | 100  | 100            | 100 |
-| Login     | 95 (87–96) | 100  | 100            | 63  |
+| Página                                        | Perf       | A11y | Best Practices | SEO |
+| --------------------------------------------- | ---------- | ---- | -------------- | --- |
+| Home                                          | 92 (88–97) | 100  | 100            | 100 |
+| Tienda                                        | 90 (88–90) | 100  | 100            | 100 |
+| Producto                                      | 92 (86–94) | 100  | 100            | 100 |
+| Servicios                                     | 92 (87–93) | 100  | 100            | 100 |
+| Mayorista                                     | 92 (83–93) | 100  | 100            | 100 |
+| Listado al por mayor (60 productos de prueba) | 90 (89–91) | 100  | 100            | 100 |
+| Login                                         | 95 (87–96) | 100  | 100            | 63  |
 
 `/login` y `/carrito` marcan SEO 63 porque son `noindex` a propósito. **El objetivo del brief (Perf ≥ 92) se cumple en la mediana de todas las páginas menos `/tienda` (90)**, que es dinámica y trae los filtros; en frío (primera visita sin caché) las páginas quedan entre 83 y 88. La experiencia real, medida con Chrome a 4G lenta y CPU 4× más lenta, fue de 1.1 a 1.3 s de LCP con CLS 0. Estas cifras deben repetirse sobre el deploy real en Vercel (CDN y Brotli), donde suelen mejorar.
 

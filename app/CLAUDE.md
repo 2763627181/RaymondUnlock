@@ -5,6 +5,7 @@
 - `layout.tsx` (raíz): `<html>`, `<body>`, `MotionProvider`, `Toaster` y el enlace "Saltar al contenido". Nada de cabecera aquí.
 - `(marketing)/`: la tienda pública con `Header`, `Footer`, barra móvil, WhatsApp flotante y el drawer del carrito.
 - `(auth)/`: solo `login` (para el administrador), con un layout mínimo, y `actions.ts` con `login` y `logout`. No hay registro, cuenta de cliente ni recuperación de contraseña.
+- `proveedores/`: el listado al por mayor. Está fuera de `(marketing)` a propósito: es una "app" a pantalla completa con su propio encabezado y menú inferior, sin `Header` ni `Footer`. `page.tsx` (ISR 5 min) lee `getWholesaleListing`; `actions.ts` trae `submitWholesaleOrder`, que recibe solo ids y cantidades.
 - `admin/`: el panel (tiene su propio `CLAUDE.md`).
 - `api/og/route.tsx`, `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.tsx`, `apple-icon.tsx`.
 

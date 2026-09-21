@@ -24,7 +24,8 @@ export async function saveX(input: unknown): Promise<ActionResult<{ id: string }
 }
 ```
 
-- `publish("catalog" | "settings" | "services" | "banners")` usa `updateTag` + `revalidatePath("/", "layout")`. Sin esto la tienda tarda hasta 5 min en cambiar.
+- `publish("catalog" | "settings" | "services" | "banners" | "wholesale")` usa `updateTag` + `revalidatePath("/", "layout")`. Sin esto la tienda tarda hasta 5 min en cambiar.
+- `proveedores/` (Listado mayorista): productos, contactos de venta y pedidos, todo con la sesión del admin (RLS, sin `service_role`). Comparte `RequestStatusSelect` (`kind="wholesale"`) y `ImageUrlField` con banners.
 - Los esquemas viven en `lib/validation/admin/*` y `lib/validation/settings.ts` y se comparten con el formulario. **Sus transformaciones deben ser idempotentes** (aceptar su propia salida): el formulario manda al servidor los valores ya parseados y el servidor los valida de nuevo (`brandId: null`, `colorHex: undefined`, `deviceTypes: [...]`). Hay pruebas para eso en `admin-schemas.test.ts`; agrega una si añades un esquema con `.transform`.
 - Nunca se borra un producto (ni una variante) con cotizaciones asociadas: se desactiva. Categorías, marcas y servicios en uso tampoco se borran (mensaje claro).
 - Las imágenes solo pueden venir de `/…` local o de nuestro bucket público (`isAllowedImageUrl`): `next/image` lanza error con hosts no permitidos y tumbaría la página pública.
