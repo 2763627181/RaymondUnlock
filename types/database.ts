@@ -459,6 +459,7 @@ export type Database = {
         Row: {
           business_name: string | null;
           channel: Database["public"]["Enums"]["quote_channel"];
+          closed_at: string | null;
           code: string;
           created_at: string;
           customer_email: string | null;
@@ -474,6 +475,7 @@ export type Database = {
         Insert: {
           business_name?: string | null;
           channel: Database["public"]["Enums"]["quote_channel"];
+          closed_at?: string | null;
           code: string;
           created_at?: string;
           customer_email?: string | null;
@@ -489,6 +491,7 @@ export type Database = {
         Update: {
           business_name?: string | null;
           channel?: Database["public"]["Enums"]["quote_channel"];
+          closed_at?: string | null;
           code?: string;
           created_at?: string;
           customer_email?: string | null;
