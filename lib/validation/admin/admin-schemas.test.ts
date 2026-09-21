@@ -172,6 +172,39 @@ describe("ajustes", () => {
         .success,
     ).toBe(false);
   });
+
+  it("el teléfono del local es opcional y se normaliza", () => {
+    const business = {
+      businessName: "Raymond Unlock",
+      tagline: "Celulares y Más",
+      description: "Tienda",
+      address: "Calle México #6",
+      addressParts: {
+        street: "Calle México #6",
+        locality: "Santo Domingo",
+        postalCode: "11005",
+        country: "DO",
+      },
+      phoneDisplay: "809-906-3114",
+      shippingNote: "Envíos a todo el país",
+      whatsappNumber: "18099063114",
+      email: "info@example.com",
+      instagramUrl: "https://www.instagram.com/raymondunlock_/",
+      threadsUrl: "https://www.threads.net/@raymondunlock_",
+    };
+    const parse = (localPhone?: string | null) =>
+      SETTING_SCHEMAS.business.safeParse({ ...business, localPhone });
+
+    // Las filas guardadas antes de existir el campo siguen siendo válidas.
+    expect(SETTING_SCHEMAS.business.parse(business).localPhone).toBeNull();
+    expect(parse("").data?.localPhone).toBeNull();
+    expect(parse(null).data?.localPhone).toBeNull();
+    expect(parse("829-688-3114").data?.localPhone).toBe("829-688-3114");
+    expect(parse("8296883114").data?.localPhone).toBe("829-688-3114");
+    expect(parse("+1 (829) 688-3114").data?.localPhone).toBe("829-688-3114");
+    expect(parse("305-555-0100").success).toBe(false);
+    expect(parse("688-3114").success).toBe(false);
+  });
 });
 
 describe("idempotencia (el formulario envía al servidor su propia salida)", () => {

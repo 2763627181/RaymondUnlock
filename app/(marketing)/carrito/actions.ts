@@ -12,6 +12,7 @@ import {
 import { sendEmail } from "@/lib/email/send";
 import { SITE_URL } from "@/lib/seo";
 import { quoteSubmissionSchema, type QuoteSubmission } from "@/lib/validation/quote";
+import { phonesLine } from "@/lib/contact";
 
 export type QuoteEmailStatus = "not_requested" | "sent" | "partial" | "failed";
 
@@ -113,7 +114,7 @@ async function processQuote(data: QuoteSubmission): Promise<SubmitQuoteResult> {
     const emailData = { ...messageData, customerEmail: data.customerEmail };
     const notification = renderQuoteNotificationEmail(emailData);
     const confirmation = renderQuoteConfirmationEmail(emailData, {
-      phoneDisplay: settings.phoneDisplay,
+      phoneDisplay: phonesLine(settings),
       address: settings.address,
     });
 

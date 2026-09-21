@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { MapPin, MessageCircle, Phone, Store } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import type { PhoneEntry } from "@/lib/contact";
 
 export interface ListingBusiness {
   name: string;
-  phoneDisplay: string;
-  phoneHref: string;
+  phones: readonly PhoneEntry[];
   whatsappUrl: string;
   address: string;
 }
@@ -73,13 +73,16 @@ export function MoreSheet({
             title="Escríbenos por WhatsApp"
             external
           />
-          <Row
-            href={business.phoneHref}
-            icon={Phone}
-            title="Llámanos"
-            detail={business.phoneDisplay}
-            external
-          />
+          {business.phones.map((phone) => (
+            <Row
+              key={phone.label}
+              href={phone.href}
+              icon={Phone}
+              title={phone.label === "Local" ? "Llámanos al local" : "Llámanos al celular"}
+              detail={phone.display}
+              external
+            />
+          ))}
           <Row
             href="/"
             icon={Store}

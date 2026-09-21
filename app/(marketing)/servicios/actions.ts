@@ -10,6 +10,7 @@ import { sendEmail } from "@/lib/email/send";
 import { buildRepairWhatsAppUrl } from "@/lib/repairs/whatsapp";
 import { SITE_URL } from "@/lib/seo";
 import { repairFormSchema, type RepairFormValues } from "@/lib/validation/repair";
+import { phonesLine } from "@/lib/contact";
 
 export type RepairEmailStatus = "not_requested" | "sent" | "partial" | "failed";
 
@@ -87,7 +88,7 @@ async function processRepairRequest(data: RepairFormValues): Promise<SubmitRepai
         ? sendEmail({
             to: data.customerEmail,
             ...renderRepairConfirmationEmail(emailData, {
-              phoneDisplay: settings.phoneDisplay,
+              phoneDisplay: phonesLine(settings),
               address: settings.address,
             }),
           })

@@ -8,6 +8,7 @@
 - `cart/`: `pricing.ts` (puro: siempre precio por unidad), `store.ts` (Zustand `ru-cart-v1`, con `lineTotal`/`cartSubtotal` solo para mostrar), `whatsapp.ts` (mensaje de la cotización).
 - `catalog/`: `unit-facts.ts` (estado, capacidad, color, batería, liberación y código de un equipo), `variants.ts` (selección por capacidad, color, liberación y batería), `text.ts` (etiquetas), `cards.ts`.
 - `wholesale/`: el listado al por mayor. `filter.ts` (búsqueda, filtros y agrupación por categoría), `cart.ts` (Zustand `ru-wholesale-v1`; `sync` quita los productos retirados y actualiza precios), `message.ts` (mensaje y enlace de WhatsApp) y `format.ts` (fecha y números deterministas). Con pruebas.
+- `contact.ts`: los teléfonos del negocio (`contactPhones`, `phonesLine`, `telHref`): el celular (que también es el WhatsApp) y, si hay, el del local (`localPhone` en Ajustes → Negocio). Todo lugar que muestre un teléfono los usa; no armes `tel:` a mano.
 - `whatsapp.ts`: `buildProductInquiryMessage`, el mensaje predeterminado al pedir un producto.
 - `validation/`: esquemas Zod (`quote`, `repair`, `auth`, `settings`, `admin/*`). `admin/` está en `app/admin/CLAUDE.md`.
 - `reports/`: informes de cotizaciones, reparaciones y ventas del mes. `*-report.ts` arman el informe (puro, con pruebas), `excel.ts` y `pdf-document.tsx`/`pdf-parts.tsx` lo dibujan, `queries.ts` lee la base con la sesión del admin y `respond.ts` valida el rol y responde el archivo. `month.ts` trabaja siempre en hora de Santo Domingo.

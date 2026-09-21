@@ -43,6 +43,7 @@ const EMPTY_BUSINESS = {
   address: "",
   addressParts: { street: "", locality: "", postalCode: "", country: "DO" },
   phoneDisplay: "",
+  localPhone: null,
   shippingNote: "",
   whatsappNumber: "",
   email: "",

@@ -2,6 +2,7 @@ import { MessageCircle, Phone } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/types/site";
+import { contactPhones } from "@/lib/contact";
 
 export function QuickContact({ settings }: { settings: SiteSettings }) {
   const whatsappHref = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(
@@ -25,11 +26,13 @@ export function QuickContact({ settings }: { settings: SiteSettings }) {
               <MessageCircle aria-hidden="true" /> Escribir por WhatsApp
             </a>
           </Button>
-          <Button asChild variant="outline" className="h-11 px-6 text-base">
-            <a href={`tel:+${settings.whatsappNumber}`}>
-              <Phone aria-hidden="true" /> {settings.phoneDisplay}
-            </a>
-          </Button>
+          {contactPhones(settings).map((phone) => (
+            <Button key={phone.label} asChild variant="outline" className="h-11 px-6 text-base">
+              <a href={phone.href}>
+                <Phone aria-hidden="true" /> {phone.label} {phone.display}
+              </a>
+            </Button>
+          ))}
         </div>
       </Container>
     </section>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ICON_NAMES } from "@/lib/icons";
+import { dominicanPhoneSchema } from "@/lib/validation/phone";
 
 /**
  * Esquemas de las filas de `site_settings`. Los usa la tienda para leerlas y el
@@ -30,6 +31,15 @@ export const businessSchema = z.object({
     country: z.string().trim().length(2, "Código de 2 letras (DO)"),
   }),
   phoneDisplay: text(30),
+  /** Teléfono fijo del local (opcional): vacío = no se muestra. */
+  localPhone: z
+    .string()
+    .trim()
+    .max(30)
+    .nullable()
+    .optional()
+    .transform((value) => (value ? value : null))
+    .pipe(dominicanPhoneSchema.nullable()),
   shippingNote: text(300),
   whatsappNumber: z
     .string()

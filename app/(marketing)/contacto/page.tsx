@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Button } from "@/components/ui/button";
+import { contactPhones } from "@/lib/contact";
 import { getSiteSettings } from "@/lib/data";
 import { localBusinessJsonLd } from "@/lib/seo";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -22,6 +23,7 @@ const cardClass = "border-border rounded-lg border p-6";
 
 export default async function ContactPage() {
   const settings = await getSiteSettings();
+  const phones = contactPhones(settings);
   const whatsappHref = buildWhatsAppUrl(
     settings.whatsappNumber,
     "Hola, quiero hacer una consulta.",
@@ -74,13 +76,19 @@ export default async function ContactPage() {
 
         <section className={cardClass}>
           <Phone className="text-ink-700 mb-4 size-6" aria-hidden="true" />
-          <h2 className="text-lg font-semibold">Teléfono</h2>
-          <a
-            href={`tel:+${settings.whatsappNumber}`}
-            className="tabular-nums-price text-brand-blue mt-1 inline-block text-[15px] hover:underline"
-          >
-            {settings.phoneDisplay}
-          </a>
+          <h2 className="text-lg font-semibold">{phones.length > 1 ? "Teléfonos" : "Teléfono"}</h2>
+          <ul className="mt-1 space-y-1">
+            {phones.map((phone) => (
+              <li key={phone.label}>
+                <a
+                  href={phone.href}
+                  className="tabular-nums-price text-brand-blue inline-block text-[15px] hover:underline"
+                >
+                  {phone.label} {phone.display}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className={cardClass}>

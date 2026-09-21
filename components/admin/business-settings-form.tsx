@@ -22,7 +22,11 @@ export function BusinessSettingsForm({ initial }: { initial: BusinessValues }) {
     BusinessValues
   >({
     resolver: zodResolver(businessSchema),
-    defaultValues: { ...initial, facebookUrl: initial.facebookUrl ?? "" },
+    defaultValues: {
+      ...initial,
+      facebookUrl: initial.facebookUrl ?? "",
+      localPhone: initial.localPhone ?? "",
+    },
     mode: "onTouched",
   });
   const { errors, isSubmitting, isDirty } = formState;
@@ -31,7 +35,11 @@ export function BusinessSettingsForm({ initial }: { initial: BusinessValues }) {
     const result = await runAction(saveSetting("business", values), "Datos del negocio guardados");
     if (result.ok) {
       // Lo guardado pasa a ser la nueva base: "sin cambios" se mide contra eso.
-      reset({ ...values, facebookUrl: values.facebookUrl ?? "" });
+      reset({
+        ...values,
+        facebookUrl: values.facebookUrl ?? "",
+        localPhone: values.localPhone ?? "",
+      });
       router.refresh();
     }
   }
@@ -65,7 +73,7 @@ export function BusinessSettingsForm({ initial }: { initial: BusinessValues }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             id="phoneDisplay"
-            label="Teléfono (como se muestra)"
+            label="Celular (como se muestra)"
             error={errors.phoneDisplay?.message}
             {...register("phoneDisplay")}
           />
@@ -77,6 +85,15 @@ export function BusinessSettingsForm({ initial }: { initial: BusinessValues }) {
             placeholder="18099063114"
             error={errors.whatsappNumber?.message}
             {...register("whatsappNumber")}
+          />
+          <TextField
+            id="localPhone"
+            label="Teléfono del local"
+            hint=" (opcional)"
+            inputMode="tel"
+            placeholder="829-688-3114"
+            error={errors.localPhone?.message}
+            {...register("localPhone")}
           />
         </div>
         <TextField

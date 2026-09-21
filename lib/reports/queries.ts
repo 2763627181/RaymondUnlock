@@ -8,6 +8,7 @@ import { buildQuotesReport } from "@/lib/reports/quotes-report";
 import { buildRepairsReport } from "@/lib/reports/repairs-report";
 import { buildSalesReport, type PreviousMonthTotals } from "@/lib/reports/sales-report";
 import type { Report, ReportBusiness } from "@/lib/reports/types";
+import { phonesLine } from "@/lib/contact";
 
 /** Tope de filas por archivo: más que eso no se lee bien y tarda demasiado. */
 export const MAX_EXPORT_ROWS = 5000;
@@ -17,7 +18,7 @@ async function loadBusiness(): Promise<ReportBusiness> {
   return {
     name: settings.businessName,
     tagline: settings.tagline,
-    phone: settings.phoneDisplay,
+    phone: phonesLine(settings),
     email: settings.email,
     address: settings.address,
   };

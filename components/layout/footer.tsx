@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/container";
 import { InstagramIcon, ThreadsIcon } from "@/components/icons/social-icons";
 import type { Category } from "@/types/catalog";
 import type { SiteSettings } from "@/types/site";
+import { contactPhones } from "@/lib/contact";
 
 const infoLinks = [
   { name: "Nosotros", href: "/nosotros" },
@@ -58,12 +59,14 @@ export function Footer({
               <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>{settings.address}</span>
             </li>
-            <li className="flex items-center gap-2.5">
-              <Phone className="size-4 shrink-0" aria-hidden="true" />
-              <a href={`tel:+${settings.whatsappNumber}`} className="hover:text-white">
-                {settings.phoneDisplay}
-              </a>
-            </li>
+            {contactPhones(settings).map((phone) => (
+              <li key={phone.label} className="flex items-center gap-2.5">
+                <Phone className="size-4 shrink-0" aria-hidden="true" />
+                <a href={phone.href} className="hover:text-white">
+                  {phone.label} {phone.display}
+                </a>
+              </li>
+            ))}
             <li className="flex items-center gap-2.5">
               <Mail className="size-4 shrink-0" aria-hidden="true" />
               <a href={`mailto:${settings.email}`} className="hover:text-white">

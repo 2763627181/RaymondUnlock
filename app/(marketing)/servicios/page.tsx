@@ -12,6 +12,7 @@ import { ServiceCard } from "@/components/services/service-card";
 import { Button } from "@/components/ui/button";
 import { getServices, getSiteSettings } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { phonesLine } from "@/lib/contact";
 
 export const revalidate = 300;
 
@@ -97,7 +98,7 @@ export default async function ServicesPage() {
               <br />
               {settings.address}
               <br />
-              WhatsApp y teléfono: {settings.phoneDisplay}
+              WhatsApp y teléfono: {phonesLine(settings)}
             </address>
           </Reveal>
           <RepairRequestForm services={services.map(({ id, name }) => ({ id, name }))} />

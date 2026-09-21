@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { WholesaleApp } from "@/components/wholesale/wholesale-app";
 import { getSiteSettings, getWholesaleListing } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { contactPhones } from "@/lib/contact";
 
 export const revalidate = 300;
 
@@ -20,8 +21,7 @@ export default async function WholesaleListingPage() {
       listing={listing}
       business={{
         name: settings.businessName,
-        phoneDisplay: settings.phoneDisplay,
-        phoneHref: `tel:+${settings.whatsappNumber}`,
+        phones: contactPhones(settings),
         whatsappUrl: buildWhatsAppUrl(
           settings.whatsappNumber,
           "Hola, quiero información del listado al por mayor.",

@@ -58,7 +58,10 @@ export interface SiteSettings {
     postalCode: string;
     country: string;
   };
+  /** Celular del negocio (el mismo del WhatsApp), tal como se muestra. */
   phoneDisplay: string;
+  /** Teléfono fijo del local; null si no hay. */
+  localPhone: string | null;
   shippingNote: string;
   whatsappNumber: string;
   email: string;
