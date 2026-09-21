@@ -43,6 +43,23 @@ export function integer(min: number, max: number, message: string) {
   });
 }
 
+/** Entero opcional: "" o sin valor = undefined. Acepta también su propia salida. */
+export function optionalInteger(min: number, max: number, message: string) {
+  return z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((value, ctx): number | undefined => {
+      if (value === undefined) return undefined;
+      const parsed = parseNumber(value);
+      if (parsed === undefined) return undefined;
+      if (!Number.isInteger(parsed) || parsed < min || parsed > max) {
+        ctx.addIssue({ code: "custom", message });
+        return z.NEVER;
+      }
+      return parsed;
+    });
+}
+
 export function optionalText(max: number) {
   return z
     .string()

@@ -5,10 +5,13 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { z } from "zod";
 import { PageHeader } from "@/components/admin/page-header";
 import { ProductForm } from "@/components/admin/product-form";
+import { ProductHistoryPanel } from "@/components/admin/product-history-panel";
 import { ProductImagesPanel } from "@/components/admin/product-images-panel";
+import { ProductInfoPanel } from "@/components/admin/product-info-panel";
 import { ActiveBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { productToInput } from "@/lib/admin/product-form-defaults";
+import { describeHistory } from "@/lib/admin/product-history";
 import { requireAdmin } from "@/lib/auth/admin";
 import { variantLabel } from "@/lib/catalog/cards";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -23,7 +26,7 @@ export default async function EditProductPage(props: PageProps<"/admin/productos
   if (!z.uuid().safeParse(id).success) notFound();
 
   const supabase = await createSessionClient();
-  const [product, variants, images, categories, brands] = await Promise.all([
+  const [product, variants, images, categories, brands, history] = await Promise.all([
     supabase.from("products").select("*").eq("id", id).maybeSingle(),
     // product_variants está cerrada a la API: se lee con service_role, ya verificado el rol.
     createAdminClient()
@@ -34,9 +37,18 @@ export default async function EditProductPage(props: PageProps<"/admin/productos
     supabase.from("product_images").select("*").eq("product_id", id).order("sort_order"),
     supabase.from("categories").select("id, name, parent_id").order("sort_order"),
     supabase.from("brands").select("id, name").order("sort_order"),
+    supabase
+      .from("product_history")
+      .select("id, entity, action, old_data, new_data, changed_at")
+      .eq("product_id", id)
+      .order("changed_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(100),
   ]);
   if (!product.data) notFound();
   const variantRows = variants.data ?? [];
+  const categoryNames = new Map((categories.data ?? []).map((item) => [item.id, item.name]));
+  const brandNames = new Map((brands.data ?? []).map((item) => [item.id, item.name]));
 
   return (
     <>
@@ -72,6 +84,13 @@ export default async function EditProductPage(props: PageProps<"/admin/productos
         </p>
       ) : null}
 
+      <ProductInfoPanel
+        product={product.data}
+        variants={variantRows}
+        categoryName={categoryNames.get(product.data.category_id) ?? null}
+        brandName={product.data.brand_id ? (brandNames.get(product.data.brand_id) ?? null) : null}
+      />
+
       <ProductForm
         defaults={productToInput(product.data, variantRows)}
         categories={(categories.data ?? []).map((category) => ({
@@ -89,10 +108,24 @@ export default async function EditProductPage(props: PageProps<"/admin/productos
           variants={variantRows.map((variant) => ({
             id: variant.id,
             label:
-              variantLabel({ capacity: variant.capacity, color: variant.color }) ??
+              variantLabel({
+                capacity: variant.capacity,
+                color: variant.color,
+                batteryHealth: variant.battery_health,
+                unlockType: variant.unlock_type,
+              }) ??
               variant.sku ??
               "Variante",
           }))}
+        />
+      </div>
+
+      <div className="border-border mt-12 border-t pt-8">
+        <ProductHistoryPanel
+          entries={describeHistory(history.data ?? [], {
+            categories: categoryNames,
+            brands: brandNames,
+          })}
         />
       </div>
     </>

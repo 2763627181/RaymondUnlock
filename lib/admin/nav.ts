@@ -5,6 +5,7 @@ import {
   Image as ImageIcon,
   LayoutDashboard,
   Package,
+  Search,
   Settings,
   Tags,
   Wrench,
@@ -25,6 +26,7 @@ export interface AdminNavItem {
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Panel", icon: LayoutDashboard, exact: true },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/buscar", label: "Buscar producto", icon: Search },
   { href: "/admin/categorias", label: "Categorías", icon: Tags },
   { href: "/admin/marcas", label: "Marcas", icon: Bookmark },
   { href: "/admin/servicios", label: "Servicios", icon: Wrench },

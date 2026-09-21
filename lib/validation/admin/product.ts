@@ -2,7 +2,14 @@ import { z } from "zod";
 import { isAllowedImageUrl } from "@/lib/admin/image-url";
 import { SLUG_PATTERN } from "@/lib/admin/slug";
 import { Constants } from "@/types/database";
-import { integer, money, nullableUuid, optionalMoney, optionalText } from "./common";
+import {
+  integer,
+  money,
+  nullableUuid,
+  optionalInteger,
+  optionalMoney,
+  optionalText,
+} from "./common";
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 
@@ -19,6 +26,13 @@ export const variantSchema = z
       .optional()
       .transform((value) => (value ? value : undefined))
       .pipe(z.string().regex(HEX_COLOR, "Usa el formato #RRGGBB").optional()),
+    /** Salud de la batería en %, para equipos usados. */
+    batteryHealth: optionalInteger(0, 100, "Ingresa un porcentaje de 0 a 100"),
+    /** "" (sin dato) se guarda como null. Acepta también su propia salida (undefined). */
+    unlockType: z
+      .union([z.enum(Constants.public.Enums.unlock_type), z.literal("")])
+      .optional()
+      .transform((value) => (value ? value : undefined)),
     priceRetail: money,
     priceWholesale: optionalMoney,
     compareAtPrice: optionalMoney,

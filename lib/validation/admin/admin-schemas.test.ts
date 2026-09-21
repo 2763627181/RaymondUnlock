@@ -63,6 +63,23 @@ describe("variantSchema", () => {
     expect(variantSchema.parse({ ...variant, colorHex: "#B7AFA3" }).colorHex).toBe("#B7AFA3");
     expect(variantSchema.safeParse({ ...variant, colorHex: "azul" }).success).toBe(false);
   });
+
+  it("la batería es un entero de 0 a 100 y vacío significa sin dato", () => {
+    expect(variantSchema.parse({ ...variant, batteryHealth: "" }).batteryHealth).toBeUndefined();
+    expect(variantSchema.parse(variant).batteryHealth).toBeUndefined();
+    expect(variantSchema.parse({ ...variant, batteryHealth: "92" }).batteryHealth).toBe(92);
+    expect(variantSchema.parse({ ...variant, batteryHealth: 0 }).batteryHealth).toBe(0);
+    for (const invalid of ["101", "-1", "9.5", "alta"]) {
+      expect(variantSchema.safeParse({ ...variant, batteryHealth: invalid }).success).toBe(false);
+    }
+  });
+
+  it("la liberación solo acepta factory o artista; vacío es sin dato", () => {
+    expect(variantSchema.parse({ ...variant, unlockType: "" }).unlockType).toBeUndefined();
+    expect(variantSchema.parse({ ...variant, unlockType: "factory" }).unlockType).toBe("factory");
+    expect(variantSchema.parse({ ...variant, unlockType: "artista" }).unlockType).toBe("artista");
+    expect(variantSchema.safeParse({ ...variant, unlockType: "carrier" }).success).toBe(false);
+  });
 });
 
 describe("productSchema", () => {
@@ -171,6 +188,16 @@ describe("idempotencia (el formulario envía al servidor su propia salida)", () 
   it("producto con marca vacía, color vacío y valores numéricos", () => {
     const first = productSchema.parse({ ...product, variants: [{ ...variant, colorHex: "" }] });
     expect(productSchema.parse(first)).toEqual(first);
+  });
+
+  it("variante con batería y liberación (y con ambas vacías)", () => {
+    for (const extra of [
+      { batteryHealth: "92", unlockType: "artista" },
+      { batteryHealth: "", unlockType: "" },
+    ]) {
+      const first = productSchema.parse({ ...product, variants: [{ ...variant, ...extra }] });
+      expect(productSchema.parse(first)).toEqual(first);
+    }
   });
 
   it("servicio con equipos como lista", () => {

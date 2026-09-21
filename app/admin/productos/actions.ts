@@ -17,6 +17,8 @@ function variantRow(productId: string, variant: ProductValues["variants"][number
     capacity: variant.capacity ?? null,
     color: variant.color ?? null,
     color_hex: variant.colorHex ?? null,
+    battery_health: variant.batteryHealth ?? null,
+    unlock_type: variant.unlockType ?? null,
     price_retail: variant.priceRetail,
     price_wholesale: variant.priceWholesale ?? null,
     compare_at_price: variant.compareAtPrice ?? null,
@@ -222,7 +224,7 @@ export async function duplicateProduct(id: string): Promise<ActionResult<{ id: s
       .single();
     if (error) return dbFailure(error, { unique: SLUG_TAKEN });
 
-    // El SKU es único en toda la tienda: las copias salen sin SKU para que lo asigne el admin.
+    // El SKU es único en toda la tienda: las copias salen sin SKU y la base les asigna uno nuevo.
     const { data: newVariants, error: variantsError } = await admin
       .from("product_variants")
       .insert(
@@ -232,6 +234,8 @@ export async function duplicateProduct(id: string): Promise<ActionResult<{ id: s
           capacity: variant.capacity,
           color: variant.color,
           color_hex: variant.color_hex,
+          battery_health: variant.battery_health,
+          unlock_type: variant.unlock_type,
           price_retail: variant.price_retail,
           price_wholesale: variant.price_wholesale,
           compare_at_price: variant.compare_at_price,

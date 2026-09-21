@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ExternalLink, Menu } from "lucide-react";
+import { AdminSearchForm } from "@/components/admin/admin-search-form";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
@@ -90,7 +91,8 @@ export function AdminShell({
             </Button>
             <Logo compact />
           </div>
-          <div className="hidden lg:block" />
+          <AdminSearchForm className="hidden w-full max-w-sm sm:block" />
+          <div className="sm:hidden" />
           <Button asChild variant="outline" className="h-9">
             <Link href="/" target="_blank" rel="noopener">
               Ver tienda <ExternalLink aria-hidden="true" />

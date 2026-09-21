@@ -2,13 +2,16 @@
 
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { Copy, Plus, Trash2 } from "lucide-react";
+import { SelectField } from "@/components/forms/select-field";
 import { SwitchField } from "@/components/forms/switch-field";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EMPTY_VARIANT_INPUT } from "@/lib/admin/product-form-defaults";
+import { UNLOCK_LABELS } from "@/lib/catalog/text";
 import type { ProductInput, VariantInput } from "@/lib/validation/admin/product";
+import { Constants } from "@/types/database";
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
@@ -85,8 +88,8 @@ export function VariantsEditor() {
             Variantes y precios
           </h2>
           <p className="text-muted-foreground text-[13px]">
-            Cada combinación de capacidad y color, con su precio por unidad, precio al por mayor y
-            stock.
+            Cada equipo o combinación de capacidad y color, con su batería, liberación (factory o
+            por artista), precios y stock.
           </p>
         </div>
         <Button
@@ -168,11 +171,35 @@ export function VariantsEditor() {
                 />
                 <TextField
                   id={`variants-${index}-sku`}
-                  label="SKU"
-                  hint=" (único)"
+                  label="Código (SKU)"
+                  hint=" (vacío = automático)"
                   error={variantErrors?.sku?.message}
                   {...register(name("sku"))}
                 />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <TextField
+                  id={`variants-${index}-batteryHealth`}
+                  label="Batería"
+                  hint=" (%, equipos usados)"
+                  inputMode="numeric"
+                  error={variantErrors?.batteryHealth?.message}
+                  {...register(name("batteryHealth"))}
+                />
+                <SelectField
+                  id={`variants-${index}-unlockType`}
+                  label="Liberación"
+                  error={variantErrors?.unlockType?.message}
+                  {...register(name("unlockType"))}
+                >
+                  <option value="">No aplica</option>
+                  {Constants.public.Enums.unlock_type.map((type) => (
+                    <option key={type} value={type}>
+                      {UNLOCK_LABELS[type]}
+                    </option>
+                  ))}
+                </SelectField>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
