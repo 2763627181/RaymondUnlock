@@ -2,7 +2,7 @@
 
 ## Organización
 
-`ui/` (shadcn sobre Radix, ya adaptado), `layout/` (header, menú, footer, barra móvil), `product/` y `catalog/` (tarjetas, ficha, filtros), `cart/`, `home/`, `services/`, `auth/`, `wholesale/`, `forms/` (campos reutilizables), `admin/`, `motion/` (Reveal, Stagger, provider), `icons/`, `seo/`.
+`ui/` (shadcn sobre Radix, ya adaptado), `layout/` (header, menú, footer, barra móvil), `product/` y `catalog/` (tarjetas, ficha, filtros), `cart/`, `home/`, `services/`, `auth/` (solo el login), `forms/` (campos reutilizables), `admin/`, `motion/` (Reveal, Stagger, provider), `icons/`, `seo/`.
 
 ## Reglas
 
@@ -13,6 +13,7 @@
 - **Accesibilidad**: contraste AA (`--muted-foreground` es `#5b6270` a propósito, texto verde `text-success-700`), foco visible, `aria-label` en botones de icono, un solo `h1` por página y niveles de encabezado sin saltos, mensajes de error con `role="alert"` enlazados por `aria-describedby`. `text-muted` es un color de _fondo_ de shadcn: para texto usa `text-muted-foreground`.
 - **Campos de formulario**: `TextField`, `PasswordField`, `SelectField`, `TextareaField`, `SwitchField` (en `forms/`); no repitas Label+Input+Error a mano.
 - El precio de un producto se pinta con `formatPrice` (RD$ 74,900); documentos (WhatsApp, correo) usan `formatMoney`.
-- El precio al por mayor solo se pinta desde el store del visitante (`lib/viewer/store`), que solo se llena con la respuesta del servidor para un mayorista aprobado. Los componentes públicos reciben siempre precio por unidad.
+- Los componentes públicos reciben siempre precio por unidad: el precio al por mayor no existe en la tienda.
+- Los datos del equipo (estado, batería, liberación, código) salen de `lib/catalog/unit-facts.ts`: la misma lista alimenta la ficha (`UnitDetails`) y el mensaje de WhatsApp, para que nunca digan cosas distintas.
 - Los iconos de marca (Instagram, Threads) son SVG propios: `lucide-react` ya no los trae.
 - Nunca pases funciones ni esquemas Zod desde un Server Component a uno de aquí; pasa datos planos.

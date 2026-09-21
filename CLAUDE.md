@@ -2,7 +2,7 @@
 
 # Raymond Unlock
 
-Tienda de celulares, electrónicos y servicios técnicos en Santo Domingo (RD). Catálogo público con precio al por mayor protegido, cotización por WhatsApp/correo, portal de mayoristas y panel de administración. Todo el texto visible va en español dominicano (es-DO); moneda DOP (`RD$`).
+Tienda de celulares, electrónicos y servicios técnicos en Santo Domingo (RD). Catálogo público, cotización por WhatsApp/correo y panel de administración. **Los clientes no tienen cuenta ni inician sesión**: solo existe la cuenta del administrador. Todo el texto visible va en español dominicano (es-DO); moneda DOP (`RD$`).
 
 Cada carpeta principal tiene su propio `CLAUDE.md` con las reglas de ese módulo: `app/`, `app/admin/`, `components/`, `lib/`, `supabase/`. Léelo antes de tocar esa zona.
 
@@ -22,8 +22,8 @@ Next 16.3 (App Router, `proxy.ts` en vez de `middleware.ts`), React 19, TypeScri
 
 ## Reglas que no se rompen
 
-1. **El precio al por mayor no sale del servidor.** `product_variants` está cerrada a `anon` y `authenticated`; el público lee las vistas `v_catalog_*`. Solo `getViewerSnapshot` (mayorista aprobado o admin) y `getPricingRows` lo leen, con `service_role`. Nunca lo pongas en HTML estático, RSC de páginas públicas ni en un tipo público (`CatalogVariant` no lo tiene a propósito).
-2. **Los precios del carrito son solo para mostrar.** `submitQuote` valida con Zod y vuelve a leer todo en el servidor según el tier real de la sesión.
+1. **El precio al por mayor solo vive en la base y en el panel.** `product_variants` está cerrada a `anon` y `authenticated`; el público lee las vistas `v_catalog_*`. Nunca lo pongas en HTML estático, RSC de páginas públicas ni en un tipo público (`CatalogVariant` no lo tiene a propósito). Nadie lo ve en la tienda: no hay cuentas de mayorista.
+2. **Los precios del carrito son solo para mostrar.** `submitQuote` valida con Zod y vuelve a leer todo en el servidor (precio, estado, batería, liberación y código). Todo se cobra por unidad.
 3. **Secretos**: `SUPABASE_SERVICE_ROLE_KEY` y `RESEND_API_KEY` jamás en un archivo `"use client"` ni con prefijo `NEXT_PUBLIC_`. `.env.local` nunca se commitea.
 4. **Todo input pasa por Zod en el servidor**, aunque el formulario ya lo haya validado.
 5. **Sin `any`, `@ts-ignore` ni `!`.** Para datos externos (jsonb, filas de vistas) se valida con Zod en vez de castear.
@@ -32,4 +32,4 @@ Next 16.3 (App Router, `proxy.ts` en vez de `middleware.ts`), React 19, TypeScri
 
 ## Verificar de verdad
 
-Lint, tipos y build no prueban que algo funcione. Para cambios de interfaz o de flujo: levantar el servidor, usarlo en un navegador real y revisar 375 px y 1440 px, consola sin errores y que no haya scroll horizontal. Las pruebas de seguridad de base de datos se hacen con peticiones reales como visitante, cliente y admin (ver `supabase/CLAUDE.md`).
+Lint, tipos y build no prueban que algo funcione. Para cambios de interfaz o de flujo: levantar el servidor, usarlo en un navegador real y revisar 375 px y 1440 px, consola sin errores y que no haya scroll horizontal. Las pruebas de seguridad de base de datos se hacen con peticiones reales como visitante, usuario sin rol y admin (ver `supabase/CLAUDE.md`).
