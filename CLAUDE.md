@@ -15,7 +15,7 @@ Cada carpeta principal tiene su propio `CLAUDE.md` con las reglas de ese módulo
 
 ## Stack y versiones que importan
 
-Next 16.3 (App Router, `proxy.ts` en vez de `middleware.ts`), React 19, TypeScript 5.9 estricto, Tailwind 4, shadcn/ui sobre Radix, Motion (`motion/react`) para TODA animación, Zustand, Zod 4, React Hook Form, Supabase, Resend, Vitest. **No agregar librerías fuera de esta lista sin preguntar.**
+Next 16.3 (App Router, `proxy.ts` en vez de `middleware.ts`), React 19, TypeScript 5.9 estricto, Tailwind 4, shadcn/ui sobre Radix, Motion (`motion/react`) para TODA animación, Zustand, Zod 4, React Hook Form, Supabase, Resend, Vitest. Además, para las exportaciones (aprobadas el 2026-09-21): `exceljs` y `@react-pdf/renderer`, solo en el servidor. **No agregar librerías fuera de esta lista sin preguntar.**
 
 - ESLint está fijado en 9.39.5 y TypeScript en 5.9.3 a propósito (ver README, "Decisiones técnicas"): no subirlos a la última mayor sin comprobar `eslint-config-next` y `typescript-eslint`.
 - Next 16 cambió APIs respecto a lo que se conoce: `params`/`searchParams`/`cookies()` son asíncronos, `revalidateTag` pide un segundo argumento, hay `updateTag`. Lee `node_modules/next/dist/docs/` antes de usar una API dudosa (lo exige AGENTS.md).

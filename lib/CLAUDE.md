@@ -9,7 +9,8 @@
 - `catalog/`: `unit-facts.ts` (estado, capacidad, color, batería, liberación y código de un equipo), `variants.ts` (selección por capacidad, color, liberación y batería), `text.ts` (etiquetas), `cards.ts`.
 - `whatsapp.ts`: `buildProductInquiryMessage`, el mensaje predeterminado al pedir un producto.
 - `validation/`: esquemas Zod (`quote`, `repair`, `auth`, `settings`, `admin/*`). `admin/` está en `app/admin/CLAUDE.md`.
-- `admin/`: utilidades del panel (acciones, CSV, paginación, slug, imágenes), `product-search.ts` (buscar por código/ID/nombre) y `product-history.ts` (convierte `product_history` en cambios legibles).
+- `reports/`: informes de cotizaciones, reparaciones y ventas del mes. `*-report.ts` arman el informe (puro, con pruebas), `excel.ts` y `pdf-document.tsx`/`pdf-parts.tsx` lo dibujan, `queries.ts` lee la base con la sesión del admin y `respond.ts` valida el rol y responde el archivo. `month.ts` trabaja siempre en hora de Santo Domingo.
+- `admin/`: utilidades del panel (acciones, paginación, slug, imágenes), `product-search.ts` (buscar por código/ID/nombre) y `product-history.ts` (convierte `product_history` en cambios legibles).
 - `email/`: plantillas HTML (todo texto de cliente pasa por `escapeHtml`) y `sendEmail` (Resend).
 - `motion.ts`, `format.ts`, `seo.ts`, `icons.tsx` (lista cerrada de iconos), `rate-limit.ts`.
 

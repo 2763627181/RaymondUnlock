@@ -2,7 +2,7 @@
 
 ## Archivos
 
-- `migrations/*_schema.sql` (tablas, enums, índices, triggers, `next_request_code`), `*_security.sql` (RLS, permisos, vistas públicas, bucket), `*_wholesale_accounts.sql` (quedó de cuando había cuentas de mayorista; ya no se usa desde la app), `*_unit_details_and_history.sql` (batería, liberación, fechas por variante, código automático e historial). Se aplican con `npx supabase db push --db-url "$SUPABASE_DB_URL"` (la conexión directa `db.<ref>.supabase.co` es solo IPv6: usa el _Session pooler_).
+- `migrations/*_schema.sql` (tablas, enums, índices, triggers, `next_request_code`), `*_security.sql` (RLS, permisos, vistas públicas, bucket), `*_wholesale_accounts.sql` (quedó de cuando había cuentas de mayorista; ya no se usa desde la app), `*_unit_details_and_history.sql` (batería, liberación, fechas por variante, código automático e historial), `*_quote_closed_at.sql` (fecha de cierre de las cotizaciones: la base del informe de ventas). Se aplican con `npx supabase db push --db-url "$SUPABASE_DB_URL"` (la conexión directa `db.<ref>.supabase.co` es solo IPv6: usa el _Session pooler_).
 - `seed.sql`: catálogo de ejemplo, **datos ficticios**, idempotente (`on conflict do nothing`). Es la fuente de verdad del contenido inicial.
 - `config.toml`: generado por `supabase init`; `supabase/.temp` está ignorado.
 
@@ -14,6 +14,7 @@
 - `handle_new_user` nunca lee el rol del metadata. `profiles` solo permite editar `full_name, phone, business_name, rnc`. El único rol que usa la app es `admin` (se da con `pnpm admin:make`, con `service_role`); las columnas y el flujo de mayorista de la migración 3 quedaron sin uso.
 - **El registro público de Supabase debe estar desactivado** (Authentication → Sign In / Providers → "Allow new users to sign up"): eso no se puede fijar desde una migración.
 - `product_history`: solo la escriben los triggers (`record_product_history`, `security definer`) y solo la lee un admin. Sin llave foránea a propósito (el historial de un producto borrado se conserva). No registra cambios de orden ni de `updated_at`.
+- `quotes.closed_at` la llena un trigger al pasar el estado a `cerrada` (y la borra si se reabre o cancela): una venta cuenta en el mes en que se cerró, no en el que se pidió.
 - `product_variants.sku` siempre tiene valor: el trigger `assign_variant_code` asigna `RU-00001`… si llega vacío o nulo.
 - Storage: bucket `products` público para leer, escribir solo admin (imágenes ≤ 5 MB). Hace falta una política `select` de admin para listar/actualizar/borrar. `DELETE` sin cuerpo no debe llevar `Content-Type: application/json` (la API responde 400).
 - Funciones internas (`next_request_code`, `handle_new_user`, `set_updated_at`, `assign_variant_code`, `record_product_history`) no son ejecutables por `anon`/`authenticated`.

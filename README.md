@@ -26,6 +26,7 @@ Las fases 3–7 se construyeron primero sobre datos de prueba y en la Fase 2 se 
 - **Tailwind CSS v4** (tokens en `app/globals.css`), **shadcn/ui** sobre Radix
 - **Motion** (`motion/react`, con `LazyMotion` asíncrono) para todas las animaciones
 - **Zustand** (`persist`) para el carrito, **Zod + React Hook Form** para formularios
+- **exceljs** y **@react-pdf/renderer** (solo servidor) para las exportaciones a Excel y PDF
 - **Supabase** (Postgres, RLS, Storage), **Resend** para correo, **Vitest** para precios, catálogo y carrito
 - **pnpm**; deploy objetivo **Vercel**
 
@@ -62,7 +63,7 @@ Los datos de contacto (WhatsApp, correo, redes, dirección, horarios) no son var
 
 ## Base de datos (Supabase)
 
-El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql`, `..._security.sql`, `..._wholesale_accounts.sql` y `..._unit_details_and_history.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
+El esquema y la seguridad viven en `supabase/migrations/` (`..._schema.sql`, `..._security.sql`, `..._wholesale_accounts.sql`, `..._unit_details_and_history.sql` y `..._quote_closed_at.sql`); `supabase/seed.sql` carga el catálogo de ejemplo.
 
 Para crear una base nueva:
 
@@ -96,7 +97,7 @@ Verificado contra el proyecto real (peticiones REST y recorridos en un navegador
 ## Acceso y mayoristas
 
 - **Solo el administrador inicia sesión.** No hay registro, cuenta de cliente, recuperación de contraseña ni portal mayorista. Los clientes navegan, arman su cotización y la piden por WhatsApp o correo. `/login` existe solo para el panel: si las credenciales son válidas pero la cuenta no tiene rol `admin`, se cierra la sesión y se responde "Correo o contraseña incorrectos" (igual que con una clave errónea). Hay un límite de 10 intentos por IP cada 15 minutos, **en memoria y por instancia**: es un freno básico; para algo más fuerte hay que añadir un límite compartido (WAF de Vercel, Upstash).
-- **Al por mayor** es solo contacto: `/mayorista` y el aviso de la home llevan a WhatsApp. El precio al por mayor y la cantidad mínima siguen guardándose por variante y se editan en el panel, pero **nadie los ve en la tienda**: las cotizaciones se cobran siempre por unidad.
+- **Al por mayor** es solo contacto: `/mayorista` y el aviso de la home llevan a WhatsApp. El precio al por mayor y la cantidad mínima siguen en la base (lo que ya estaba guardado se conserva) pero **ya no se editan en el panel y nadie los ve en la tienda**: las cotizaciones se cobran siempre por unidad.
 - **Mensaje de WhatsApp predeterminado**: al pedir un producto (o al enviar la cotización) el mensaje trae el equipo exacto que se eligió: nombre, estado (nuevo, usado…), capacidad, color, **batería**, **liberación** (_factory_ o _por artista_) y **código**. Ver `lib/whatsapp.ts` y `lib/cart/whatsapp.ts` (con pruebas).
 - **Liberación**: _Factory_ es un equipo liberado de fábrica; _Por artista_ es el liberado por un técnico. Se elige por variante en el panel. Si un producto tiene varias variantes que se distinguen solo por batería o liberación, la ficha muestra esos selectores.
 
@@ -112,8 +113,11 @@ Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Sin ses
 | Ficha del producto                     | Todo lo del producto y de cada variante: ID, fechas de creación y última modificación, batería, liberación, precios y stock, más el **historial de cambios** |
 | Imágenes                               | Arrastrar y soltar, compresión en el navegador (WebP, máx. 1600 px), texto alternativo obligatorio, asignar a una variante, reordenar                        |
 | Categorías, marcas, servicios, banners | CRUD con reordenamiento arrastrando (o con flechas, para teclado)                                                                                            |
-| Cotizaciones / reparaciones            | Búsqueda, filtros, cambio de estado, detalle con botón de WhatsApp del cliente y **exportación CSV** de cotizaciones                                         |
+| Cotizaciones / reparaciones            | Búsqueda, filtros, cambio de estado, detalle con botón de WhatsApp del cliente y **exportación a Excel y PDF** con los mismos filtros del listado            |
+| Ventas                                 | Informe del mes: total vendido (con comparación con el mes anterior), ventas, ticket promedio, unidades y productos vendidos; **Excel y PDF**                |
 | Ajustes                                | Datos del negocio, horarios, garantías, "por qué nosotros", proceso de reparación, testimonios y promos del menú                                             |
+
+**Informes y exportaciones**: cada informe se arma una sola vez (`lib/reports/*-report.ts`, datos ya listos para mostrar) y se dibuja igual en pantalla, en Excel (`excel.ts`, con la marca, tarjetas de indicadores, encabezados fijos, filtros, estados con color, formato de pesos y totales, listo para imprimir) y en PDF (`pdf-document.tsx`, A4 horizontal con encabezado repetido en cada página y numeración). Las descargas son rutas del panel (`/admin/cotizaciones/export`, `/admin/reparaciones/export`, `/admin/ventas/export`, con `?formato=xlsx|pdf`) que exigen rol admin, respetan los filtros del listado y traen como máximo 5000 filas. Una **venta** es una cotización en estado _Cerrada_ y cuenta en el mes en que se cerró (`quotes.closed_at`, que guarda un trigger); si se reabre o se cancela, deja de contar. El importe es el de la cotización.
 
 **Seguridad del panel (en capas)**: el `proxy` exige sesión; el layout y **cada página** verifican el rol; **cada Server Action** lo vuelve a verificar y, además, el RLS de la base sigue siendo la última barrera. `product_variants` (con el precio al por mayor) solo se escribe con `service_role` desde el servidor, después de verificar el rol. Se comprobó repitiendo la petición real de una acción del panel como visitante anónimo y como usuario sin rol admin: ninguna escribe.
 
@@ -123,14 +127,14 @@ Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Sin ses
 
 ## Scripts
 
-| Script                              | Qué hace                                                                        |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| `pnpm dev` / `pnpm build`           | Desarrollo / build de producción (Turbopack)                                    |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                                            |
-| `pnpm format` / `pnpm format:check` | Prettier                                                                        |
-| `pnpm typecheck`                    | `tsc --noEmit`                                                                  |
-| `pnpm test` / `pnpm test:watch`     | Vitest (129 pruebas: precios, catálogo, mensajes de WhatsApp, historial, panel) |
-| `pnpm analyze`                      | Build con `@next/bundle-analyzer`                                               |
+| Script                              | Qué hace                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------- |
+| `pnpm dev` / `pnpm build`           | Desarrollo / build de producción (Turbopack)                                              |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                                                      |
+| `pnpm format` / `pnpm format:check` | Prettier                                                                                  |
+| `pnpm typecheck`                    | `tsc --noEmit`                                                                            |
+| `pnpm test` / `pnpm test:watch`     | Vitest (164 pruebas: precios, catálogo, mensajes de WhatsApp, historial, panel, informes) |
+| `pnpm analyze`                      | Build con `@next/bundle-analyzer`                                                         |
 
 Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los archivos en stage.
 
@@ -139,7 +143,7 @@ Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los ar
 Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza desde `/admin`:
 
 - **Precios, stock, tiempos y precios "desde" de servicios**: inventados para poder probar el sitio.
-- **Precio mayorista**: derivado (10 % menos que la unidad, redondeado); vive solo en la base y en el panel, nadie lo ve en la tienda.
+- **Precio mayorista**: derivado (10 % menos que la unidad, redondeado); vive solo en la base, ya no se edita en el panel y nadie lo ve en la tienda.
 - **Testimonios**: 3 textos de ejemplo con nombres genéricos. **No publicar tal cual**: reemplazar por opiniones reales.
 - **Textos de garantías, "por qué nosotros" y proceso de reparación**: propuestas a confirmar con el cliente.
 - **Imágenes**: los productos usan una ilustración de respaldo teñida con el color de la variante; el hero usa 3 ilustraciones de ejemplo (`public/seed/`). Las fotos reales se suben desde `/admin/productos`. Un producto de ejemplo (iPhone 15 Pro) trae 2 imágenes para probar la galería.
