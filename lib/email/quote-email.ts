@@ -8,7 +8,6 @@ export interface QuoteEmailData {
   customerName: string;
   customerPhone: string;
   customerEmail?: string | undefined;
-  businessName?: string | undefined;
   note?: string | undefined;
   lines: PricedLine[];
   subtotal: number;
@@ -60,7 +59,6 @@ export function renderQuoteNotificationEmail(data: QuoteEmailData): {
     detailRow("Cliente", data.customerName),
     detailRow("Teléfono", data.customerPhone),
     ...(data.customerEmail ? [detailRow("Correo", data.customerEmail)] : []),
-    ...(data.businessName ? [detailRow("Negocio", data.businessName)] : []),
   ].join("");
 
   const note = data.note

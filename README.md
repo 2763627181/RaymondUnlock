@@ -129,7 +129,7 @@ Acceso: solo cuentas con `role = 'admin'` (ver "Base de datos", paso 4). Sin ses
 | `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config)                                                            |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                        |
 | `pnpm typecheck`                    | `tsc --noEmit`                                                                  |
-| `pnpm test` / `pnpm test:watch`     | Vitest (128 pruebas: precios, catálogo, mensajes de WhatsApp, historial, panel) |
+| `pnpm test` / `pnpm test:watch`     | Vitest (129 pruebas: precios, catálogo, mensajes de WhatsApp, historial, panel) |
 | `pnpm analyze`                      | Build con `@next/bundle-analyzer`                                               |
 
 Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los archivos en stage.

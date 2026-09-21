@@ -24,7 +24,6 @@ export const quoteFormSchema = z
       .optional()
       .transform((value) => (value === "" ? undefined : value))
       .pipe(z.email("Ingresa un correo válido").optional()),
-    businessName: optionalText(120),
     note: optionalText(500),
     channel: quoteChannelSchema,
     /** Campo trampa: las personas no lo ven ni lo llenan. */

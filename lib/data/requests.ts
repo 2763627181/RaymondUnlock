@@ -21,7 +21,6 @@ export interface NewQuote {
   customerName: string;
   customerPhone: string;
   customerEmail: string | undefined;
-  businessName: string | undefined;
   note: string | undefined;
   channel: Enums<"quote_channel">;
   subtotal: number;
@@ -40,7 +39,6 @@ export async function createQuote(quote: NewQuote): Promise<string> {
       customer_name: quote.customerName,
       customer_phone: quote.customerPhone,
       customer_email: quote.customerEmail ?? null,
-      business_name: quote.businessName ?? null,
       note: quote.note ?? null,
       channel: quote.channel,
       subtotal: quote.subtotal,

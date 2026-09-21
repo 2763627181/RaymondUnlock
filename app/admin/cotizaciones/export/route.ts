@@ -14,7 +14,6 @@ const HEADERS = [
   "Cliente",
   "Teléfono",
   "Correo",
-  "Negocio",
   "Canal",
   "Nota",
   "Producto",
@@ -45,7 +44,6 @@ export async function GET(request: NextRequest) {
     "customer_name",
     "customer_phone",
     "customer_email",
-    "business_name",
   ]);
   if (clause) query = query.or(clause);
 
@@ -60,7 +58,6 @@ export async function GET(request: NextRequest) {
       quote.customer_name,
       quote.customer_phone,
       quote.customer_email,
-      quote.business_name,
       quote.channel,
       quote.note,
     ];

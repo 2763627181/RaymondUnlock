@@ -18,7 +18,7 @@ export interface ProductInquiry {
  */
 export function buildProductInquiryMessage(input: ProductInquiry): string {
   return [
-    "Hola, quiero información sobre este producto de Raymond Unlock:",
+    "Hola, estoy interesado en este producto de Raymond Unlock:",
     "",
     `*${input.productName}*`,
     ...unitFacts(input.facts).map((fact) => `• ${fact.label}: ${fact.value}`),

@@ -33,19 +33,27 @@ const base: QuoteMessageInput = {
 };
 
 describe("buildQuoteMessage", () => {
-  it("sigue el formato del brief", () => {
+  it("empieza como lo diría el cliente: su nombre y lo que le interesa", () => {
     const message = buildQuoteMessage(base);
     const lines = message.split("\n");
 
-    expect(lines[0]).toBe("*NUEVA COTIZACIÓN — RAYMOND UNLOCK*");
-    expect(lines[1]).toBe("Código: RU-2026-0001");
-    expect(message).toContain("*Cliente:* Juan Pérez");
-    expect(message).toContain("*Teléfono:* 809-000-0000");
+    expect(lines[0]).toBe(
+      "Hola, mi nombre es Juan Pérez y estoy interesado en estos productos de Raymond Unlock:",
+    );
     expect(message).toContain("1) Producto 1\n   128 GB · Titanio natural\n   Cantidad: 2 ×");
     expect(message).toContain(`= ${formatMoney(2000)}`);
     expect(message).toContain(`*Subtotal:* ${formatMoney(3000)}`);
     expect(message).toContain("_Precios sujetos a confirmación y disponibilidad._");
-    expect(lines.at(-1)).toBe("Enviado desde raymondunlock.com");
+    expect(message).toContain("Mi teléfono: 809-000-0000");
+    expect(lines.at(-1)).toBe("Cotización RU-2026-0001 · enviada desde raymondunlock.com");
+  });
+
+  it("con un solo producto dice 'este producto'", () => {
+    const [only] = base.lines;
+    const message = buildQuoteMessage({ ...base, lines: only ? [only] : [] });
+    expect(message.split("\n")[0]).toBe(
+      "Hola, mi nombre es Juan Pérez y estoy interesado en este producto de Raymond Unlock:",
+    );
   });
 
   it("de un equipo usado muestra estado, batería, liberación y código", () => {
@@ -70,18 +78,11 @@ describe("buildQuoteMessage", () => {
     expect(message).toContain("2) Producto 2\n   Cantidad: 1 ×");
   });
 
-  it("incluye negocio y nota solo si existen", () => {
-    const withExtras = buildQuoteMessage({
-      ...base,
-      businessName: "Celulares JP",
-      note: "Necesito factura",
-    });
-    expect(withExtras).toContain("*Negocio:* Celulares JP");
-    expect(withExtras).toContain("*Nota del cliente:* Necesito factura");
-
-    const plain = buildQuoteMessage(base);
-    expect(plain).not.toContain("*Negocio:*");
-    expect(plain).not.toContain("*Nota del cliente:*");
+  it("incluye la nota solo si existe", () => {
+    expect(buildQuoteMessage({ ...base, note: "Necesito factura" })).toContain(
+      "Nota: Necesito factura",
+    );
+    expect(buildQuoteMessage(base)).not.toContain("Nota:");
   });
 
   it("recorta la lista y avisa cuántos artículos faltan cuando excede el límite", () => {
@@ -89,7 +90,7 @@ describe("buildQuoteMessage", () => {
     const message = buildQuoteMessage({ ...base, lines: many, subtotal: 80000 });
 
     expect(message.length).toBeLessThanOrEqual(WHATSAPP_MAX_LENGTH);
-    expect(message).toMatch(/\.\.\. y \d+ artículos más — ver código RU-2026-0001/);
+    expect(message).toMatch(/\.\.\. y \d+ artículos más — ver cotización RU-2026-0001/);
     expect(message).toContain(`*Subtotal:* ${formatMoney(80000)}`);
     expect(message).toContain("1) Producto 1");
     expect(message).not.toContain("40) Producto 40");

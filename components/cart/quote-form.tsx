@@ -19,7 +19,6 @@ const FORM_FIELDS: readonly string[] = [
   "customerName",
   "customerPhone",
   "customerEmail",
-  "businessName",
   "note",
   "channel",
 ];
@@ -40,7 +39,6 @@ export function QuoteForm() {
       customerName: "",
       customerPhone: "",
       customerEmail: "",
-      businessName: "",
       note: "",
       channel: "whatsapp",
       additionalInfo: "",
@@ -146,18 +144,6 @@ export function QuoteForm() {
           {...register("customerEmail")}
         />
         <FieldError id="customerEmail-error" message={errors.customerEmail?.message} />
-      </div>
-
-      <div>
-        <Label htmlFor="businessName">
-          Nombre del negocio <span className="text-muted-foreground font-normal">(opcional)</span>
-        </Label>
-        <Input
-          id="businessName"
-          autoComplete="organization"
-          className="mt-1.5 h-11"
-          {...register("businessName")}
-        />
       </div>
 
       <div>

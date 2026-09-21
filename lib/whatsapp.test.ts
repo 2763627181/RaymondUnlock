@@ -19,7 +19,7 @@ describe("buildProductInquiryMessage", () => {
   it("incluye el equipo exacto: nombre, estado, batería, liberación y código", () => {
     expect(buildProductInquiryMessage(input)).toBe(
       [
-        "Hola, quiero información sobre este producto de Raymond Unlock:",
+        "Hola, estoy interesado en este producto de Raymond Unlock:",
         "",
         "*iPhone 13*",
         "• Estado: Usado",

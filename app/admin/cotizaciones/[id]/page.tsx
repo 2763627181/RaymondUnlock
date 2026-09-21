@@ -148,7 +148,6 @@ export default async function AdminQuoteDetailPage(props: PageProps<"/admin/coti
                 </a>
               </Detail>
             ) : null}
-            {q.business_name ? <Detail label="Negocio">{q.business_name}</Detail> : null}
             <Detail label="Canal elegido">{CHANNEL_LABELS[q.channel]}</Detail>
             {q.note ? <Detail label="Nota del cliente">{q.note}</Detail> : null}
           </dl>

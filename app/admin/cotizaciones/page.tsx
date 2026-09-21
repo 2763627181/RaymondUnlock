@@ -42,7 +42,6 @@ export default async function AdminQuotesPage(props: PageProps<"/admin/cotizacio
     "customer_name",
     "customer_phone",
     "customer_email",
-    "business_name",
   ]);
   if (clause) query = query.or(clause);
 
