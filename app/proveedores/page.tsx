@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description:
     "Lista de precios al por mayor de Raymond Unlock: busca por producto, categoría o condición, arma tu pedido y envíalo por WhatsApp.",
   alternates: { canonical: "/proveedores" },
+  // No se enlaza desde ningún lado del sitio ni del sitemap: solo entra quien tenga el enlace directo.
+  robots: { index: false, follow: false },
 };
 
 export default async function WholesaleListingPage() {

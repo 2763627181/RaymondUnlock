@@ -2,15 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getCategories, getServices } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
 
-const STATIC_ROUTES = [
-  "/",
-  "/tienda",
-  "/servicios",
-  "/mayorista",
-  "/proveedores",
-  "/nosotros",
-  "/contacto",
-];
+const STATIC_ROUTES = ["/", "/tienda", "/servicios", "/mayorista", "/nosotros", "/contacto"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, services, productSlugs] = await Promise.all([

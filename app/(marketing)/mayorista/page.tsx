@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Headset, ListChecks, MessageCircle, Package, Percent } from "lucide-react";
+import { Headset, MessageCircle, Package, Percent } from "lucide-react";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Container } from "@/components/layout/container";
@@ -23,7 +23,7 @@ const benefits = [
   {
     icon: Percent,
     title: "Precio por volumen",
-    text: "Mira el listado con todos los precios, arma tu pedido y envíalo por WhatsApp, o dinos qué necesitas y te cotizamos.",
+    text: "Dinos qué equipos y cuántos necesitas y te damos el precio por cantidad.",
   },
   {
     icon: Package,
@@ -65,15 +65,6 @@ export default async function WholesalePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="h-11 px-6 text-base">
-                <Link href="/proveedores">
-                  <ListChecks aria-hidden="true" /> Ver listado al por mayor
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="h-11 border-white/25 bg-transparent px-6 text-base text-white hover:bg-white/10 hover:text-white"
-              >
                 <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
                   <MessageCircle aria-hidden="true" /> Cotizar por WhatsApp
                 </a>
