@@ -161,7 +161,7 @@ Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza 
 
 ## Pendiente del cliente
 
-- **Logo** con fondo transparente o SVG (solo existe el PNG con fondo blanco). Mientras tanto: wordmark tipográfico en `components/layout/logo.tsx` y monograma "RU" provisional en `app/icon.tsx`, `app/apple-icon.tsx` y `app/manifest.ts`.
+- **Ícono de pestaña y de la app** (`app/icon.tsx`, `app/apple-icon.tsx`, `app/manifest.ts`): sigue el monograma "RU" provisional. El logo real (`public/brand/logo.png`, entregado 2026-09-23) es una pieza ancha con el aro rojo alrededor de todo el texto; no se puede recortar un ícono cuadrado de ahí sin cortar el aro de forma rara, así que hace falta una versión cuadrada aparte (o el SVG original) para reemplazar el monograma.
 - **URL de la página de Facebook** (el brief solo da el nombre; la URL no se puede derivar). Instagram y Threads sí están enlazados.
 - **Horarios de atención** (se cargan en `/admin/ajustes` → Horarios; mientras estén vacíos no se muestran), sucursales adicionales y **métodos de pago**: no están en el brief, no se inventaron.
 - **Newsletter**: el modelo de datos del brief no tiene tabla de suscriptores, así que no se construyó el formulario. Decidir si se agrega.

@@ -1,23 +1,24 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/**
- * Wordmark tipográfico temporal: el cliente solo entregó el logo en PNG con
- * fondo blanco (ver README). Se reemplaza por <Image src="/brand/logo.png">
- * en cuanto tengamos el archivo con fondo transparente o el SVG original.
- */
+// Dimensiones reales de public/brand/logo.png (ya recortado, sin margen transparente
+// sobrante): next/image las usa para reservar el espacio y no saltar el layout.
+const WIDTH = 2103;
+const HEIGHT = 697;
+
+/** El logo del negocio (imagen con fondo transparente), enlazado al inicio. */
 export function Logo({ compact = false, className }: { compact?: boolean; className?: string }) {
   return (
-    <Link
-      href="/"
-      className={cn(
-        "flex items-center gap-0.5 font-semibold tracking-tight transition-all",
-        compact ? "text-lg" : "text-xl",
-        className,
-      )}
-    >
-      <span className="text-ink">Raymond</span>
-      <span className="text-brand-red">Unlock</span>
+    <Link href="/" className={cn("flex items-center", className)}>
+      <Image
+        src="/brand/logo.png"
+        alt="Raymond Unlock, celulares y más"
+        width={WIDTH}
+        height={HEIGHT}
+        priority
+        className={cn("w-auto transition-all", compact ? "h-8" : "h-10")}
+      />
     </Link>
   );
 }
