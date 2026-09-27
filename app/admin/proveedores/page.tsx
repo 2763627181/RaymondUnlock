@@ -51,10 +51,10 @@ export default async function AdminWholesalePage(props: PageProps<"/admin/provee
     <>
       <WholesaleAdminHeader
         title="Listado mayorista"
-        description="La lista de precios al por mayor que se ve en /proveedores. Lo que cambies aquí se publica al instante."
+        description="La lista de precios al por mayor que se ve en /alpormayor. Lo que cambies aquí se publica al instante."
         actions={
           <Button asChild variant="outline" className="h-10">
-            <Link href="/proveedores" target="_blank" rel="noopener">
+            <Link href="/alpormayor" target="_blank" rel="noopener">
               Ver la página <ExternalLink aria-hidden="true" />
             </Link>
           </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { submitWholesaleOrder } from "@/app/proveedores/actions";
+import { submitWholesaleOrder } from "@/app/alpormayor/actions";
 import type { SentOrder } from "@/components/wholesale/sent-dialog";
 import { toast } from "@/lib/toast-store";
 import { useWholesaleCart } from "@/lib/wholesale/cart";

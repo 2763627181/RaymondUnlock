@@ -40,7 +40,7 @@ export function WholesaleProductsTable({
       <div className="mb-4 flex justify-end">
         <FormDialog
           title="Nuevo producto"
-          description="Aparece en /proveedores en cuanto lo guardes."
+          description="Aparece en /alpormayor en cuanto lo guardes."
           trigger={
             <Button className="h-10">
               <Plus /> Nuevo producto
