@@ -153,7 +153,7 @@ Un hook de pre-commit (husky + lint-staged) corre ESLint y Prettier sobre los ar
 
 Todo esto es ficticio o provisional y vive en `supabase/seed.sql`; se reemplaza desde `/admin`:
 
-- **Precios, stock, tiempos y precios "desde" de servicios**: inventados para poder probar el sitio.
+- **Precios y stock de productos**: inventados para poder probar el sitio. **Los precios "desde" de los 8 servicios técnicos son reales** (dados por el dueño el 2026-09-26); los tiempos de entrega y las descripciones siguen siendo de ejemplo.
 - **Precio mayorista**: derivado (10 % menos que la unidad, redondeado); vive solo en la base, ya no se edita en el panel y nadie lo ve en la tienda.
 - **Testimonios**: 3 textos de ejemplo con nombres genéricos. **No publicar tal cual**: reemplazar por opiniones reales.
 - **Textos de garantías, "por qué nosotros" y proceso de reparación**: propuestas a confirmar con el cliente.
