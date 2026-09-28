@@ -58,6 +58,42 @@ export async function saveWholesaleProduct(input: unknown): Promise<ActionResult
   });
 }
 
+export async function reorderWholesaleProducts(ids: string[]): Promise<ActionResult<void>> {
+  return withAdmin(async ({ supabase }) => {
+    const parsed = reorderSchema.safeParse({ ids });
+    if (!parsed.success) return validationFailure(parsed.error);
+
+    // Se reparten entre ellos los mismos sort_order que ya tenían (mismo "hueco"
+    // de siempre): así una categoría nunca le pisa el lugar a la de al lado.
+    const { data: rows, error: readError } = await supabase
+      .from("wholesale_products")
+      .select("id, sort_order")
+      .in("id", parsed.data.ids);
+    if (readError) return dbFailure(readError);
+    if (!rows || rows.length !== parsed.data.ids.length) {
+      return failure("Algún producto ya no existe; recarga la página.");
+    }
+
+    const slots = rows.map((row) => row.sort_order).sort((a, b) => a - b);
+    const updates = parsed.data.ids
+      .map((id, index) => ({ id, sortOrder: slots[index] }))
+      .filter(
+        (update): update is { id: string; sortOrder: number } => update.sortOrder !== undefined,
+      );
+    if (updates.length !== parsed.data.ids.length) return failure("No se pudo reordenar.");
+
+    const results = await Promise.all(
+      updates.map(({ id, sortOrder }) =>
+        supabase.from("wholesale_products").update({ sort_order: sortOrder }).eq("id", id),
+      ),
+    );
+    const failed = results.find((result) => result.error);
+    if (failed?.error) return dbFailure(failed.error);
+    publish("wholesale");
+    return success();
+  });
+}
+
 export async function deleteWholesaleProduct(id: string): Promise<ActionResult<void>> {
   return withAdmin(async ({ supabase }) => {
     const parsedId = idSchema.safeParse(id);

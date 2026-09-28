@@ -4,6 +4,7 @@ import { SectionTabs, type SectionTab } from "@/components/admin/section-tabs";
 
 const TABS: SectionTab[] = [
   { href: "/admin/proveedores", label: "Productos", exact: true },
+  { href: "/admin/proveedores/orden", label: "Orden" },
   { href: "/admin/proveedores/contactos", label: "Contactos de venta" },
   { href: "/admin/proveedores/pedidos", label: "Pedidos" },
 ];
