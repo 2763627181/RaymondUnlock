@@ -53,6 +53,9 @@ export default async function HomePage() {
     const service = services.find((item) => item.slug === slug);
     return service ? [service] : [];
   });
+  // Sin ofertas activas, "Nuestras categorías" pasa a ser la primera sección y
+  // necesita su propio espacio arriba (por eso el padding de arriba cambia con esto).
+  const hasOffers = promos.length > 0;
 
   return (
     <>
@@ -63,7 +66,22 @@ export default async function HomePage() {
       <HeroCarousel banners={banners} />
       <GuaranteeStrip items={settings.guarantees} />
 
-      <section className="py-16 sm:py-20">
+      {hasOffers ? (
+        <section className="py-16 sm:py-20">
+          <Container>
+            <Reveal>
+              <SectionHeading
+                title="Ofertas del mes"
+                description="Precios rebajados por tiempo limitado."
+                action={{ label: "Ver más", href: "/ofertas" }}
+              />
+            </Reveal>
+            <ProductGrid products={promos} />
+          </Container>
+        </section>
+      ) : null}
+
+      <section className={hasOffers ? "pb-16 sm:pb-20" : "py-16 sm:py-20"}>
         <Container>
           <Reveal>
             <SectionHeading
@@ -81,21 +99,6 @@ export default async function HomePage() {
           </Stagger>
         </Container>
       </section>
-
-      {promos.length > 0 ? (
-        <section className="pb-16 sm:pb-20">
-          <Container>
-            <Reveal>
-              <SectionHeading
-                title="Ofertas del mes"
-                description="Precios rebajados por tiempo limitado."
-                action={{ label: "Ver más", href: "/ofertas" }}
-              />
-            </Reveal>
-            <ProductGrid products={promos} />
-          </Container>
-        </section>
-      ) : null}
 
       <Reveal>
         <WhyUs items={settings.whyUs} />
