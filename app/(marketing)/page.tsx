@@ -87,9 +87,9 @@ export default async function HomePage() {
           <Container>
             <Reveal>
               <SectionHeading
-                title="Promociones"
+                title="Ofertas del mes"
                 description="Precios rebajados por tiempo limitado."
-                action={{ label: "Ver más", href: "/tienda" }}
+                action={{ label: "Ver más", href: "/ofertas" }}
               />
             </Reveal>
             <ProductGrid products={promos} />
