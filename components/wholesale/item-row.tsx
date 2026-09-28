@@ -5,6 +5,7 @@ import { Plus, Smartphone } from "lucide-react";
 import { QuantityStepper } from "@/components/product/quantity-stepper";
 import { formatPrice } from "@/lib/format";
 import { useWholesaleCart } from "@/lib/wholesale/cart";
+import { isRecentWholesaleItem } from "@/lib/wholesale/filter";
 import { MAX_WHOLESALE_QUANTITY, type WholesaleItem } from "@/lib/wholesale/types";
 
 /** Una fila del listado: foto, nombre, condición, precio y el botón "+" (o la cantidad si ya está en el pedido). */
@@ -28,8 +29,15 @@ export function ItemRow({ item }: { item: WholesaleItem }) {
 
       <div className="min-w-0 flex-1">
         <p className="text-[15px] leading-snug font-medium">{item.name}</p>
-        <p className="text-success-700 mt-0.5 text-xs font-bold tracking-wide uppercase">
-          {item.condition}
+        <p className="mt-0.5 flex items-center gap-1.5">
+          <span className="text-success-700 text-xs font-bold tracking-wide uppercase">
+            {item.condition}
+          </span>
+          {isRecentWholesaleItem(item) ? (
+            <span className="bg-brand-red-600 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
+              Nuevo
+            </span>
+          ) : null}
         </p>
       </div>
 

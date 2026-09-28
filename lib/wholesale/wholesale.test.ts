@@ -7,6 +7,7 @@ import {
   filterItems,
   groupByCategory,
   hasActiveSearch,
+  isRecentWholesaleItem,
 } from "@/lib/wholesale/filter";
 import { formatCount, formatListingDate, formatWhatsappNumber } from "@/lib/wholesale/format";
 import {
@@ -27,6 +28,8 @@ function item(n: number, overrides: Partial<WholesaleItem> = {}): WholesaleItem 
     price: 1000,
     imageUrl: null,
     sortOrder: n,
+    // Viejo a propósito: así ningún producto de las pruebas sale "Nuevo" sin pedirlo.
+    createdAt: "2020-01-01T00:00:00Z",
     ...overrides,
   };
 }
@@ -73,6 +76,31 @@ describe("filtros del listado", () => {
       ["BATERIAS", 1],
       ["PANTALLAS", 1],
     ]);
+  });
+
+  it("un producto agregado hace poco sale primero dentro de su categoría", () => {
+    const now = new Date("2026-01-15T00:00:00Z");
+    const recienAgregado = item(6, {
+      name: "M-Horse Recién Llegado",
+      createdAt: "2026-01-10T00:00:00Z", // 5 días antes de "ahora"
+    });
+    const conTodo = [...items, recienAgregado];
+
+    const [mHorse] = groupByCategory(conTodo, now);
+    expect(mHorse?.items.map((i) => i.name)).toEqual([
+      "M-Horse Recién Llegado", // el más nuevo va primero...
+      "M-Horse S26 Ultra Max 4G 4Gb/64Gb", // ...el resto conserva su orden de siempre
+      "M-Horse Note 14 Pro Plus",
+    ]);
+  });
+
+  it("isRecentWholesaleItem: 14 días exactos todavía cuentan, 15 ya no", () => {
+    const now = new Date("2026-01-15T00:00:00Z");
+    expect(isRecentWholesaleItem(item(1, { createdAt: "2026-01-01T00:00:00Z" }), now)).toBe(true);
+    expect(isRecentWholesaleItem(item(1, { createdAt: "2025-12-31T00:00:00Z" }), now)).toBe(false);
+    expect(isRecentWholesaleItem(item(1, { createdAt: "2026-01-15T00:00:00Z" }), now)).toBe(true);
+    // Una fecha futura (reloj mal puesto) no cuenta como "reciente".
+    expect(isRecentWholesaleItem(item(1, { createdAt: "2026-02-01T00:00:00Z" }), now)).toBe(false);
   });
 
   it("las opciones de los filtros salen de la lista, sin repetir", () => {

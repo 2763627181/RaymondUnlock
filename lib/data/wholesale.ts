@@ -42,6 +42,7 @@ function toItem(row: Tables<"wholesale_products">): WholesaleItem {
     price: row.price,
     imageUrl: row.image_url,
     sortOrder: row.sort_order,
+    createdAt: row.created_at,
   };
 }
 

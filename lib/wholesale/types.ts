@@ -8,6 +8,8 @@ export interface WholesaleItem {
   price: number;
   imageUrl: string | null;
   sortOrder: number;
+  /** Cuándo se creó: decide si sale con la etiqueta "Nuevo" arriba de su categoría. */
+  createdAt: string;
 }
 
 /** A quién se le manda el pedido por WhatsApp ("Ventas 1 — Ashley"). */
