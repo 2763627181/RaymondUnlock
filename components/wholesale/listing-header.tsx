@@ -11,7 +11,7 @@ export function ListingHeader({
   const date = updatedAt ? formatListingDate(updatedAt) : null;
 
   return (
-    <header className="bg-ink text-white">
+    <header className="bg-onyx text-white">
       <div className="flex items-center gap-3 px-4 py-4">
         <span
           aria-hidden="true"

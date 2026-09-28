@@ -39,7 +39,7 @@ export function ProcessTimeline({ steps }: { steps: { title: string; text: strin
           variants={item}
           className="relative flex gap-4 lg:flex-col lg:items-center lg:text-center"
         >
-          <span className="bg-ink text-surface relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+          <span className="bg-onyx relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white">
             {index + 1}
           </span>
           <div>

@@ -24,7 +24,7 @@ export function OrderBar({ visible, onOpen }: { visible: boolean; onOpen: () => 
             <button
               type="button"
               onClick={onOpen}
-              className="bg-ink pointer-events-auto flex h-14 w-full items-center gap-3 rounded-2xl px-4 text-white shadow-xl outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="bg-onyx pointer-events-auto flex h-14 w-full items-center gap-3 rounded-2xl px-4 text-white shadow-xl outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <span className="relative">
                 <ShoppingCart className="size-5" aria-hidden="true" />

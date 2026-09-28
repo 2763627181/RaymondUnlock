@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   --color-brand-red: #e11b22;
   --color-brand-red-600: #c2161c;
@@ -13,6 +15,9 @@
   --color-success: #16a34a;
   /* Verde para texto: --color-success sobre blanco da 3.3:1, este da 5:1 (AA). */
   --color-success-700: #15803d;
+  /* Fondo siempre oscuro (anuncios, hero, pie de página, franjas de marca): no
+     cambia con el modo claro/oscuro, a propósito. No lo uses para nada más. */
+  --color-onyx: #0b0b0c;
 }
 
 @layer base {
@@ -69,7 +74,8 @@
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+    /* En oscuro un brillo blanco al 70% se ve como un flash; --skeleton-shimmer baja eso. */
+    background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
     animation: shimmer 1.4s infinite;
   }
 
@@ -119,11 +125,14 @@
 }
 
 :root {
-  --background: #ffffff;
+  /* --background/--card/--popover/--sidebar apuntan a --color-surface (no a un
+     hex fijo) para que el modo oscuro, que solo redefine --color-surface, los
+     cambie a todos sin tocar esta lista de nuevo. */
+  --background: var(--color-surface);
   --foreground: var(--color-ink);
-  --card: #ffffff;
+  --card: var(--color-surface);
   --card-foreground: var(--color-ink);
-  --popover: #ffffff;
+  --popover: var(--color-surface);
   --popover-foreground: var(--color-ink);
   --primary: var(--color-brand-red);
   --primary-foreground: #ffffff;
@@ -139,7 +148,7 @@
   --input: #e6e8ec;
   --ring: var(--color-brand-red);
   --radius: 0.875rem;
-  --sidebar: #ffffff;
+  --sidebar: var(--color-surface);
   --sidebar-foreground: var(--color-ink);
   --sidebar-primary: var(--color-brand-red);
   --sidebar-primary-foreground: #ffffff;
@@ -147,4 +156,28 @@
   --sidebar-accent-foreground: var(--color-ink);
   --sidebar-border: #e6e8ec;
   --sidebar-ring: var(--color-brand-red);
+  /* Brillo del "skeleton" de carga; en oscuro se atenúa para no verse como un flash. */
+  --skeleton-shimmer: rgb(255 255 255 / 0.7);
+}
+
+/* Modo oscuro: se activa poniendo data-theme="dark" en <html> (ThemeToggle +
+   el script del layout raíz, que lo hace antes de pintar para no parpadear).
+   Solo se redefinen los tokens que de verdad cambian; --background/--card/etc.
+   ya apuntan a estos vía var() en :root, así que no hace falta repetirlos. */
+:root[data-theme="dark"] {
+  --color-ink: #f2f3f5;
+  --color-ink-700: #c3c6cc;
+  --color-surface: #18181b;
+  --color-surface-2: #0a0a0b;
+  /* #15803d (pensado para fondo blanco) da bajo contraste sobre un fondo casi
+     negro; este verde más claro cumple AA en textos y sigue sirviendo de fondo
+     al botón "Enviar por WhatsApp". */
+  --color-success-700: #22c55e;
+  /* #123c8c (azul marino) es casi invisible sobre fondo oscuro: se aclara solo aquí. */
+  --color-brand-blue: #6f9dfa;
+  --muted-foreground: #9aa0ac;
+  --border: #2a2b30;
+  --input: #2a2b30;
+  --sidebar-border: #2a2b30;
+  --skeleton-shimmer: rgb(255 255 255 / 0.08);
 }

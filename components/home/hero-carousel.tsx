@@ -54,7 +54,7 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
       ref={sectionRef}
       aria-roledescription="carrusel"
       aria-label="Ofertas destacadas"
-      className="bg-ink text-surface relative overflow-hidden"
+      className="bg-onyx relative overflow-hidden text-white"
       onMouseEnter={() => setInteracting(true)}
       onMouseLeave={() => setInteracting(false)}
       onFocus={() => setInteracting(true)}

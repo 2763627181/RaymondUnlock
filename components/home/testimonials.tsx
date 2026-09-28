@@ -20,7 +20,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
   }
 
   return (
-    <section className="bg-ink text-surface py-16 sm:py-20" aria-label="Opiniones de clientes">
+    <section className="bg-onyx py-16 text-white sm:py-20" aria-label="Opiniones de clientes">
       <Container>
         <div className="mb-8 flex items-end justify-between gap-4">
           <h2 className="max-w-xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">

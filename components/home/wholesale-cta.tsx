@@ -6,7 +6,7 @@ export function WholesaleCta() {
   return (
     <section className="pb-16 sm:pb-20">
       <Container>
-        <div className="bg-ink text-surface flex flex-col items-start justify-between gap-6 rounded-xl p-8 sm:p-12 lg:flex-row lg:items-center">
+        <div className="bg-onyx flex flex-col items-start justify-between gap-6 rounded-xl p-8 text-white sm:p-12 lg:flex-row lg:items-center">
           <div className="max-w-xl">
             <p className="text-sm font-medium text-white/60">Al por mayor</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">

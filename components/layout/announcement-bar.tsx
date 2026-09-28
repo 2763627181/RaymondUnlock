@@ -9,7 +9,7 @@ export function AnnouncementBar({
   whatsappNumber: string;
 }) {
   return (
-    <div className="bg-ink text-surface hidden text-xs sm:block">
+    <div className="bg-onyx hidden text-xs text-white sm:block">
       <Container className="flex h-9 items-center justify-between">
         <p>Envíos a todo el país · Soporte por WhatsApp</p>
         <a

@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { ToasterLoader } from "@/components/ui/toaster-loader";
+import { themeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -26,11 +27,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-DO" data-scroll-behavior="smooth" className={cn(geist.variable)}>
+    <html
+      lang="es-DO"
+      data-scroll-behavior="smooth"
+      className={cn(geist.variable)}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Antes de pintar: pone data-theme según lo guardado (o el sistema) para
+            que la página no arranque en claro y salte a oscuro un instante después. */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript() }} />
+      </head>
       <body className="font-sans antialiased">
         <a
           href="#contenido"
-          className="bg-ink text-surface focus:ring-ring sr-only z-100 rounded-md px-4 py-2 text-sm focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:ring-2"
+          className="bg-onyx focus:ring-ring sr-only z-100 rounded-md px-4 py-2 text-sm text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:ring-2"
         >
           Saltar al contenido
         </a>

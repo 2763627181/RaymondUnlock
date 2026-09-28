@@ -46,7 +46,7 @@ export default async function WholesalePage() {
 
   return (
     <>
-      <section className="bg-ink text-surface">
+      <section className="bg-onyx text-white">
         <Container className="py-12 sm:py-16">
           <Breadcrumbs
             tone="dark"

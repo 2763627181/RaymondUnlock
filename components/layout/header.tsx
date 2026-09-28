@@ -9,6 +9,7 @@ import { Logo } from "@/components/layout/logo";
 import { MegaMenu } from "@/components/layout/mega-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { CartButton } from "@/components/layout/cart-button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import type { NavCategory, NavLink } from "@/types/site";
 
 export function Header({
@@ -70,6 +71,7 @@ export function Header({
           </div>
 
           <div className="flex items-center gap-1">
+            <ThemeToggle />
             <SearchDialog />
             <CartButton />
           </div>

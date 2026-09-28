@@ -24,7 +24,7 @@ export function Footer({
   categories: Category[];
 }) {
   return (
-    <footer className="bg-ink text-surface">
+    <footer className="bg-onyx text-white">
       <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <h2 className="mb-4 text-sm font-semibold tracking-wide uppercase">Categorías</h2>
